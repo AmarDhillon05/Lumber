@@ -7,16 +7,14 @@ import { createDownloadResumable } from 'expo-file-system/legacy';
 import { InferenceSession, Tensor } from 'onnxruntime-react-native';
 import { decodeAudioData } from 'react-native-audio-api';
 import { SAMPLE_RATE, separate } from './demucs';
+import { MODEL_BYTES, MODEL_URL } from './model';
 import { ortRunner } from './ort';
 import type { SeparationProgress, SeparationResult } from './types';
 import { WavStream } from './wavStream';
 
 export type { SeparationProgress, SeparationResult } from './types';
+export { MODEL_URL } from './model';
 
-// Demucs v4 htdemucs exported without STFT/iSTFT (weights CC-BY-NC 4.0, Meta).
-export const MODEL_URL =
-  'https://huggingface.co/sathvik77/htdemucs-core-onnx/resolve/main/htdemucs_core.onnx';
-const MODEL_BYTES = 170_992_246;
 
 const modelFile = () => new File(new Directory(Paths.document, 'models'), 'htdemucs_core.onnx');
 const stemsDir = (key: string) => new Directory(Paths.document, 'stems', key);
