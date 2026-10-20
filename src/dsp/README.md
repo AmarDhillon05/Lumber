@@ -1,4 +1,60 @@
-# Timber DSP — Blanket Methods
+# Lumber DSP
+
+Timber's DSP (Blanket knobs, offline render) on react-native-audio-api 0.13,
+plus Lumber's presets, take mixer, resampler and WAV I/O.
+
+## Module map
+
+| File | Engine? | What |
+|---|---|---|
+| `chain.ts` | pure | `EffectChain`: filter/EQ/gain primitives that append specs; owns `.blanket` |
+| `Blanket.ts`, `blanketTerms.ts` | pure | perceptual knobs, term metadata, `BlanketValues`, `zeroValues()` |
+| `blanketChain.ts` | pure | `BLANKET_RENDER_ORDER`, `applyBlanket`, `buildBlanketChain`, `INTENSITY` |
+| `presets.ts` | pure | `PRESETS`, `getPreset`, `presetValues`, `fillValues` |
+| `effects.ts`, `fft.ts`, `biquad.ts` | pure | custom DSP (compressor, gate, saturation, spectral gate…) |
+| `mix.ts` | pure | `mixTake`, `limitPeaks`, `normalizePeak`, `resample` |
+| `wav.ts` | pure | `encodeWav`, `decodeWav` |
+| `AudioFile.ts`, `render.ts`, `renderBlanket.ts`, `reverbIR.ts` | audio-api | decode + `OfflineAudioContext` render |
+
+Pure modules are tested under Node (`npm test`); import them directly (not via
+`index.ts`, which pulls in react-native-audio-api).
+
+## Presets
+
+A preset is a sparse knob map in slider units (−1..1, scaled by `INTENSITY` = 3
+at render). Load with `presetValues(preset)` (full `BlanketValues`), then tweak.
+
+```ts
+const values = presetValues(getPreset('warm')!);
+const drums = await renderBlanket(takePcm, 48000, values);
+```
+
+Knobs render in `BLANKET_RENDER_ORDER`, not UI order: clean-up (rumble,
+denoise, roominess, resonance) → corrective/tonal EQ → dynamics (gate first,
+upward compression last) → harmonic → width/depth → volume → naturalness.
+`denoise`/`roominess` hit their clamp at slider ≈ .34.
+
+## Export mix
+
+```ts
+const mix = mixTake({
+  song, drums, sampleRate: 48000,
+  drumOffsetSec,            // song time of drum sample 0; negative trims drums
+  songGain: 1, drumGain: 1, // linear
+  originalDrums: { drums: stemDrums, noDrums: stemNoDrums, amount: 0.2 }, // optional
+  // limit: true, ceilingDb: -1, normalize: false   (defaults)
+});
+const wav = encodeWav(mix, 48000, 24); // 16 | 24 | 32 (float)
+```
+
+The limiter is an offline, stereo-linked lookahead brick-wall (5 ms ramp, 80 ms
+release) that guarantees the ceiling. `resample(channels, from, to)` is a
+Kaiser-windowed sinc (exact polyphase for 44.1k↔48k); bring every input to one
+rate before `mixTake`.
+
+---
+
+# Blanket Methods
 
 TypeScript port of `functions/blanket.py` + `functions/audiofile.py`, running on
 [`react-native-audio-api`](https://docs.swmansion.com/react-native-audio-api/).
