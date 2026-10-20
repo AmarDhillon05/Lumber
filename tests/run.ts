@@ -4,8 +4,10 @@
 import { counts } from './harness';
 import * as dsp from './dsp.test';
 import * as presets from './presets.test';
+import * as mix from './mix.test';
+import * as wav from './wav.test';
 
-const suites: { run(): void }[] = [dsp, presets];
+const suites: { run(): void }[] = [dsp, presets, mix, wav];
 
 for (const s of suites) s.run();
 
