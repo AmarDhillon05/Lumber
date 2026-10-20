@@ -22,6 +22,7 @@
     "@types/node": "^22.20.5",
     "@types/react": "~19.3.0",
     "onnxruntime-node": "^1.24.3",
+    "patch-package": "^8.0.1",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "youtubei.js": "^18.2.0"
@@ -32,7 +33,8 @@
     "prebuild": "expo prebuild -p ios --clean",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "test": "tsx tests/run.ts && tsx tests/separation.test.ts && tsx tests/sources.test.ts",
-    "separate": "tsx scripts/separate.ts"
+    "separate": "tsx scripts/separate.ts",
+    "postinstall": "patch-package"
   },
   "private": true
 }
