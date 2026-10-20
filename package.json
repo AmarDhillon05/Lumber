@@ -15,7 +15,6 @@
     "react": "19.3.0",
     "react-native": "0.88.0",
     "react-native-audio-api": "^0.13.6",
-    "youtubei.js": "^18.2.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -23,14 +22,15 @@
     "@types/react": "~19.3.0",
     "onnxruntime-node": "^1.24.3",
     "tsx": "^4.23.15",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "youtubei.js": "^18.2.0"
   },
   "scripts": {
     "start": "expo start --dev-client",
     "ios": "expo run:ios",
     "prebuild": "expo prebuild -p ios --clean",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
-    "test": "tsx tests/run.ts && tsx tests/separation.test.ts",
+    "test": "tsx tests/run.ts && tsx tests/separation.test.ts && tsx tests/sources.test.ts",
     "separate": "tsx scripts/separate.ts"
   },
   "private": true
