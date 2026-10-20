@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BLANKET_TERMS, BLANKET_TERM_KEYS, CATEGORY_ORDER, type BlanketTerm } from '../dsp/blanketTerms';
-import { PRESETS, presetValues } from '../dsp/presets';
+import { PRESETS, fillValues, presetValues } from '../dsp/presets';
 import { renderBlanket } from '../dsp/renderBlanket';
 import type { Channels } from '../dsp/types';
 import { Preview } from '../audio/preview';
@@ -280,7 +280,7 @@ export function EditScreen({ projectId }: { projectId: string }) {
                 </Pressable>
               ))}
               <Pressable
-                onPress={() => setMix({ values: presetValues({ id: '', label: '', description: '', values: {} }), presetId: undefined })}
+                onPress={() => setMix({ values: fillValues({}), presetId: undefined })}
                 style={es.chip}
               >
                 <Text style={es.chipText}>Reset</Text>
