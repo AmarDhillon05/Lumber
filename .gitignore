@@ -1,0 +1,11 @@
+node_modules/
+.expo/
+dist/
+ios/
+android/
+*.ipa
+*.onnx
+*.mlpackage
+models/
+.env*
+.DS_Store

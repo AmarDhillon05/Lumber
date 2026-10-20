@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Lumber",
+    "slug": "lumber",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.amardhillon.lumber",
+      "infoPlist": {
+        "UIFileSharingEnabled": true,
+        "LSSupportsOpeningDocumentsInPlace": true
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "react-native-audio-api",
+        {
+          "iosBackgroundMode": true,
+          "iosMicrophonePermission": "Lumber records your drums while the song plays."
+        }
+      ],
+      "onnxruntime-react-native",
+      "expo-sharing",
+      "expo-document-picker"
+    ],
+    "scheme": "lumber",
+    "platforms": [
+      "ios"
+    ]
+  }
+}
