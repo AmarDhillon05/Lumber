@@ -1,0 +1,117 @@
+# Builds an unsigned Lumber.ipa on a GitHub macOS runner, for sideloading
+# from Windows (see docs/build-without-mac.md).
+#
+# Cost note: on private repos, macOS runner minutes are billed at 10x the
+# Linux rate (a ~25 min build uses ~250 of the included minutes). Public repos
+# are free. The cheap checks run on Linux first so a type error never spends
+# macOS minutes.
+
+name: iOS build
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'debug = dev-client build that loads JS from `npx expo start --dev-client`; release = standalone app with the JS bundled in'
+        type: choice
+        options: [debug, release]
+        default: debug
+  push:
+    branches: [main]
+
+concurrency:
+  group: ios-${{ github.ref }}-${{ inputs.variant || 'release' }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  ios:
+    needs: checks
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      # Push builds are release builds; manual runs pick a variant.
+      CONFIGURATION: ${{ (inputs.variant || 'release') == 'debug' && 'Debug' || 'Release' }}
+      CI: 1
+      EXPO_NO_TELEMETRY: 1
+    steps:
+      - uses: actions/checkout@v7
+
+      # Expo SDK 58 needs Xcode 26.4+.
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.6.app
+          xcodebuild -version
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Expo prebuild (iOS)
+        run: npx expo prebuild -p ios --clean --no-install
+
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            ios/Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('package-lock.json', 'app.json') }}
+
+      - name: pod install
+        working-directory: ios
+        run: pod install
+
+      - name: xcodebuild (iphoneos, unsigned)
+        run: |
+          set -o pipefail
+          WORKSPACE=$(ls -d ios/*.xcworkspace | head -n1)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          echo "Building $SCHEME ($CONFIGURATION)"
+          xcodebuild \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build | tee xcodebuild.log | grep -E '^(\*\*|error:|.*error:|warning: .*deprecated)' || true
+          test -d "build/Build/Products/${CONFIGURATION}-iphoneos/${SCHEME}.app"
+
+      - name: Package Lumber-unsigned.ipa
+        run: |
+          APP=$(ls -d build/Build/Products/${CONFIGURATION}-iphoneos/*.app | head -n1)
+          rm -rf Payload && mkdir Payload
+          cp -R "$APP" Payload/Lumber.app
+          zip -qry Lumber-unsigned.ipa Payload
+          ls -lh Lumber-unsigned.ipa
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Lumber-unsigned-${{ env.CONFIGURATION }}-${{ github.run_number }}
+          path: Lumber-unsigned.ipa
+          retention-days: 14
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xcodebuild-log-${{ github.run_number }}
+          path: xcodebuild.log
+          if-no-files-found: ignore
