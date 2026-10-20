@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { importLocalFile, youtubeSource } from '../app-shims';
+import { importLocalFile, youtubeSource } from '../sources';
 import { cachedSeparation, separateDrums } from '../separation';
 import type { SearchResult } from '../sources/types';
 import { useShallow } from 'zustand/react/shallow';

@@ -47,6 +47,8 @@ export function RecordScreen({ songId }: { songId: string }) {
         const buf = await engine.loadSong(song.uri);
         if (!alive) return;
         setDuration(buf.duration);
+        // Local imports arrive without a duration; fill it from the decode.
+        if (!song.durationSec) useStore.getState().updateSong(song.id, { durationSec: buf.duration });
         setLoop({ start: 0, end: Math.min(buf.duration, 30) });
         setMode('idle');
         refreshRoute();

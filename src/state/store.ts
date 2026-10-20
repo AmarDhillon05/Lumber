@@ -36,6 +36,7 @@ interface State extends Db {
   addSong(song: Omit<LibrarySong, 'addedAt'>): void;
   removeSong(id: string): void;
   setStems(songId: string, stems: SeparationResult): void;
+  updateSong(songId: string, patch: Partial<LibrarySong>): void;
 
   addTake(take: Take): Project; // creates a project for it
   removeProject(id: string): void;
@@ -114,6 +115,11 @@ export const useStore = create<State>()((set, get) => ({
 
   setStems(songId, stems) {
     set((s) => ({ songs: s.songs.map((x) => (x.id === songId ? { ...x, stems } : x)) }));
+    scheduleSave();
+  },
+
+  updateSong(songId, patch) {
+    set((s) => ({ songs: s.songs.map((x) => (x.id === songId ? { ...x, ...patch } : x)) }));
     scheduleSave();
   },
 
