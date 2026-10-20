@@ -1,4 +1,16 @@
-export { AudioFile } from './AudioFile';
+export { AudioFile, TARGET_SAMPLE_RATE } from './AudioFile';
+export { EffectChain } from './chain';
 export { Blanket } from './Blanket';
 export { renderChain } from './render';
+export type { RenderResult } from './render';
+export { renderBlanket } from './renderBlanket';
+export { applyBlanket, buildBlanketChain, BLANKET_RENDER_ORDER, INTENSITY } from './blanketChain';
+export { BLANKET_TERMS, BLANKET_TERM_KEYS, CATEGORY_ORDER, zeroValues } from './blanketTerms';
+export type { BlanketTerm, BlanketValues, BlanketCategory, BlanketTermInfo } from './blanketTerms';
+export { PRESETS, getPreset, presetValues, fillValues } from './presets';
+export type { Preset } from './presets';
+export { mixTake, limitPeaks, normalizePeak, resample } from './mix';
+export type { MixTakeOptions, OriginalDrums, LimiterOptions } from './mix';
+export { encodeWav, decodeWav } from './wav';
+export type { WavBitDepth, DecodedWav } from './wav';
 export type { EffectSpec, Channels } from './types';

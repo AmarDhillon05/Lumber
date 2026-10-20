@@ -4,6 +4,7 @@
 // the buffer in between.
 
 import { OfflineAudioContext } from 'react-native-audio-api';
+import type { AudioNode, BaseAudioContext } from 'react-native-audio-api';
 import { Channels, EffectSpec, BiquadSpec, isNativeSpec } from './types';
 import { makeImpulseResponse } from './reverbIR';
 import * as fx from './effects';
@@ -65,6 +66,11 @@ function applyCustom(channels: Channels, sr: number, spec: EffectSpec): Channels
   }
 }
 
+// AudioBuffer.copyToChannel takes Float32Array<ArrayBuffer> (0.13 typings).
+// Our channels are always ArrayBuffer-backed; copy only if one isn't.
+const asArrayBufferBacked = (x: Float32Array): Float32Array<ArrayBuffer> =>
+  x.buffer instanceof ArrayBuffer ? (x as Float32Array<ArrayBuffer>) : Float32Array.from(x);
+
 async function renderNative(channels: Channels, sr: number, specs: EffectSpec[]): Promise<Channels> {
   const length = channels[0].length;
   const ctx = new OfflineAudioContext({
@@ -74,12 +80,12 @@ async function renderNative(channels: Channels, sr: number, specs: EffectSpec[])
   });
 
   const buffer = ctx.createBuffer(channels.length, length, sr);
-  for (let c = 0; c < channels.length; c++) buffer.copyToChannel(channels[c], c);
+  for (let c = 0; c < channels.length; c++) buffer.copyToChannel(asArrayBufferBacked(channels[c]), c);
 
   const source = ctx.createBufferSource();
   source.buffer = buffer;
 
-  let node: any = source;
+  let node: AudioNode = source;
   for (const spec of specs) {
     node = connectSpec(ctx, node, sr, spec);
   }
@@ -94,7 +100,7 @@ async function renderNative(channels: Channels, sr: number, specs: EffectSpec[])
   return out;
 }
 
-function connectSpec(ctx: any, node: any, sr: number, spec: EffectSpec): any {
+function connectSpec(ctx: BaseAudioContext, node: AudioNode, sr: number, spec: EffectSpec): AudioNode {
   if (spec.kind === 'gain') {
     const g = ctx.createGain();
     g.gain.value = Math.pow(10, spec.db / 20);
@@ -117,11 +123,12 @@ function connectSpec(ctx: any, node: any, sr: number, spec: EffectSpec): any {
     return merge;
   }
   // biquad family
+  const b = spec as BiquadSpec;
   const bq = ctx.createBiquadFilter();
-  bq.type = spec.kind;
-  bq.frequency.value = (spec as BiquadSpec).frequency;
-  if ((spec as BiquadSpec).q != null) bq.Q.value = (spec as BiquadSpec).q;
-  if ((spec as BiquadSpec).gainDb != null) bq.gain.value = (spec as BiquadSpec).gainDb;
+  bq.type = b.kind;
+  bq.frequency.value = b.frequency;
+  if (b.q != null) bq.Q.value = b.q;
+  if (b.gainDb != null) bq.gain.value = b.gainDb;
   node.connect(bq);
   return bq;
 }
