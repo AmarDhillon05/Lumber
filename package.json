@@ -30,7 +30,7 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild -p ios --clean",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
-    "test": "tsx tests/run.ts",
+    "test": "tsx tests/run.ts && tsx tests/separation.test.ts",
     "separate": "tsx scripts/separate.ts"
   },
   "private": true
