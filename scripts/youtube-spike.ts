@@ -70,7 +70,7 @@ async function main() {
   }
   console.log();
   const head = parts[0];
-  console.log(`ftyp check: isMp4=${isMp4(head)} brand=${mp4Brand(head)} first16=${Buffer.from(head.slice(0, 16)).toString('hex')}`);
+  console.log(`ftyp check: isMp4=${isMp4(head)} brand=${mp4Brand(head)} first16=${Array.from(head.slice(0, 16), (b) => b.toString(16).padStart(2, "0")).join("")}`);
   console.log(`done in ${Date.now() - t0} ms`);
 }
 

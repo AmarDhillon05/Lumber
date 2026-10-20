@@ -389,3 +389,56 @@ export function bestThumbnail(thumbs: { url: string; width?: number; height?: nu
   const best = [...thumbs].sort((a, b) => (b.width ?? 0) * (b.height ?? 0) - (a.width ?? 0) * (a.height ?? 0))[0];
   return best.url.startsWith('//') ? `https:${best.url}` : best.url.split('?')[0];
 }
+
+// ---------------------------------------------------------------------------
+// Download loop (IO injected, so it runs under Node tests and in the app)
+
+export interface ChunkIO {
+  // Fetches one byte range; must reject on non-2xx. `onBytes` reports bytes
+  // received so far for this chunk (optional, for smooth progress).
+  fetchRange(url: string, headers: Record<string, string>, onBytes: (n: number) => void): Promise<Uint8Array>;
+  append(bytes: Uint8Array): Promise<void>;
+}
+
+export interface DownloadOptions {
+  chunkBytes?: number;
+  retries?: number; // per chunk
+  onProgress?: (fraction: number) => void;
+  sleep?: (ms: number) => Promise<void>;
+}
+
+export async function downloadAudio(
+  audio: Pick<ResolvedAudio, 'url' | 'contentLength' | 'userAgent'>,
+  io: ChunkIO,
+  opts: DownloadOptions = {},
+): Promise<number> {
+  const plan = planChunks(audio.contentLength, opts.chunkBytes);
+  const retries = opts.retries ?? 3;
+  const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  const headers = mediaHeaders(audio);
+  let done = 0;
+  opts.onProgress?.(0);
+  for (const c of plan) {
+    const want = c.end - c.start + 1;
+    let bytes: Uint8Array | undefined;
+    let lastErr: unknown;
+    for (let attempt = 0; attempt <= retries && !bytes; attempt++) {
+      if (attempt > 0) await sleep(1000 * 2 ** (attempt - 1));
+      try {
+        const b = await io.fetchRange(chunkUrl(audio.url, c), headers, (n) =>
+          opts.onProgress?.(Math.min(1, (done + n) / audio.contentLength)),
+        );
+        if (b.length !== want) throw new Error(`range ${c.start}-${c.end}: got ${b.length} B, want ${want}`);
+        if (c.start === 0 && !isMp4(b)) throw new Error('downloaded data is not an MP4/M4A (no ftyp box)');
+        bytes = b;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    if (!bytes) throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+    await io.append(bytes);
+    done += bytes.length;
+    opts.onProgress?.(done / audio.contentLength);
+  }
+  return done;
+}
