@@ -31,7 +31,8 @@ export interface InnertubeClient {
 // Versions mirror youtubei.js 18.2 (Constants.CLIENTS). When YouTube starts
 // rejecting a client, bump its version from the latest youtubei.js / yt-dlp.
 export const CLIENTS: Record<string, InnertubeClient> = {
-  // Best option as of Oct 2026: direct URLs, no n-param, no PO token.
+  // Direct URLs, no n-param, no JS player. yt-dlp 2026.08 marks its HTTPS
+  // streams as needing a GVS PO token, so it is the second choice.
   // Can't play "made for kids" videos.
   ANDROID_VR: {
     key: 'ANDROID_VR',
@@ -50,6 +51,8 @@ export const CLIENTS: Record<string, InnertubeClient> = {
       clientFormFactor: 'SMALL_FORM_FACTOR',
     },
   },
+  // First choice (yt-dlp 2026.08's default JS-less client): direct URLs, no
+  // n-param, no JS player, no PO token policy. Can't play "made for kids".
   VISIONOS: {
     key: 'VISIONOS',
     nameId: 101,
@@ -83,7 +86,7 @@ export const CLIENTS: Record<string, InnertubeClient> = {
   },
 };
 
-export const DEFAULT_CLIENT_ORDER = ['ANDROID_VR', 'VISIONOS', 'IOS'];
+export const DEFAULT_CLIENT_ORDER = ['VISIONOS', 'ANDROID_VR', 'IOS'];
 
 const WEB = {
   nameId: 1,
