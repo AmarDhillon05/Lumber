@@ -28,7 +28,8 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild -p ios --clean",
     "typecheck": "tsc --noEmit",
-    "test": "tsx tests/run.ts"
+    "test": "tsx tests/run.ts",
+    "test:app": "tsx --test tests/app/*.test.ts"
   },
   "private": true
 }
