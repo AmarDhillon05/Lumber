@@ -1,6 +1,33 @@
 // Node tests for the pure source logic. Run: npx tsx tests/sources.test.ts
 // Set YT_LIVE=1 to also hit YouTube (search + resolve, no media download).
-import assert from 'node:assert/strict';
+// Minimal assert (the app tsconfig has no @types/node).
+const fail = (msg: string): never => {
+  throw new Error(msg);
+};
+const show = (v: unknown) => JSON.stringify(v);
+const assert = {
+  ok(v: unknown, msg = 'expected truthy') {
+    if (!v) fail(msg);
+  },
+  equal(a: unknown, b: unknown) {
+    if (a !== b) fail(`${show(a)} !== ${show(b)}`);
+  },
+  deepEqual(a: unknown, b: unknown) {
+    if (show(a) !== show(b)) fail(`${show(a)} != ${show(b)}`);
+  },
+  match(s: string, re: RegExp) {
+    if (!re.test(s)) fail(`${show(s)} !~ ${re}`);
+  },
+  async rejects(p: Promise<unknown>, re: RegExp) {
+    try {
+      await p;
+    } catch (e) {
+      if (!re.test(String((e as Error).message))) fail(`wrong error: ${(e as Error).message}`);
+      return;
+    }
+    fail('expected rejection');
+  },
+};
 import {
   CLIENTS,
   bestThumbnail,
