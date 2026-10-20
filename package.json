@@ -19,6 +19,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@types/node": "^22.20.5",
     "@types/react": "~19.3.0",
     "onnxruntime-node": "^1.24.3",
     "tsx": "^4.23.15",
