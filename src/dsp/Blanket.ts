@@ -1,13 +1,13 @@
 // Port of functions/blanket.py. High-level perceptual controls; each takes
-// amount: 0..1 and maps it onto the AudioFile primitives / custom specs with
+// amount: 0..1 and maps it onto the EffectChain primitives / custom specs with
 // the exact same ranges as the Python.
 
-import type { AudioFile } from './AudioFile';
+import type { EffectChain } from './chain';
 
 const clamp01 = (x: number): number => Math.max(0, Math.min(1, x));
 
 export class Blanket {
-  constructor(private a: AudioFile) {}
+  constructor(private a: EffectChain) {}
 
   // --- Level ---
 
@@ -15,57 +15,57 @@ export class Blanket {
   // the editor's ±INTENSITY slider swing this spans about ±12 dB — except the
   // very bottom of the range, which drops to silence (fader convention; also
   // what the track mute button sets).
-  volume(amount = 1.0): AudioFile {
+  volume(amount = 1.0): EffectChain {
     const db = amount * 4.0;
     return this.a.gain(db <= -11.5 ? -120 : db);
   }
 
   // --- EQ / Frequency ---
 
-  high_pass_rumble(amount = 1.0): AudioFile {
+  high_pass_rumble(amount = 1.0): EffectChain {
     const cutoffHz = 40 + amount * 40; // 40 → 80 Hz
     return this.a.high_pass(cutoffHz);
   }
 
-  denoise(amount = 1.0): AudioFile {
+  denoise(amount = 1.0): EffectChain {
     return this.a.add({ kind: 'spectralGate', propDecrease: clamp01(amount), stationary: true });
   }
 
-  kick_presence(amount = 1.0): AudioFile {
+  kick_presence(amount = 1.0): EffectChain {
     return this.a.peak_eq(90, amount * 3.0, 1.2);
   }
 
-  snare_body(amount = 1.0): AudioFile {
+  snare_body(amount = 1.0): EffectChain {
     return this.a.peak_eq(200, amount * 2.5, 1.5);
   }
 
-  boxiness(amount = 1.0): AudioFile {
+  boxiness(amount = 1.0): EffectChain {
     return this.a.peak_eq(350, -amount * 3.0, 0.8);
   }
 
-  attack(amount = 1.0): AudioFile {
+  attack(amount = 1.0): EffectChain {
     return this.a.peak_eq(4000, amount * 3.0, 1.0);
   }
 
-  harshness(amount = 1.0): AudioFile {
+  harshness(amount = 1.0): EffectChain {
     return this.a.peak_eq(6000, -amount * 2.5, 1.0);
   }
 
-  air(amount = 1.0): AudioFile {
+  air(amount = 1.0): EffectChain {
     return this.a.high_shelf(10000, amount * 3.0);
   }
 
-  brightness(amount = 1.0): AudioFile {
+  brightness(amount = 1.0): EffectChain {
     return this.a.high_shelf(8000, amount * 2.0);
   }
 
-  resonance(amount = 1.0): AudioFile {
+  resonance(amount = 1.0): EffectChain {
     return this.a.add({ kind: 'resonance', amount });
   }
 
   // --- Dynamics ---
 
-  dynamic_range(amount = 1.0): AudioFile {
+  dynamic_range(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'compressor',
       thresholdDb: -18,
@@ -75,7 +75,7 @@ export class Blanket {
     });
   }
 
-  punch(amount = 1.0): AudioFile {
+  punch(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'compressor',
       thresholdDb: -20,
@@ -85,7 +85,7 @@ export class Blanket {
     });
   }
 
-  sustain(amount = 1.0): AudioFile {
+  sustain(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'gate',
       thresholdDb: -40,
@@ -97,7 +97,7 @@ export class Blanket {
 
   // Upward compression: lifts low-level detail (ghost notes, room, fingering)
   // toward the threshold without touching the loud hits.
-  detail(amount = 1.0): AudioFile {
+  detail(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'upwardCompressor',
       thresholdDb: -30,
@@ -108,7 +108,7 @@ export class Blanket {
     });
   }
 
-  consistency(amount = 1.0): AudioFile {
+  consistency(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'compressor',
       thresholdDb: -12,
@@ -118,7 +118,7 @@ export class Blanket {
     });
   }
 
-  pumping(amount = 1.0): AudioFile {
+  pumping(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'compressor',
       thresholdDb: -18,
@@ -130,15 +130,15 @@ export class Blanket {
 
   // --- Room / Spatial ---
 
-  roominess(amount = 1.0): AudioFile {
+  roominess(amount = 1.0): EffectChain {
     return this.a.add({ kind: 'spectralGate', propDecrease: clamp01(amount), stationary: false });
   }
 
-  width(amount = 1.0): AudioFile {
+  width(amount = 1.0): EffectChain {
     return this.a.add({ kind: 'width', amount });
   }
 
-  depth(amount = 1.0): AudioFile {
+  depth(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'reverb',
       roomSize: clamp01(amount * 0.3),
@@ -150,17 +150,17 @@ export class Blanket {
 
   // --- Artifacts ---
 
-  clipping(amount = 1.0): AudioFile {
+  clipping(amount = 1.0): EffectChain {
     return this.a.add({ kind: 'saturation', drive: 1.0 + amount });
   }
 
   // --- Harmonic ---
 
-  warmth(amount = 1.0): AudioFile {
+  warmth(amount = 1.0): EffectChain {
     return this.a.add({ kind: 'saturation', drive: 1.0 + amount * 2.0 });
   }
 
-  presence(amount = 1.0): AudioFile {
+  presence(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'presence',
       lowHz: 2000,
@@ -170,14 +170,14 @@ export class Blanket {
     });
   }
 
-  fullness(amount = 1.0): AudioFile {
+  fullness(amount = 1.0): EffectChain {
     this.a.peak_eq(200, amount * 1.5, 1.5);
     return this.a.add({ kind: 'saturation', drive: 1.0 + amount * 0.5 });
   }
 
   // --- Perceptual ---
 
-  naturalness(amount = 1.0): AudioFile {
+  naturalness(amount = 1.0): EffectChain {
     return this.a.add({
       kind: 'compressor',
       thresholdDb: -3,

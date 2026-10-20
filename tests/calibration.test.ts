@@ -1,7 +1,6 @@
-import { test } from 'node:test';
-import assert from 'node:assert/strict';
-import { estimateLatency, isReliable } from '../../src/audio/calibration';
-import { makeClick, BEAT_CLICK } from '../../src/audio/click';
+import { ok, section } from './harness';
+import { estimateLatency, isReliable } from '../src/audio/calibration';
+import { makeClick, BEAT_CLICK } from '../src/audio/click';
 
 const SR = 48000;
 
@@ -48,27 +47,30 @@ function synth(opts: { delayMs: number; gain: number; noise: number; polarity?: 
   return { x, clickTimes };
 }
 
-test('finds a 137.3 ms delay in noise', () => {
+export function run(): void {
+  section('finds a 137.3 ms delay in noise');
+  {
   const { x, clickTimes } = synth({ delayMs: 137.3, gain: 0.25, noise: 0.02 });
   const e = estimateLatency(x, SR, clickTimes);
-  assert.ok(Math.abs(e.latencyMs - 137.3) < 1, `got ${e.latencyMs}`);
-  assert.ok(isReliable(e), JSON.stringify(e));
-});
-
-test('handles inverted polarity and a speaker-like lowpass', () => {
+  ok('latency', Math.abs(e.latencyMs - 137.3) < 1, `got ${e.latencyMs}`);
+  ok('reliable', isReliable(e), JSON.stringify(e));
+  }
+  section('handles inverted polarity and a speaker-like lowpass');
+  {
   const { x, clickTimes } = synth({ delayMs: 42.1, gain: 0.3, noise: 0.01, polarity: -1, lowpass: true, seed: 7 });
   const e = estimateLatency(x, SR, clickTimes);
-  assert.ok(Math.abs(e.latencyMs - 42.1) < 1, `got ${e.latencyMs}`);
-});
-
-test('Bluetooth-scale delay (230 ms) at low SNR', () => {
+  ok('latency', Math.abs(e.latencyMs - 42.1) < 1, `got ${e.latencyMs}`);
+  }
+  section('Bluetooth-scale delay (230 ms) at low SNR');
+  {
   const { x, clickTimes } = synth({ delayMs: 230, gain: 0.08, noise: 0.03, seed: 3 });
   const e = estimateLatency(x, SR, clickTimes);
-  assert.ok(Math.abs(e.latencyMs - 230) < 1.5, `got ${e.latencyMs}`);
-});
-
-test('pure noise is flagged unreliable', () => {
+  ok('latency', Math.abs(e.latencyMs - 230) < 1.5, `got ${e.latencyMs}`);
+  }
+  section('pure noise is flagged unreliable');
+  {
   const { x, clickTimes } = synth({ delayMs: 100, gain: 0, noise: 0.05, seed: 11 });
   const e = estimateLatency(x, SR, clickTimes);
-  assert.equal(isReliable(e), false, JSON.stringify(e));
-});
+  ok('noise unreliable', !isReliable(e), JSON.stringify(e));
+  }
+}

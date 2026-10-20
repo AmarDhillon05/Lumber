@@ -1,6 +1,6 @@
 import type { Song } from '../sources/types';
 import type { SeparationResult } from '../separation';
-import type { BlanketValues } from '../app-shims';
+import type { BlanketValues } from '../dsp/blanketTerms';
 
 export interface LibrarySong extends Song {
   addedAt: number;

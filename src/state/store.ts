@@ -4,7 +4,7 @@
 
 import { create } from 'zustand';
 import { File } from 'expo-file-system';
-import { fillValues } from '../app-shims';
+import { fillValues } from '../dsp/presets';
 import type { SeparationResult } from '../separation';
 import { loadDb, newId, saveDb } from './persist';
 import {

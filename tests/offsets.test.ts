@@ -1,5 +1,4 @@
-import { test } from 'node:test';
-import assert from 'node:assert/strict';
+import { ok, section } from './harness';
 import {
   computeDrumOffset,
   drumStartFor,
@@ -7,12 +6,14 @@ import {
   scheduleCountIn,
   songToDrumTime,
   transportPosition,
-} from '../../src/audio/offsets';
-import { windowPeaks } from '../../src/audio/peaks';
+} from '../src/audio/offsets';
+import { windowPeaks } from '../src/audio/peaks';
 
-const close = (a: number, b: number, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
+const close = (a: number, b: number, eps = 1e-9) => ok(`${a} ≈ ${b}`, Math.abs(a - b) < eps);
 
-test('recorder start from jittery clock pairs is the median', () => {
+export function run(): void {
+  section('recorder start from jittery clock pairs is the median');
+  {
   // True start = 10.0; pairs jitter by up to one 256-frame buffer (~5.3 ms).
   const buf = 256 / 48000;
   const samples = [];
@@ -23,11 +24,11 @@ test('recorder start from jittery clock pairs is the median', () => {
   }
   samples.push({ ctxTime: 10.05, recSec: 0 }); // before audio flowed: ignored
   const est = estimateRecorderStartCtx(samples)!;
-  assert.ok(Math.abs(est - 10) < buf / 2, `est ${est}`);
-  assert.equal(estimateRecorderStartCtx([{ ctxTime: 1, recSec: 0 }]), null);
-});
-
-test('drum offset: perfect hit lands on the beat it was played to', () => {
+  ok('recStart within half a buffer', Math.abs(est - 10) < buf / 2, `est ${est}`);
+  ok('no flowing samples → null', estimateRecorderStartCtx([{ ctxTime: 1, recSec: 0 }]) === null);
+  }
+  section('drum offset: perfect hit lands on the beat it was played to');
+  {
   // Song started from 30 s at ctx 12.0; recorder started at ctx 10.0; 120 ms round trip.
   const songStartSec = 30;
   const songCtxStart = 12;
@@ -39,35 +40,36 @@ test('drum offset: perfect hit lands on the beat it was played to', () => {
   const fileTime = 13.5 + latencySec - recStartCtx;
   close(offset + fileTime, 31.5);
   close(songToDrumTime(31.5, offset), fileTime);
-});
-
-test('count-in schedule', () => {
+  }
+  section('count-in schedule');
+  {
   const s = scheduleCountIn(5, 0.25, 120, 4);
-  assert.deepEqual(s.clickTimes, [5.25, 5.75, 6.25, 6.75]);
+  ok('deepEqual', JSON.stringify(s.clickTimes) === JSON.stringify([5.25, 5.75, 6.25, 6.75]));
   close(s.songCtxStart, 7.25);
   const none = scheduleCountIn(5, 0.25, 120, 0);
-  assert.equal(none.clickTimes.length, 0);
+  ok('no count-in clicks', none.clickTimes.length === 0);
   close(none.songCtxStart, 5.25);
   close(scheduleCountIn(0, 0, 1e6, 1).beatSec, 60 / 300); // bpm clamped
-});
-
-test('transport position with count-in and loop', () => {
+  }
+  section('transport position with count-in and loop');
+  {
   close(transportPosition(4, 5, 30), 30); // still counting in
   close(transportPosition(6.5, 5, 30), 31.5);
   const loop = { start: 30, end: 34 };
   close(transportPosition(5 + 5, 5, 30, loop), 31); // 35 wraps to 31
   close(transportPosition(5 + 3, 5, 30, loop), 33);
-});
-
-test('drum start for preview', () => {
-  assert.deepEqual(drumStartFor(30, 28), { delaySec: 0, offsetSec: 2 });
-  assert.deepEqual(drumStartFor(30, 31), { delaySec: 1, offsetSec: 0 });
-});
-
-test('window peaks honour the signal offset', () => {
+  }
+  section('drum start for preview');
+  {
+  ok('deepEqual', JSON.stringify(drumStartFor(30, 28)) === JSON.stringify({ delaySec: 0, offsetSec: 2 }));
+  ok('deepEqual', JSON.stringify(drumStartFor(30, 31)) === JSON.stringify({ delaySec: 1, offsetSec: 0 }));
+  }
+  section('window peaks honour the signal offset');
+  {
   const sr = 100;
   const sig = new Float32Array(100); // 1 s
   sig[50] = 1; // at 0.5 s signal time
   const p = windowPeaks(sig, sr, 0, 4, 4, 2); // signal placed at 2 s
-  assert.deepEqual(Array.from(p), [0, 0, 1, 0]);
-});
+  ok('deepEqual', JSON.stringify(Array.from(p)) === JSON.stringify([0, 0, 1, 0]));
+  }
+}
