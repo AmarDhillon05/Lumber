@@ -1,12 +1,14 @@
 // Synthetic impulse response for ConvolverNode, approximating pedalboard.Reverb
 // (a Freeverb room). Exponentially-decaying noise, low-passed by `damping`.
 
+import type { AudioBuffer, BaseAudioContext } from 'react-native-audio-api';
+
 export function makeImpulseResponse(
-  ctx: { createBuffer(ch: number, len: number, sr: number): any },
+  ctx: Pick<BaseAudioContext, 'createBuffer'>,
   sr: number,
   roomSize: number,
   damping: number,
-): any {
+): AudioBuffer {
   const decay = 0.1 + roomSize * 3.0; // seconds
   const len = Math.max(1, Math.floor(sr * decay));
   const ir = ctx.createBuffer(2, len, sr);
