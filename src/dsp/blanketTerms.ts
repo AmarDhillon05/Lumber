@@ -202,3 +202,9 @@ export const BLANKET_TERMS: Record<BlanketTerm, BlanketTermInfo> = {
 };
 
 export const BLANKET_TERM_KEYS = Object.keys(BLANKET_TERMS) as BlanketTerm[];
+
+// A full knob state: every term → slider value (−1..1, 0 = neutral).
+export type BlanketValues = Record<BlanketTerm, number>;
+
+export const zeroValues = (): BlanketValues =>
+  Object.fromEntries(BLANKET_TERM_KEYS.map((k) => [k, 0])) as BlanketValues;
