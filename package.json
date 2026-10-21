@@ -32,7 +32,7 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild -p ios --clean",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
-    "test": "tsx tests/run.ts && tsx tests/separation.test.ts && tsx tests/sources.test.ts",
+    "test": "tsx tests/run.ts && tsx tests/separation.test.ts && tsx tests/sources.test.ts && tsx tests/links.test.ts",
     "separate": "tsx scripts/separate.ts",
     "postinstall": "patch-package"
   },
