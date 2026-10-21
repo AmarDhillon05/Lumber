@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { importLocalFile, youtubeSource } from '../sources';
+import { importLocalFile, resolvePastedLink, youtubeSource } from '../sources';
 import { cachedSeparation, separateDrums } from '../separation';
 import type { SearchResult } from '../sources/types';
 import { useShallow } from 'zustand/react/shallow';
@@ -52,7 +52,7 @@ export function LibraryScreen() {
             <YouTubeSearch />
             <Text style={[ls.h2, { marginTop: 22 }]}>Your songs</Text>
             {songs.length === 0 ? (
-              <Text style={ls.hint}>Import an MP3/M4A/WAV from Files, or search YouTube.</Text>
+              <Text style={ls.hint}>Import an MP3/M4A/WAV from Files, search YouTube, or paste a YouTube/Spotify link.</Text>
             ) : null}
           </View>
         }
@@ -67,6 +67,7 @@ function YouTubeSearch() {
   const [busy, setBusy] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [label, setLabel] = useState<string | null>(null);
   const jobs = useStore((s) => s.jobs);
   const { addSong, setJob } = useStore.getState();
 
@@ -74,8 +75,16 @@ function YouTubeSearch() {
     if (!query.trim()) return;
     setBusy(true);
     setError(null);
+    setLabel(null);
     try {
-      setResults(await youtubeSource.search(query.trim()));
+      // A pasted YouTube/Spotify link resolves directly; anything else is a search.
+      const link = await resolvePastedLink(query);
+      if (link) {
+        setLabel(link.label);
+        setResults(link.results);
+      } else {
+        setResults(await youtubeSource.search(query.trim()));
+      }
     } catch (e) {
       setError(String((e as Error).message ?? e));
       setResults([]);
@@ -104,7 +113,7 @@ function YouTubeSearch() {
           style={ls.input}
           value={query}
           onChangeText={setQuery}
-          placeholder="Search songs"
+          placeholder="Search, or paste a YouTube/Spotify link"
           placeholderTextColor={theme.placeholder}
           returnKeyType="search"
           onSubmitEditing={search}
@@ -114,6 +123,7 @@ function YouTubeSearch() {
       </View>
       {busy ? <ActivityIndicator color={theme.accent} style={{ marginTop: 10 }} /> : null}
       {error ? <Text style={ls.error}>{error}</Text> : null}
+      {label ? <Text style={ls.meta}>{label}</Text> : null}
       {results.map((r) => {
         const job = jobs[`yt:${r.externalId}`];
         return (

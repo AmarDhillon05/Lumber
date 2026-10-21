@@ -131,3 +131,18 @@ file plays and that the first bytes are `....ftypdash` or `....ftypM4A `.
    needs BotGuard in a WebView; (c) give up and use Files import.
 5. Run `npx tsx tests/sources.test.ts` and update the fixtures if the response
    shapes changed.
+
+## Pasted links (YouTube and Spotify)
+
+The Library search box also accepts links (`src/sources/links.ts`):
+
+- **YouTube / YouTube Music** (`watch?v=`, `youtu.be`, `shorts/`, `music.youtube.com`): resolved
+  to that exact video; title/channel come from YouTube's public oEmbed endpoint.
+- **Spotify tracks** (`open.spotify.com/track/…`, `intl-xx/` paths, `spotify:track:…`,
+  `spotify.link` short links): Spotify audio is DRM'd, so Lumber reads the track's title,
+  artists and duration from its public page (`og:title`, `music:musician_description`,
+  `music:duration` meta tags — no login or API credentials), searches YouTube for
+  "artist – title", and ranks hits by duration match, artist/official/Topic channels, and
+  penalties for live/cover/remix/alternate versions. The top few are shown to pick from.
+
+If Spotify changes its page markup, `parseSpotifyTrackPage` is the one place to update.
