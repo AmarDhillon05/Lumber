@@ -99,3 +99,26 @@ eas build -p ios --profile preview       # standalone, internal distribution
 EAS has a free tier with a monthly build quota. Paid plans give faster
 queues. Builds for TestFlight or the App Store also need the paid Apple
 account.
+
+## Sideloading from Linux (Impactor)
+
+Sideloadly is Windows/macOS only. On Linux, use
+[Impactor](https://github.com/khcrysalis/Impactor) (free, open source):
+
+```bash
+sudo apt install flatpak usbmuxd libimobiledevice-utils
+flatpak install --user ~/Downloads/dev.khcrysalis.PlumeImpactor.flatpakref
+flatpak run dev.khcrysalis.PlumeImpactor
+```
+
+1. Plug in the iPhone, unlock it, and pair: `idevicepair pair`, tap **Trust**, then
+   `idevicepair validate` should print SUCCESS. (usbmuxd logging
+   `Failed to read /var/lib/lockdown/<id>.plist` means it isn't paired yet.)
+2. Restart Impactor; the device appears top-right. If it still says **No Device**,
+   the Flatpak sandbox may be blocking usbmuxd — try
+   `flatpak override --user --filesystem=/run/usbmuxd --filesystem=/var/lib/lockdown:ro --device=all dev.khcrysalis.PlumeImpactor`.
+3. Sign in with your Apple Account, pick `Lumber-unsigned.ipa`, Install.
+4. If login fails with `Plist error … invalid type: string "<html>"`, a server
+   returned a web page instead of login data: update Impactor, check its settings
+   for an anisette server, try another network, and sign in once at
+   developer.apple.com/account to accept any agreement.
