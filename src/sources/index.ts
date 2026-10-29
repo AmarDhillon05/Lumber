@@ -5,3 +5,6 @@ export { setYouTubeFetch } from './youtubePlatform';
 export { resolvePastedLink } from './pastedLink';
 export { parseLink } from './links';
 export type { LinkResults } from './links';
+export { connectSpotify, disconnectSpotify, findOnYouTube, isSpotifyConnected, spotify } from './spotify';
+export type { SpotifyPlaylist } from './spotifyApi';
+export type { SpotifyTrack } from './links';
