@@ -222,7 +222,12 @@ export async function resolveLink(text: string, fetch: FetchLike, maxResults = 5
     return { label: 'YouTube link', results: [r] };
   }
   const trackId = link.kind === 'spotify' ? link.trackId : await expandSpotifyShortLink(link.url, fetch);
-  const track = await fetchSpotifyTrack(trackId, fetch);
+  return findSpotifyTrackOnYouTube(await fetchSpotifyTrack(trackId, fetch), fetch, maxResults);
+}
+
+// A Spotify track (from a link, "now playing" or the user's library) → the
+// best-matching YouTube uploads, best first.
+export async function findSpotifyTrackOnYouTube(track: SpotifyTrack, fetch: FetchLike, maxResults = 5): Promise<LinkResults> {
   const artist = track.artists[0];
   const hits = await searchVideos(artist ? `${artist} - ${track.title}` : track.title, fetch);
   const ranked = rankMatches(track, hits).slice(0, maxResults);

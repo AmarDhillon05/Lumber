@@ -10,6 +10,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '../state/store';
 import type { LibrarySong } from '../state/types';
 import { Button, Header, ProgressBar, Section } from '../components/ui';
+import { SearchResults } from '../components/SearchResults';
+import { SpotifyPanel } from './SpotifyPanel';
 import { fmtTime, theme } from '../theme';
 
 export function LibraryScreen() {
@@ -50,6 +52,7 @@ export function LibraryScreen() {
           <View>
             <Button title="Import file" kind="primary" onPress={onImport} />
             <YouTubeSearch />
+            <SpotifyPanel />
             <Text style={[ls.h2, { marginTop: 22 }]}>Your songs</Text>
             {songs.length === 0 ? (
               <Text style={ls.hint}>Import an MP3/M4A/WAV from Files, search YouTube, or paste a YouTube/Spotify link.</Text>
@@ -68,9 +71,6 @@ function YouTubeSearch() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [label, setLabel] = useState<string | null>(null);
-  const jobs = useStore((s) => s.jobs);
-  const { addSong, setJob } = useStore.getState();
-
   const search = async () => {
     if (!query.trim()) return;
     setBusy(true);
@@ -93,19 +93,6 @@ function YouTubeSearch() {
     }
   };
 
-  const download = async (r: SearchResult) => {
-    const jobId = `yt:${r.externalId}`;
-    if (jobs[jobId]) return;
-    setJob(jobId, { label: 'Downloading', progress: 0 });
-    try {
-      const song = await youtubeSource.fetch(r, (p) => setJob(jobId, { label: 'Downloading', progress: p }));
-      addSong(song);
-      setJob(jobId, null);
-    } catch (e) {
-      setJob(jobId, { label: 'Failed', progress: 0, error: String((e as Error).message ?? e) });
-    }
-  };
-
   return (
     <Section title="YouTube">
       <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -123,32 +110,7 @@ function YouTubeSearch() {
       </View>
       {busy ? <ActivityIndicator color={theme.accent} style={{ marginTop: 10 }} /> : null}
       {error ? <Text style={ls.error}>{error}</Text> : null}
-      {label ? <Text style={ls.meta}>{label}</Text> : null}
-      {results.map((r) => {
-        const job = jobs[`yt:${r.externalId}`];
-        return (
-          <Pressable key={r.externalId} style={ls.result} onPress={() => download(r)}>
-            <View style={{ flex: 1 }}>
-              <Text style={ls.title} numberOfLines={1}>
-                {r.title}
-              </Text>
-              <Text style={ls.meta} numberOfLines={1}>
-                {[r.artist, r.durationSec ? fmtTime(r.durationSec) : null].filter(Boolean).join(' · ')}
-              </Text>
-              {job ? (
-                job.error ? (
-                  <Text style={ls.error}>{job.error}</Text>
-                ) : (
-                  <View style={{ marginTop: 6 }}>
-                    <ProgressBar progress={job.progress} />
-                  </View>
-                )
-              ) : null}
-            </View>
-            <Text style={ls.action}>{job && !job.error ? `${Math.round(job.progress * 100)}%` : 'Get'}</Text>
-          </Pressable>
-        );
-      })}
+      <SearchResults results={results} label={label} />
     </Section>
   );
 }

@@ -27,7 +27,9 @@
       ],
       "onnxruntime-react-native",
       "expo-sharing",
-      "expo-document-picker"
+      "expo-document-picker",
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "scheme": "lumber",
     "platforms": [

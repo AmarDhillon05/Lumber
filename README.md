@@ -12,9 +12,10 @@ minus the servers. Everything runs on the phone.
 
 ## Features
 
-- **Songs** — import MP3/M4A/WAV/AAC/AIFF from Files, search YouTube in-app, or
-  paste a YouTube or Spotify link (Spotify tracks are matched to a YouTube upload
-  by title, artist and duration — no login needed).
+- **Songs** — import MP3/M4A/WAV/AAC/AIFF from Files, search YouTube in-app, paste a
+  YouTube or Spotify link, or connect Spotify to grab what's playing right now, your
+  liked songs, or your own playlists. Spotify audio is DRM'd, so every Spotify track is
+  matched to a YouTube upload by title, artist and duration.
 - **Record** — the song and the mic share one audio engine and clock. Start
   point, loop region, count-in, headphone warnings, latency calibration and a
   millisecond nudge keep the take aligned.
@@ -86,6 +87,8 @@ Lumber runs fully offline once these are on the phone. Do them on Wi-Fi first:
       internet; playing them doesn't.
 - [ ] **Download the drum-removal model.** Tap **Remove original drums** on one song —
       the first run downloads ~171 MB. After that, separating more songs works offline.
+- [ ] **Spotify:** connecting, "Now playing", Liked and Playlists all need internet —
+      grab the songs you want before you lose signal.
 - [ ] **Bring wired headphones** (or calibrate your Bluetooth ones — they add delay).
 - [ ] If the app is near its 7-day expiry, reinstall it before you leave.
 
@@ -98,11 +101,22 @@ Lumber runs fully offline once these are on the phone. Do them on Wi-Fi first:
    note how many ms fixed it.
 4. **Edit:** presets and knobs audibly change the drums; preview keeps up; **Export WAV**
    sounds like the preview.
-5. **Remove original drums** on a full song: how long it took, whether it crashed, and how
+5. **Spotify** (online): **Connect Spotify**, log in, then play a song in the Spotify app,
+   come back and tap **Now playing** — the right match should be first. Also try Liked and
+   one of your own playlists.
+6. **Remove original drums** on a full song: how long it took, whether it crashed, and how
    clean `original drums = 0` sounds.
 
 Note your iPhone model, the calibration number, any nudge you needed, and the separation
 time. For crashes, write down the step and what you tapped.
+
+### Spotify setup
+
+Spotify login uses PKCE with the Client ID in `src/sources/spotify.ts` (public by
+design; there is no secret). The Spotify account that owns that app needs **Premium**,
+and anyone logging in must be listed under the app's **User Management** at
+[developer.spotify.com/dashboard](https://developer.spotify.com/dashboard), with
+`lumber://spotify-callback` as a redirect URI.
 
 ## Develop
 
