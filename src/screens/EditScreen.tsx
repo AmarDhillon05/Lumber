@@ -17,6 +17,7 @@ import { BlanketKnob } from '../components/BlanketKnob';
 import { Waveform } from '../components/Waveform';
 import { Button, Header, LabeledSlider, Section } from '../components/ui';
 import { fmtTime, theme } from '../theme';
+import { PromptMix } from '../ai/PromptMix';
 
 const COLUMNS = 90;
 const NUDGE_RANGE_MS = 300;
@@ -267,6 +268,8 @@ export function EditScreen({ projectId }: { projectId: string }) {
             />
             {!audio.stems ? <Text style={es.hint}>Run “Remove original drums” in the library to enable.</Text> : null}
           </Section>
+
+          <PromptMix projectId={projectId} audio={audio} drumOffsetSec={offset} />
 
           <Section title="Presets">
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
