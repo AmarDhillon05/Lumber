@@ -16,6 +16,15 @@ export interface Take {
   latencyMs: number; // round-trip latency that was compensated
   sampleRate: number;
   createdAt: number;
+  video?: TakeVideo; // camera clip filmed during the take
+}
+
+export interface TakeVideo {
+  uri: string; // file:// .mov in documents/lumber/videos (no audio track)
+  offsetSec: number; // song time where video time 0 belongs (see src/video/sync.ts)
+  durationSec: number; // approximate, from the last progress event
+  facing: 'front' | 'back';
+  syncSource: 'progress' | 'call'; // how the start time was estimated
 }
 
 export interface MixSettings {
@@ -25,6 +34,7 @@ export interface MixSettings {
   originalDrums: number; // 0..1, only used when the song has stems
   values: BlanketValues;
   presetId?: string;
+  videoNudgeMs?: number; // manual video alignment on top of take.video.offsetSec
 }
 
 export interface Project {

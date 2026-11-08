@@ -103,7 +103,10 @@ export const useStore = create<State>()((set, get) => ({
     const s = get();
     const song = s.songs.find((x) => x.id === id);
     const takes = s.takes.filter((t) => t.songId === id);
-    takes.forEach((t) => tryDelete(t.drumsUri));
+    takes.forEach((t) => {
+      tryDelete(t.drumsUri);
+      tryDelete(t.video?.uri);
+    });
     tryDelete(song?.uri);
     set({
       songs: s.songs.filter((x) => x.id !== id),
@@ -147,7 +150,10 @@ export const useStore = create<State>()((set, get) => ({
     if (!p) return;
     const take = s.takes.find((t) => t.id === p.takeId);
     const stillUsed = s.projects.some((x) => x.id !== id && x.takeId === p.takeId);
-    if (take && !stillUsed) tryDelete(take.drumsUri);
+    if (take && !stillUsed) {
+      tryDelete(take.drumsUri);
+      tryDelete(take.video?.uri);
+    }
     set({
       projects: s.projects.filter((x) => x.id !== id),
       takes: stillUsed ? s.takes : s.takes.filter((t) => t.id !== p.takeId),
