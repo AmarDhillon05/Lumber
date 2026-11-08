@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@anthropic-ai/sdk": "1.3.0",
     "@react-native-community/slider": "5.2.1",
     "expo": "~58.0.16",
     "expo-crypto": "~58.0.7",
@@ -35,7 +36,7 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild -p ios --clean",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
-    "test": "tsx tests/run.ts && tsx tests/separation.test.ts && tsx tests/sources.test.ts && tsx tests/links.test.ts && tsx tests/spotify.test.ts",
+    "test": "tsx tests/run.ts && tsx tests/claude.test.ts && tsx tests/separation.test.ts && tsx tests/sources.test.ts && tsx tests/links.test.ts && tsx tests/spotify.test.ts",
     "separate": "tsx scripts/separate.ts",
     "postinstall": "patch-package"
   },
