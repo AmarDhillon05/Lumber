@@ -1,0 +1,57 @@
+name: model
+
+# Builds the drum-removal model the app downloads: the htdemucs ONNX export with
+# attention rewritten into row slices (identical output, far lower peak memory),
+# published as a release asset at releases/download/models-v1/htdemucs_chunked.onnx.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/separation/chunk_attention.py
+      - .github/workflows/model.yml
+
+permissions:
+  contents: write
+
+env:
+  RELEASE: models-v1
+  SOURCE: https://huggingface.co/sathvik77/htdemucs-core-onnx/resolve/main/htdemucs_core.onnx
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install onnx numpy onnxruntime
+      - name: Download source model
+        run: curl -sSfL -o htdemucs_core.onnx "$SOURCE"
+      - name: Slice attention
+        run: python scripts/separation/chunk_attention.py htdemucs_core.onnx htdemucs_chunked.onnx 336
+      - name: Check both models give the same output
+        run: |
+          python - <<'PY'
+          import numpy as np, onnxruntime as ort
+          rng = np.random.default_rng(0)
+          feeds = {"mix": rng.standard_normal((1, 2, 343980), dtype=np.float32),
+                   "mag": rng.standard_normal((1, 4, 2048, 336), dtype=np.float32)}
+          o = ort.SessionOptions(); o.enable_cpu_mem_arena = False
+          a = ort.InferenceSession("htdemucs_core.onnx", o).run(None, feeds)
+          b = ort.InferenceSession("htdemucs_chunked.onnx", o).run(None, feeds)
+          for x, y in zip(a, b):
+              err = np.abs(x - y).max() / (np.abs(x).max() + 1e-9)
+              print("max relative difference", err)
+              assert err < 1e-4, err
+          PY
+      - name: Publish release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$RELEASE" >/dev/null 2>&1 || gh release create "$RELEASE" \
+            --title "Drum-removal model ($RELEASE)" \
+            --notes "htdemucs (Demucs v4, Meta AI; weights CC-BY-NC 4.0) exported to ONNX without STFT, attention sliced by scripts/separation/chunk_attention.py. Downloaded by the app on first use."
+          gh release upload "$RELEASE" htdemucs_chunked.onnx --clobber

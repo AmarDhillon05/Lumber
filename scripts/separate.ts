@@ -13,7 +13,7 @@ import { pipeline } from 'node:stream/promises';
 import { Readable } from 'node:stream';
 import * as ort from 'onnxruntime-node';
 import { SAMPLE_RATE, separate } from '../src/separation/demucs';
-import { MODEL_URL } from '../src/separation/model';
+import { MODEL_FILENAME, MODEL_URL } from '../src/separation/model';
 import { ortRunner } from '../src/separation/ort';
 import { WavStream, type ByteSink } from '../src/separation/wavStream';
 
@@ -63,9 +63,14 @@ async function main() {
   const out = outArg ?? join('separated', basename(song, extname(song)));
   mkdirSync(out, { recursive: true });
 
-  const modelPath = join('models', 'htdemucs_core.onnx');
+  const modelPath = join('models', MODEL_FILENAME);
   await ensureModel(modelPath);
-  const session = await ort.InferenceSession.create(modelPath, { executionProviders: ['cpu'] });
+  // Arena off: with it on, memory grows by gigabytes and is never handed back.
+  const session = await ort.InferenceSession.create(modelPath, {
+    executionProviders: ['cpu'],
+    enableCpuMemArena: false,
+    enableMemPattern: false,
+  });
 
   const input = decode(song);
   console.log(`${(input[0].length / SAMPLE_RATE).toFixed(1)} s of audio`);

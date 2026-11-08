@@ -43,6 +43,21 @@ export interface StemSink {
   write(drums: Float32Array[], noDrums: Float32Array[]): Promise<void> | void;
 }
 
+// Scratch buffers for one segment, allocated once per song and reused for
+// every chunk (~50 MB that would otherwise be garbage on each 7.8 s segment).
+export class Workspace {
+  readonly mix = new Float32Array(2 * SEGMENT);
+  readonly mag = new Float32Array(4 * BINS * FRAMES);
+  readonly re = new Float64Array(NFFT);
+  readonly im = new Float64Array(NFFT);
+  readonly accA = new Float32Array(SEGMENT);
+  readonly accB = new Float32Array(SEGMENT);
+  readonly restRe = new Float32Array(BINS * FRAMES);
+  readonly restIm = new Float32Array(BINS * FRAMES);
+  readonly drums = [new Float32Array(SEGMENT), new Float32Array(SEGMENT)];
+  readonly noDrums = [new Float32Array(SEGMENT), new Float32Array(SEGMENT)];
+}
+
 let fft: FFT | null = null;
 let hann: Float64Array | null = null;
 let olaEnvelope: Float64Array | null = null;
@@ -77,11 +92,10 @@ function reflect(i: number, length: number): number {
 
 // demucs HTDemucs._spec + _magnitude for a stereo segment of exactly SEGMENT
 // samples → (4, BINS, FRAMES) with channels [L.re, L.im, R.re, R.im].
-export function spectrogram(left: Float32Array, right: Float32Array): Float32Array {
+export function spectrogram(left: Float32Array, right: Float32Array, ws: Workspace = new Workspace()): Float32Array {
   const { fft, hann } = tables();
-  const out = new Float32Array(4 * BINS * FRAMES);
-  const re = new Float64Array(NFFT);
-  const im = new Float64Array(NFFT);
+  const out = ws.mag;
+  const { re, im } = ws;
   const plane = BINS * FRAMES;
   for (let t = 0; t < FRAMES; t++) {
     const start = t * HOP - PAD;
@@ -114,12 +128,12 @@ function inverseSpectrogramPair(
   bIm: Float32Array,
   outA: Float32Array,
   outB: Float32Array,
+  ws: Workspace,
 ): void {
   const { fft, hann, olaEnvelope } = tables();
-  const re = new Float64Array(NFFT);
-  const im = new Float64Array(NFFT);
-  const accA = new Float64Array(SEGMENT);
-  const accB = new Float64Array(SEGMENT);
+  const { re, im, accA, accB } = ws;
+  accA.fill(0);
+  accB.fill(0);
   const scale = 1 / (NORM * NFFT); // undo 1/n of the inverse FFT, then ×sqrt(n)
   for (let t = 0; t < FRAMES; t++) {
     // Y = A + iB as a full Hermitian-pair spectrum; C2R ignores imag at DC.
@@ -160,21 +174,22 @@ export async function separateSegment(
   left: Float32Array,
   right: Float32Array,
   runner: DemucsRunner,
+  ws: Workspace = new Workspace(),
 ): Promise<{ drums: Float32Array[]; noDrums: Float32Array[] }> {
-  const mix = new Float32Array(2 * SEGMENT);
+  const { mix, restRe, restIm, drums, noDrums } = ws;
   mix.set(left, 0);
   mix.set(right, SEGMENT);
-  const { spec, wave } = await runner.run(mix, spectrogram(left, right));
+  const { spec, wave } = await runner.run(mix, spectrogram(left, right, ws));
 
   const plane = BINS * FRAMES;
   const at = (source: number, cac: number) =>
     spec.subarray((source * 4 + cac) * plane, (source * 4 + cac + 1) * plane);
 
-  const drums = [new Float32Array(SEGMENT), new Float32Array(SEGMENT)];
-  const noDrums = [new Float32Array(SEGMENT), new Float32Array(SEGMENT)];
   for (let ch = 0; ch < 2; ch++) {
-    const restRe = new Float32Array(plane);
-    const restIm = new Float32Array(plane);
+    drums[ch].fill(0);
+    noDrums[ch].fill(0);
+    restRe.fill(0);
+    restIm.fill(0);
     for (let s = 1; s < SOURCES.length; s++) {
       const r = at(s, 2 * ch);
       const i = at(s, 2 * ch + 1);
@@ -183,15 +198,15 @@ export async function separateSegment(
         restIm[x] += i[x];
       }
     }
-    inverseSpectrogramPair(at(0, 2 * ch), at(0, 2 * ch + 1), restRe, restIm, drums[ch], noDrums[ch]);
+    inverseSpectrogramPair(at(0, 2 * ch), at(0, 2 * ch + 1), restRe, restIm, drums[ch], noDrums[ch], ws);
     // Time branch.
     const d = drums[ch];
     const n = noDrums[ch];
     const w0 = wave.subarray(ch * SEGMENT, (ch + 1) * SEGMENT);
     for (let x = 0; x < SEGMENT; x++) d[x] += w0[x];
     for (let s = 1; s < SOURCES.length; s++) {
-      const ws = wave.subarray((s * 2 + ch) * SEGMENT, (s * 2 + ch + 1) * SEGMENT);
-      for (let x = 0; x < SEGMENT; x++) n[x] += ws[x];
+      const ws_ = wave.subarray((s * 2 + ch) * SEGMENT, (s * 2 + ch + 1) * SEGMENT);
+      for (let x = 0; x < SEGMENT; x++) n[x] += ws_[x];
     }
   }
   return { drums, noDrums };
@@ -205,6 +220,9 @@ export async function separate(
   runner: DemucsRunner,
   sink: StemSink,
   onProgress?: (fraction: number) => void,
+  // Called after each chunk; the app uses it to yield to the UI/GC and to
+  // record crash breadcrumbs.
+  afterChunk?: (index: number, total: number) => Promise<void> | void,
 ): Promise<void> {
   const left = input[0];
   const right = input[1] ?? input[0];
@@ -228,8 +246,9 @@ export async function separate(
   for (let i = 0; i < SEGMENT; i++) weight[i] = (i < halfSeg ? i + 1 : SEGMENT - i) / halfSeg;
 
   // Accumulator window starting at the current chunk offset.
-  const acc = [0, 1, 2, 3].map(() => new Float64Array(SEGMENT)); // dL dR nL nR
-  const accW = new Float64Array(SEGMENT);
+  const acc = [0, 1, 2, 3].map(() => new Float32Array(SEGMENT)); // dL dR nL nR
+  const accW = new Float32Array(SEGMENT);
+  const ws = new Workspace();
 
   const offsets: number[] = [];
   for (let o = 0; o < length; o += STRIDE) offsets.push(o);
@@ -248,7 +267,7 @@ export async function separate(
       chunkL[i] = inside ? (left[j] - mean) / std : 0;
       chunkR[i] = inside ? (right[j] - mean) / std : 0;
     }
-    const { drums, noDrums } = await separateSegment(chunkL, chunkR, runner);
+    const { drums, noDrums } = await separateSegment(chunkL, chunkR, runner, ws);
     const outs = [drums[0], drums[1], noDrums[0], noDrums[1]];
     for (let i = 0; i < chunkLen; i++) {
       const w = weight[i];
@@ -277,5 +296,6 @@ export async function separate(
       accW.fill(0, SEGMENT - STRIDE);
     }
     onProgress?.((c + 1) / offsets.length);
+    await afterChunk?.(c + 1, offsets.length);
   }
 }
