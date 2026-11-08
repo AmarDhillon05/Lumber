@@ -8,8 +8,9 @@ import * as mix from './mix.test';
 import * as wav from './wav.test';
 import * as offsets from './offsets.test';
 import * as calibration from './calibration.test';
+import * as modes from './modes.test';
 
-const suites: { run(): void }[] = [dsp, presets, mix, wav, offsets, calibration];
+const suites: { run(): void }[] = [modes, dsp, presets, mix, wav, offsets, calibration];
 
 for (const s of suites) s.run();
 

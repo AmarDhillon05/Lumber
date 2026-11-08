@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { importLocalFile, resolvePastedLink, youtubeSource } from '../sources';
-import { cachedSeparation, separateDrums } from '../separation';
+import { cachedSeparation, checkForCrash, separateDrums, separationMode } from '../separation';
 import type { SearchResult } from '../sources/types';
 import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '../state/store';
@@ -122,9 +122,13 @@ function SongRow({ song }: { song: LibrarySong }) {
 
   const removeDrums = async () => {
     const id = `sep:${song.id}`;
-    setJob(id, { label: 'Removing drums', progress: 0 });
+    // A previous run that crashed the app steps down to a lighter mode.
+    const crash = checkForCrash();
+    if (crash) Alert.alert('Drum removal', crash);
+    const label = `Removing drums (${separationMode()})`;
+    setJob(id, { label, progress: 0 });
     try {
-      const stems = await separateDrums(song.uri, (p) => setJob(id, { label: 'Removing drums', progress: p }));
+      const stems = await separateDrums(song.uri, (p) => setJob(id, { label, progress: p }));
       setStems(song.id, stems);
       setJob(id, null);
     } catch (e) {

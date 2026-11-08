@@ -21,8 +21,10 @@ minus the servers. Everything runs on the phone.
   millisecond nudge keep the take aligned.
 - **Shape** — Timber's Blanket knobs (EQ, dynamics, room, harmonic) plus presets:
   Warm, Bright, Loud, Tight/Dry, Roomy/Vintage, Phone-mic rescue.
-- **Remove original drums** — Demucs v4 (`htdemucs`) running through ONNX Runtime
-  with the Core ML backend. A fader blends the original drums back in from 0–100%.
+- **Remove original drums** — Demucs v4 (`htdemucs`) running through ONNX Runtime,
+  Core ML first. A fader blends the original drums back in from 0–100%. If a run ever
+  crashes the app, the next run automatically steps down to CPU, then to a slow
+  single-thread mode, and tells you where the last one died.
 - **Export** — drums rendered through the chain, mixed with the song (or the
   drumless stem), peak-limited to −1 dBFS, written as WAV and shared via the
   iOS share sheet.
@@ -142,6 +144,9 @@ npm run separate -- path/to/song.mp3      # → separated/<song>/drums.wav, no_d
 - DSP ported from [timber](https://github.com/AmarDhillon05/timber).
 - [Demucs](https://github.com/facebookresearch/demucs) by Meta AI (code MIT; the
   `htdemucs` weights are CC-BY-NC 4.0, so non-commercial use only). ONNX export:
-  [sathvik77/htdemucs-core-onnx](https://huggingface.co/sathvik77/htdemucs-core-onnx).
+  [sathvik77/htdemucs-core-onnx](https://huggingface.co/sathvik77/htdemucs-core-onnx); the
+  app downloads a copy with attention computed in row slices (same output, much lower
+  peak memory) that `.github/workflows/model.yml` builds and attaches to the
+  `models-v1` release.
 
 Personal, local tool — not distributed.
