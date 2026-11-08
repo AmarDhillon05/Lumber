@@ -35,7 +35,15 @@ minus the servers. Everything runs on the phone.
   single-thread mode, and tells you where the last one died.
 - **Export** — drums rendered through the chain, mixed with the song (or the
   drumless stem), peak-limited to −1 dBFS, written as WAV and shared via the
-  iOS share sheet.
+  iOS share sheet. **Export M4A** writes the same mix as AAC.
+- **Video** — flip on **Camera** on the Record screen to film yourself (front or
+  back camera) while the take records. The camera records muted — the mic stays
+  with the audio engine — and the clip is placed on the song timeline from clock
+  samples taken during the take (`src/video/sync.ts`), with a per-project
+  **Video offset** nudge in Edit. Edit previews the clip alongside the audio;
+  **Export video** renders the same mix as Export WAV and muxes it onto the clip
+  with AVFoundation (`modules/lumber-media`, H.264/HEVC `.mp4`, orientation
+  kept). The output is trimmed to where the clip and the song overlap.
 
 ## How it works
 
@@ -123,11 +131,17 @@ Lumber runs fully offline once these are on the phone. Do them on Wi-Fi first:
    long Claude takes, whether the explanation makes sense and whether the preview changes.
    Try it in airplane mode (should fall back to offline with a "No connection" note) and with
    a wrong key (should say the key was rejected).
-7. **Remove original drums** on a full song: how long it took, whether it crashed, and how
+7. **Video:** turn on **Camera**, record 20–30 s with a few clear hits (or a stick
+   click on the count-in). In Edit the preview should roughly follow the audio;
+   tap **Export video** and check in Photos that hits line up with the sound. If
+   not, note the **Video offset** (ms) that fixed it, and whether front/back
+   differ. Also check portrait orientation and that the audio session still works
+   (song + mic) after filming.
+8. **Remove original drums** on a full song: how long it took, whether it crashed, and how
    clean `original drums = 0` sounds.
 
-Note your iPhone model, the calibration number, any nudge you needed, and the separation
-time. For crashes, write down the step and what you tapped.
+Note your iPhone model, the calibration number, any nudge you needed (audio and video), and
+the separation time. For crashes, write down the step and what you tapped.
 
 ### Spotify setup
 

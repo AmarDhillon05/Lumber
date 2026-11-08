@@ -154,6 +154,12 @@ export class Engine {
     );
   }
 
+  /** Timing of the running transport, for lining other recorders (the camera) up with it. */
+  transportTiming(): { songStartSec: number; songCtxStart: number; latencyMs: number } | null {
+    const t = this.transport;
+    return t ? { songStartSec: t.startSec, songCtxStart: t.songCtxStart, latencyMs: t.latencyMs } : null;
+  }
+
   /** Seconds until the song starts (count-in remaining), 0 once playing. */
   countInRemaining(): number {
     if (!this.transport || !this.ctx) return 0;

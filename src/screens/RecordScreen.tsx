@@ -5,12 +5,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { AudioManager } from 'react-native-audio-api';
+import { File } from 'expo-file-system';
 import { engine, type RouteInfo } from '../audio/engine';
 import { isReliable, runCalibration } from '../audio/calibration';
 import { clampBpm } from '../audio/offsets';
 import { selectSong, useStore } from '../state/store';
 import { Button, Header, LabeledSlider, Section } from '../components/ui';
 import { fmtTime, theme } from '../theme';
+import { CameraPanel } from '../video/lazy';
+import { takeVideoFrom, type CameraPanelHandle } from '../video/takeVideo';
 
 // Used until a route has been calibrated.
 const DEFAULT_LATENCY_MS = { wired: 15, bluetooth: 200 };
@@ -34,6 +37,7 @@ export function RecordScreen({ songId }: { songId: string }) {
   const [error, setError] = useState<string | null>(null);
   const modeRef = useRef(mode);
   modeRef.current = mode;
+  const cameraRef = useRef<CameraPanelHandle>(null);
 
   const refreshRoute = useCallback(async () => setRoute(await engine.currentRoute()), []);
 
@@ -92,6 +96,7 @@ export function RecordScreen({ songId }: { songId: string }) {
       engine.onAutoStop = () => stop();
       const from = loopOn ? loop.start : startSec;
       setPos(from);
+      if (record) cameraRef.current?.start(); // muted; started first since cameras are slow to roll
       await engine.start({
         songId: song.id,
         songUri: song.uri,
@@ -105,6 +110,7 @@ export function RecordScreen({ songId }: { songId: string }) {
     } catch (e) {
       setMode('idle');
       setError(String((e as Error).message ?? e));
+      deleteClip(await cameraRef.current?.stop());
     }
   };
 
@@ -112,9 +118,14 @@ export function RecordScreen({ songId }: { songId: string }) {
     const wasRecording = modeRef.current === 'recording';
     setMode('idle');
     try {
+      const timing = engine.transportTiming();
+      const clipDone = cameraRef.current?.stop() ?? Promise.resolve(null);
       const take = await engine.stop();
+      const clip = await clipDone;
+      const video = take && clip && timing ? takeVideoFrom(clip, timing) : null;
+      if (clip && !video) deleteClip(clip);
       if (take && wasRecording) {
-        const project = addTake(take);
+        const project = addTake(video ? { ...take, video } : take);
         go({ name: 'edit', projectId: project.id });
       }
     } catch (e) {
@@ -208,6 +219,8 @@ export function RecordScreen({ songId }: { songId: string }) {
         ) : null}
         {error ? <Text style={rs.error}>{error}</Text> : null}
 
+        {CameraPanel ? <CameraPanel ref={cameraRef} disabled={busy} /> : null}
+
         <Section title="Start">
           <LabeledSlider
             label="Start at"
@@ -287,6 +300,14 @@ export function RecordScreen({ songId }: { songId: string }) {
     </View>
   );
 }
+
+const deleteClip = (clip: { uri: string } | null | undefined) => {
+  try {
+    if (clip) new File(clip.uri).delete();
+  } catch {
+    // best effort
+  }
+};
 
 const rs = StyleSheet.create({
   warn: {
