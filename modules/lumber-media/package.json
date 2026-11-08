@@ -1,0 +1,8 @@
+{
+  "name": "lumber-media",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lumber's AVFoundation helpers: mux the mix onto the camera clip, AAC export",
+  "main": "index.ts",
+  "license": "UNLICENSED"
+}
