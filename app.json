@@ -29,7 +29,22 @@
       "expo-sharing",
       "expo-document-picker",
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Lumber films you drumming while you record a take.",
+          "microphonePermission": "Lumber records your drums while the song plays.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": false,
+          "supportsPictureInPicture": false
+        }
+      ]
     ],
     "scheme": "lumber",
     "platforms": [
