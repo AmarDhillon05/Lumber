@@ -1,5 +1,5 @@
-// Library: saved songs (with their takes), file import, YouTube search +
-// download, and per-song "Remove original drums".
+// Library: an "Add a song" picker (Files / YouTube / Spotify), saved songs
+// (with their takes), per-song "Remove original drums", and the build label.
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -13,6 +13,7 @@ import { Button, Header, ProgressBar, Section } from '../components/ui';
 import { SearchResults } from '../components/SearchResults';
 import { SpotifyPanel } from './SpotifyPanel';
 import { fmtTime, theme } from '../theme';
+import { buildLabel, shortBuildLabel } from '../buildInfo';
 
 export function LibraryScreen() {
   const songs = useStore((s) => s.songs);
@@ -43,25 +44,72 @@ export function LibraryScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Header title="Lumber" />
+      <Header
+        title="Lumber"
+        right={
+          <Text style={ls.version} numberOfLines={1}>
+            {shortBuildLabel}
+          </Text>
+        }
+      />
       <FlatList
         data={songs}
         keyExtractor={(s) => s.id}
         contentContainerStyle={{ padding: 16, paddingBottom: 48 }}
         ListHeaderComponent={
           <View>
-            <Button title="Import file" kind="primary" onPress={onImport} />
-            <YouTubeSearch />
-            <SpotifyPanel />
+            <AddSong onImport={onImport} />
             <Text style={[ls.h2, { marginTop: 22 }]}>Your songs</Text>
             {songs.length === 0 ? (
-              <Text style={ls.hint}>Import an MP3/M4A/WAV from Files, search YouTube, or paste a YouTube/Spotify link.</Text>
+              <Text style={ls.hint}>Add one above: import from Files, search YouTube (or paste a link), or connect Spotify.</Text>
             ) : null}
           </View>
         }
         renderItem={({ item }) => <SongRow song={item} />}
+        ListFooterComponent={<Text style={ls.footer}>{buildLabel}</Text>}
       />
     </View>
+  );
+}
+
+type Source = 'files' | 'youtube' | 'spotify';
+const SOURCES: { id: Source; label: string }[] = [
+  { id: 'files', label: 'Files' },
+  { id: 'youtube', label: 'YouTube' },
+  { id: 'spotify', label: 'Spotify' },
+];
+
+// One picker for where a song comes from. All three stay mounted (just hidden)
+// so search results and the Spotify login state survive switching.
+function AddSong({ onImport }: { onImport: () => void }) {
+  const [source, setSource] = useState<Source>('files');
+  const show = (id: Source) => (source === id ? null : ls.hidden);
+  return (
+    <Section title="Add a song">
+      <View style={ls.segments}>
+        {SOURCES.map((s) => (
+          <Pressable
+            key={s.id}
+            onPress={() => setSource(s.id)}
+            style={[ls.segment, source === s.id && ls.segmentOn]}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: source === s.id }}
+          >
+            <Text style={[ls.segmentText, source === s.id && { color: theme.onAccent }]}>{s.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <View style={show('files')}>
+        <Button title="Import file" kind="primary" onPress={onImport} />
+        <Text style={ls.hint}>MP3, M4A, WAV, AAC or AIFF from the Files app.</Text>
+      </View>
+      <View style={show('youtube')}>
+        <YouTubeSearch />
+      </View>
+      <View style={show('spotify')}>
+        <SpotifyPanel />
+      </View>
+    </Section>
   );
 }
 
@@ -94,7 +142,7 @@ function YouTubeSearch() {
   };
 
   return (
-    <Section title="YouTube">
+    <View>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <TextInput
           style={ls.input}
@@ -111,7 +159,7 @@ function YouTubeSearch() {
       {busy ? <ActivityIndicator color={theme.accent} style={{ marginTop: 10 }} /> : null}
       {error ? <Text style={ls.error}>{error}</Text> : null}
       <SearchResults results={results} label={label} />
-    </Section>
+    </View>
   );
 }
 
@@ -234,4 +282,19 @@ const ls = StyleSheet.create({
   },
   takeText: { flex: 1, color: theme.textSoft, fontSize: 14 },
   action: { color: theme.accent, fontSize: 14, fontWeight: '600' },
+  version: { color: theme.textFaint, fontSize: 11, fontVariant: ['tabular-nums'] },
+  footer: { color: theme.textFaint, fontSize: 11, textAlign: 'center', marginTop: 24 },
+  hidden: { display: 'none' },
+  segments: {
+    flexDirection: 'row',
+    backgroundColor: theme.card,
+    borderColor: theme.border,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 3,
+    marginBottom: 10,
+  },
+  segment: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
+  segmentOn: { backgroundColor: theme.accent },
+  segmentText: { color: theme.textSoft, fontSize: 14, fontWeight: '600' },
 });
