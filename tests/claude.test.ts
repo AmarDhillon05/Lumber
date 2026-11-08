@@ -15,6 +15,7 @@ import {
   type ClaudeMixInput,
 } from '../src/ai/claude';
 import type { MixAnalysis, AudioDescriptors } from '../src/ai/analyze';
+import { analyzeProject, runPromptMix } from '../src/ai/mixPrompt';
 import { BLANKET_TERM_KEYS } from '../src/dsp/blanketTerms';
 import { fillValues } from '../src/dsp/presets';
 import { counts, ok, section } from './harness';
@@ -164,6 +165,33 @@ async function main() {
   const noKey = await suggestWithClaude(input, { apiKey: '' }).catch((x) => x);
   ok('empty key → no_key without a request', noKey instanceof ClaudeMixError && noKey.kind === 'no_key');
   ok('classifyError passes ClaudeMixError through', classifyError(new ClaudeMixError('refusal', 'x'), Anthropic).kind === 'refusal');
+
+  section('ai: prompt mix orchestration');
+  {
+    const r = await runPromptMix(input, { apiKey: null });
+    ok('no key → offline, labelled', r.source === 'offline' && /No Anthropic API key/.test(r.notice ?? '') && /^Offline interpreter/.test(r.suggestion.explanation));
+    ok('offline result follows the prompt', r.suggestion.values.punch > 0);
+    const { fake } = replyWith(message({ values: fillValues({ air: 0.2 }), songGain: 0.7, drumGain: null, explanation: 'Airier.' }));
+    const c = await runPromptMix(input, { apiKey: 'k', fetch: fake });
+    ok('key + reply → claude result', c.source === 'claude' && c.suggestion.values.air === 0.2 && c.suggestion.songGain === 0.7 && !c.notice);
+    const bad = replyWith({ type: 'error', error: { type: 'authentication_error', message: 'invalid x-api-key' } }, 401);
+    const b = await runPromptMix(input, { apiKey: 'k', fetch: bad.fake });
+    ok('bad key → offline with a clear notice', b.source === 'offline' && /rejected/.test(b.notice ?? ''));
+    const down = (async () => {
+      throw new TypeError('Network request failed');
+    }) as typeof fetch;
+    const n = await runPromptMix(input, { apiKey: 'k', fetch: down });
+    ok('no network → offline with a clear notice', n.source === 'offline' && /No connection/.test(n.notice ?? ''));
+  }
+  {
+    const sr = 48000;
+    const take = [new Float32Array(sr * 4).map((_, i) => (i % 12000 < 400 ? 0.5 : 0))];
+    const bed = [new Float32Array(sr * 20).map((_, i) => 0.1 * Math.sin(i / 10))];
+    const full = analyzeProject({ sampleRate: sr, drums: take, song: bed, stems: null }, 2);
+    ok('analyzeProject: drums + song region under the take', full.song != null && full.song.durationSec === 5 && !full.songIsDrumless);
+    const stems = analyzeProject({ sampleRate: sr, drums: take, song: null, stems: { drums: bed, noDrums: bed } }, 30);
+    ok('analyzeProject: uses the drumless stem; offset past the end falls back to the start', stems.songIsDrumless && stems.song != null && stems.song.rmsDb > -40);
+  }
 
   const { passes, failures } = counts();
   console.log(failures === 0 ? `\nALL PASS (${passes} claude checks)` : `\n${failures} FAILED, ${passes} passed`);
