@@ -28,14 +28,33 @@ export const SPOTIFY_CONFIG: SpotifyConfig = {
 };
 
 const KEY = 'spotify.tokens';
+const KEYCHAIN_TIMEOUT_MS = 8000;
+
+// Fail loudly instead of leaving the UI spinning if the keychain never answers.
+function keychainCall<T>(what: string, p: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    p.catch((e) => {
+      throw new Error(`Keychain ${what} failed: ${String((e as Error)?.message ?? e)}`);
+    }),
+    new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`Keychain ${what} timed out`)), KEYCHAIN_TIMEOUT_MS);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
 
 const keychain: TokenStore = {
   async load() {
-    const raw = await SecureStore.getItemAsync(KEY);
-    return raw ? (JSON.parse(raw) as SpotifyTokens) : null;
+    const raw = await keychainCall('read', SecureStore.getItemAsync(KEY));
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as SpotifyTokens;
+    } catch {
+      return null; // unreadable entry: treat as logged out
+    }
   },
-  save: (t) => SecureStore.setItemAsync(KEY, JSON.stringify(t)),
-  clear: () => SecureStore.deleteItemAsync(KEY),
+  save: (t) => keychainCall('write', SecureStore.setItemAsync(KEY, JSON.stringify(t))),
+  clear: () => keychainCall('delete', SecureStore.deleteItemAsync(KEY)),
 };
 
 const session = new SpotifySession((...a) => youtubeFetch()(...a), SPOTIFY_CONFIG, keychain);

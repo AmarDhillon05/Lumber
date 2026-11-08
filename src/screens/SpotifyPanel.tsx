@@ -2,7 +2,7 @@
 // app, or browse liked songs and your playlists. Tapping a track finds it on
 // YouTube (Spotify audio can't be downloaded) and shows matches to Get.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   connectSpotify,
@@ -15,7 +15,7 @@ import {
   type SpotifyTrack,
 } from '../sources';
 import { SearchResults } from '../components/SearchResults';
-import { Button, Section } from '../components/ui';
+import { Button } from '../components/ui';
 import { fmtTime, theme } from '../theme';
 
 type View_ =
@@ -28,7 +28,11 @@ type Row = { type: 'track'; track: SpotifyTrack } | { type: 'playlist'; playlist
 
 const message = (e: unknown) => String((e as Error)?.message ?? e);
 
+// How long to wait for the keychain before showing Connect anyway.
+const CHECK_TIMEOUT_MS = 4000;
+
 export function SpotifyPanel() {
+  // null = still checking the keychain; the section renders (with Connect) meanwhile.
   const [connected, setConnected] = useState<boolean | null>(null);
   const [view, setView] = useState<View_>({ kind: 'home' });
   const [rows, setRows] = useState<Row[]>([]);
@@ -37,8 +41,46 @@ export function SpotifyPanel() {
   const [error, setError] = useState<string | null>(null);
   const [found, setFound] = useState<LinkResults | null>(null);
 
+  // Ask the keychain whether we're logged in, but never wait on it forever: if
+  // it's slow or fails, show Connect and say why. A late "yes" still wins.
+  const alive = useRef(true);
   useEffect(() => {
-    isSpotifyConnected().then(setConnected, () => setConnected(false));
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  const check = async () => {
+    const answer = isSpotifyConnected();
+    answer.then(
+      (ok) => {
+        if (ok && alive.current) {
+          setConnected(true);
+          setError(null);
+        }
+      },
+      () => {},
+    );
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const ok = await Promise.race([
+        answer,
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error('the keychain did not answer')), CHECK_TIMEOUT_MS);
+        }),
+      ]);
+      if (alive.current) setConnected(ok);
+    } catch (e) {
+      if (!alive.current) return;
+      setConnected(false);
+      setError(`Couldn't read the saved Spotify login (${message(e)}). You can still connect.`);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  useEffect(() => {
+    check();
   }, []);
 
   const run = async (fn: () => Promise<void>) => {
@@ -48,7 +90,7 @@ export function SpotifyPanel() {
       await fn();
     } catch (e) {
       setError(message(e));
-      if (/connect again|Not connected/.test(message(e))) setConnected(await isSpotifyConnected());
+      if (/connect again|Not connected|token error 400/.test(message(e))) await check();
     } finally {
       setBusy(false);
     }
@@ -102,20 +144,23 @@ export function SpotifyPanel() {
       setNext(page.next);
     });
 
-  if (connected === null) return null;
-
   if (!connected) {
     return (
-      <Section title="Spotify">
-        <Text style={ss.hint}>Connect to grab what you're playing, your liked songs and your playlists.</Text>
-        <Button title="Connect Spotify" onPress={connect} disabled={busy} style={{ marginTop: 8 }} />
+      <View>
+        <Text style={ss.hint}>
+          Connect to grab what you're playing, your liked songs and your playlists. Each track is matched to a
+          YouTube upload.
+        </Text>
+        <Button title="Connect Spotify" kind="primary" onPress={connect} disabled={busy} style={{ marginTop: 8 }} />
+        {connected === null ? <Text style={ss.hint}>Checking for a saved login…</Text> : null}
+        {busy ? <ActivityIndicator color={theme.accent} style={{ marginTop: 10 }} /> : null}
         {error ? <Text style={ss.error}>{error}</Text> : null}
-      </Section>
+      </View>
     );
   }
 
   return (
-    <Section title="Spotify">
+    <View>
       <View style={ss.row}>
         <Button title="Now playing" kind="primary" small onPress={nowPlaying} disabled={busy} />
         <Button title="Liked" small onPress={() => open({ kind: 'liked' })} disabled={busy} />
@@ -178,7 +223,7 @@ export function SpotifyPanel() {
           ) : null}
         </View>
       ) : null}
-    </Section>
+    </View>
   );
 }
 

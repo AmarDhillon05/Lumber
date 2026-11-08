@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { theme } from '../theme';
+import { useScrollLock } from './ScrollLock';
 
 type Kind = 'primary' | 'secondary' | 'danger' | 'ghost';
 
@@ -91,8 +92,12 @@ export function LabeledSlider({
   disabled?: boolean;
   color?: string;
 }) {
+  // Hold the enclosing LockableScrollView still while the thumb is dragged. The
+  // row's touch end/cancel also unlocks, in case the slider misses a release.
+  const setScrollLocked = useScrollLock();
+  const unlock = () => setScrollLocked(false);
   return (
-    <View style={[styles.sliderRow, disabled && { opacity: 0.4 }]}>
+    <View style={[styles.sliderRow, disabled && { opacity: 0.4 }]} onTouchEnd={unlock} onTouchCancel={unlock}>
       <Text style={styles.sliderLabel}>{label}</Text>
       <Slider
         style={{ flex: 1, height: 36 }}
@@ -102,7 +107,11 @@ export function LabeledSlider({
         step={step}
         disabled={disabled}
         onValueChange={onChange}
-        onSlidingComplete={onComplete}
+        onSlidingStart={() => setScrollLocked(true)}
+        onSlidingComplete={(v) => {
+          setScrollLocked(false);
+          onComplete?.(v);
+        }}
         minimumTrackTintColor={color ?? theme.accent}
         maximumTrackTintColor={theme.border}
         thumbTintColor={theme.accent}

@@ -61,6 +61,14 @@ jobs:
 
       - run: npm ci
 
+      # Shown in the Library ("v1.0.0 #42" and a footer with commit + variant)
+      # so a phone's build can be matched to its CI run.
+      - name: Stamp build info
+        run: |
+          printf '{ "build": "%s", "commit": "%s", "variant": "%s" }\n' \
+            "$GITHUB_RUN_NUMBER" "${GITHUB_SHA:0:7}" "$CONFIGURATION" > src/buildInfo.json
+          cat src/buildInfo.json
+
       - name: Expo prebuild (iOS)
         run: npx expo prebuild -p ios --clean --no-install
 

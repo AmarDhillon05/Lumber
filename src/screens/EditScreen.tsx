@@ -14,6 +14,7 @@ import { toMono, windowPeaks } from '../audio/peaks';
 import { selectProject, selectSong, useStore } from '../state/store';
 import type { MixSettings } from '../state/types';
 import { BlanketKnob } from '../components/BlanketKnob';
+import { LockableScrollView } from '../components/ScrollLock';
 import { Waveform } from '../components/Waveform';
 import { Button, Header, LabeledSlider, Section } from '../components/ui';
 import { fmtTime, theme } from '../theme';
@@ -201,7 +202,7 @@ export function EditScreen({ projectId }: { projectId: string }) {
           )}
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 60 }}>
+        <LockableScrollView contentContainerStyle={{ padding: 16, paddingBottom: 60 }}>
           <Waveform peaks={songPeaks} color={theme.song} label={song.stems ? 'SONG (no drums)' : 'SONG'} playhead={playheadFrac} />
           <View style={{ height: 6 }} />
           <Waveform peaks={drumPeaks} color={theme.drums} label="DRUMS" playhead={playheadFrac} />
@@ -304,7 +305,7 @@ export function EditScreen({ projectId }: { projectId: string }) {
               </Section>
             );
           })}
-        </ScrollView>
+        </LockableScrollView>
       )}
     </View>
   );
