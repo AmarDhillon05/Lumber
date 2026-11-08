@@ -21,6 +21,14 @@ minus the servers. Everything runs on the phone.
   millisecond nudge keep the take aligned.
 - **Shape** — Timber's Blanket knobs (EQ, dynamics, room, harmonic) plus presets:
   Warm, Bright, Loud, Tight/Dry, Roomy/Vintage, Phone-mic rescue.
+- **Describe the sound** — type what you want ("punchy and dry like a 90s rock record",
+  "less boomy, more room") and the knobs move. The app first measures the take and the
+  song under it (loudness, crest, band balance, brightness, hit density, decay, stereo
+  width, noise floor), then asks Claude (`claude-opus-5-5`, or Haiku 5.5 if you pick it)
+  to set the knobs and faders and explain why. Claude needs **your own Anthropic API key**
+  (pasted in the box's ⚙ settings, kept in the iOS keychain) and **internet**. With no key
+  or no connection, an offline interpreter maps common sound words to knob moves instead,
+  and the result is labelled *Offline*. **Undo** steps back.
 - **Remove original drums** — Demucs v4 (`htdemucs`) running through ONNX Runtime
   with the Core ML backend. A fader blends the original drums back in from 0–100%.
 - **Export** — drums rendered through the chain, mixed with the song (or the
@@ -33,6 +41,7 @@ minus the servers. Everything runs on the phone.
 Library ──► Record ──► Edit / Export
   │            │            │
   │            │            ├─ src/dsp          Timber DSP, presets, mixer, WAV
+  │            │            ├─ src/ai           analysis, Claude prompt mix, offline interpreter
   │            └─ src/audio  engine, calibration, offsets, preview, export
   ├─ src/sources             Files import, YouTube client, pasted links
   └─ src/separation          Demucs pipeline, ONNX runner, stem cache
@@ -90,6 +99,8 @@ Lumber runs fully offline once these are on the phone. Do them on Wi-Fi first:
 - [ ] **Spotify:** connecting, "Now playing", Liked and Playlists all need internet —
       grab the songs you want before you lose signal.
 - [ ] **Bring wired headphones** (or calibrate your Bluetooth ones — they add delay).
+- [ ] **Describe the sound** works offline with the built-in interpreter; the Claude
+      version needs internet (and your API key), so it won't work on the plane.
 - [ ] If the app is near its 7-day expiry, reinstall it before you leave.
 
 ### 4. What to test
@@ -104,7 +115,13 @@ Lumber runs fully offline once these are on the phone. Do them on Wi-Fi first:
 5. **Spotify** (online): **Connect Spotify**, log in, then play a song in the Spotify app,
    come back and tap **Now playing** — the right match should be first. Also try Liked and
    one of your own playlists.
-6. **Remove original drums** on a full song: how long it took, whether it crashed, and how
+6. **Describe the sound** (Edit screen): with no key, try "less boomy, more room" and
+   "a bit warmer" — knobs move, the box says *Offline interpreter*, Undo restores them. Then
+   paste an Anthropic API key (⚙), try "punchy and dry like a 90s rock record": note how
+   long Claude takes, whether the explanation makes sense and whether the preview changes.
+   Try it in airplane mode (should fall back to offline with a "No connection" note) and with
+   a wrong key (should say the key was rejected).
+7. **Remove original drums** on a full song: how long it took, whether it crashed, and how
    clean `original drums = 0` sounds.
 
 Note your iPhone model, the calibration number, any nudge you needed, and the separation
