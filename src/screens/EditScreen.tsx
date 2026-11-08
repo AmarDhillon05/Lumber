@@ -17,6 +17,7 @@ import { BlanketKnob } from '../components/BlanketKnob';
 import { Waveform } from '../components/Waveform';
 import { Button, Header, LabeledSlider, Section } from '../components/ui';
 import { fmtTime, theme } from '../theme';
+import { ExportMoreRow, VideoSection } from '../video/EditVideo';
 
 const COLUMNS = 90;
 const NUDGE_RANGE_MS = 300;
@@ -147,6 +148,13 @@ export function EditScreen({ projectId }: { projectId: string }) {
     [projectId, setMix],
   );
 
+  const getPosition = useCallback(() => previewRef.current?.position() ?? 0, []);
+  const getProcessedDrums = () => (processedRef.current?.sig === valuesSig ? processedRef.current.channels : undefined);
+  const stopPreview = () => {
+    previewRef.current?.stop();
+    setPlaying(false);
+  };
+
   const togglePlay = () => {
     const p = previewRef.current;
     if (!p) return;
@@ -216,6 +224,7 @@ export function EditScreen({ projectId }: { projectId: string }) {
             <Button title={exporting ? 'Exporting…' : 'Export WAV'} onPress={doExport} disabled={exporting} style={{ flex: 1 }} />
           </View>
           {exporting ? <ActivityIndicator color={theme.accent} style={{ marginTop: 8 }} /> : null}
+          <ExportMoreRow project={project} take={take} mix={mix} audio={audio} getProcessedDrums={getProcessedDrums} beforeExport={stopPreview} />
           <LabeledSlider
             label="Playhead"
             value={playhead}
@@ -227,6 +236,8 @@ export function EditScreen({ projectId }: { projectId: string }) {
             }}
             format={fmtTime}
           />
+
+          <VideoSection take={take} mix={mix} setMix={setMix} playing={playing} playhead={playhead} getPosition={getPosition} />
 
           <Section title="Alignment">
             <Text style={es.hint}>
