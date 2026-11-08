@@ -1,14 +1,19 @@
 // Rotary knob for one Blanket term, ported from Timber. Drag up to turn
 // clockwise (increase), down to decrease; double-tap resets to 0. Value range
-// −1..1. Controlled: the parent owns the value.
+// −1..1. Controlled: the parent owns the value. While held it locks the
+// enclosing LockableScrollView so the page doesn't scroll instead.
 
 import { memo, useEffect, useRef, useState } from 'react';
 import { Animated, PanResponder, StyleSheet, Text, View } from 'react-native';
 import { BLANKET_TERMS, type BlanketTerm } from '../dsp/blanketTerms';
 import { theme } from '../theme';
+import { useScrollLock } from './ScrollLock';
 
 const SWEEP = 135; // degrees from center to each extreme
-const DRAG_RANGE = 160; // px of vertical drag for the full −1..1
+const DRAG_RANGE = 200; // px of vertical drag for the full −1..1
+const DOUBLE_TAP_MS = 300;
+const TAP_SLOP = 8; // px of movement still counted as a tap
+const HIT_SLOP = { top: 10, bottom: 10, left: 12, right: 12 };
 const GLOW = theme.drums;
 
 function BlanketKnobBase({
@@ -33,6 +38,7 @@ function BlanketKnobBase({
   disabledRef.current = disabled;
   const startValue = useRef(0);
   const lastTap = useRef(0);
+  const didReset = useRef(false);
 
   const lift = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -40,17 +46,39 @@ function BlanketKnobBase({
   }, [active, lift]);
   const scale = lift.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
 
+  // Lock the enclosing ScrollView while the knob is held, or iOS scrolls the
+  // page instead of turning the knob.
+  const setScrollLocked = useScrollLock();
+  const lockRef = useRef(setScrollLocked);
+  lockRef.current = setScrollLocked;
+
+  const end = () => {
+    lockRef.current(false);
+    setActive(false);
+  };
+
   const pan = useRef(
     PanResponder.create({
+      // Claim the touch at the start (and in the capture phase) so no parent
+      // responder gets it first.
       onStartShouldSetPanResponder: () => !disabledRef.current,
+      onStartShouldSetPanResponderCapture: () => !disabledRef.current,
       onMoveShouldSetPanResponder: () => !disabledRef.current,
+      onMoveShouldSetPanResponderCapture: () => !disabledRef.current,
       // Keep the gesture while dragging inside a ScrollView.
       onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: () => {
+        lockRef.current(true);
         const now = Date.now();
-        if (now - lastTap.current < 300) onChangeRef.current(term, 0);
-        lastTap.current = now;
-        startValue.current = valueRef.current;
+        if (now - lastTap.current < DOUBLE_TAP_MS) {
+          // Double tap: reset, and drag on from 0 rather than the old value.
+          onChangeRef.current(term, 0);
+          startValue.current = 0;
+          didReset.current = true;
+        } else {
+          startValue.current = valueRef.current;
+        }
         setActive(true);
       },
       onPanResponderMove: (_e, g) => {
@@ -58,8 +86,18 @@ function BlanketKnobBase({
         const next = Math.max(-1, Math.min(1, startValue.current + delta));
         onChangeRef.current(term, Math.round(next * 100) / 100);
       },
-      onPanResponderRelease: () => setActive(false),
-      onPanResponderTerminate: () => setActive(false),
+      onPanResponderRelease: (_e, g) => {
+        // Only a tap (not the end of a drag) counts towards a double tap.
+        const tap = Math.abs(g.dx) < TAP_SLOP && Math.abs(g.dy) < TAP_SLOP;
+        lastTap.current = tap && !didReset.current ? Date.now() : 0;
+        didReset.current = false;
+        end();
+      },
+      onPanResponderTerminate: () => {
+        lastTap.current = 0;
+        didReset.current = false;
+        end();
+      },
     }),
   ).current;
 
@@ -67,6 +105,7 @@ function BlanketKnobBase({
     <View style={styles.wrap}>
       <Animated.View
         {...pan.panHandlers}
+        hitSlop={HIT_SLOP}
         style={[styles.lift, { transform: [{ scale }] }, active && { shadowColor: GLOW, shadowOpacity: 0.7, shadowRadius: 16 }]}
       >
         <View style={[styles.knob, disabled && styles.knobDisabled, active && { borderColor: GLOW }]}>
