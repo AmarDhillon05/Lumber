@@ -69,5 +69,5 @@ const rs = StyleSheet.create({
   title: { color: theme.text, fontSize: 16, fontWeight: '600' },
   meta: { color: theme.textMuted, fontSize: 12, marginTop: 2 },
   error: { color: theme.dangerSoft, fontSize: 12, marginTop: 6 },
-  action: { color: theme.accent, fontSize: 14, fontWeight: '600' },
+  action: { color: theme.accentSoft, fontSize: 14, fontWeight: '600' },
 });

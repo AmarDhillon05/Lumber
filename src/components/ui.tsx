@@ -30,7 +30,7 @@ export function Button({
       style={({ pressed }) => [
         styles.btn,
         small && styles.btnSmall,
-        kind === 'primary' && { backgroundColor: theme.accent },
+        kind === 'primary' && { backgroundColor: theme.accent, borderColor: theme.accent },
         kind === 'danger' && { backgroundColor: theme.dangerDeep },
         kind === 'ghost' && { backgroundColor: 'transparent', borderColor: theme.border },
         pressed && { opacity: 0.7 },
@@ -127,7 +127,7 @@ export function ProgressBar({ progress, color }: { progress: number; color?: str
       <View
         style={[
           styles.progressFill,
-          { width: `${Math.round(Math.min(1, Math.max(0, progress)) * 100)}%`, backgroundColor: color ?? theme.accent },
+          { width: `${Math.round(Math.min(1, Math.max(0, progress)) * 100)}%`, backgroundColor: color ?? theme.blue },
         ]}
       />
     </View>
@@ -148,13 +148,13 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.card,
     borderWidth: 1,
     borderColor: theme.border,
-    borderRadius: 10,
+    borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  btnSmall: { paddingVertical: 7, paddingHorizontal: 10, borderRadius: 8 },
+  btnSmall: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 10 },
   btnText: { color: theme.text, fontSize: 15, fontWeight: '600' },
   header: {
     flexDirection: 'row',
@@ -165,7 +165,7 @@ export const styles = StyleSheet.create({
     borderBottomColor: theme.border,
   },
   back: { width: 80 },
-  backText: { color: theme.accent, fontSize: 16 },
+  backText: { color: theme.accentSoft, fontSize: 16, fontWeight: '600' },
   title: { flex: 1, color: theme.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
   sliderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   sliderLabel: { color: theme.textSoft, width: 96, fontSize: 13 },
@@ -174,7 +174,7 @@ export const styles = StyleSheet.create({
   progressFill: { height: 4 },
   section: { marginTop: 18 },
   sectionTitle: {
-    color: theme.textMuted,
+    color: theme.blueSoft,
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1,

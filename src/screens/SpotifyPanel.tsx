@@ -233,7 +233,7 @@ const ss = StyleSheet.create({
   error: { color: theme.dangerSoft, fontSize: 12, marginTop: 6 },
   listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   listTitle: { color: theme.text, fontSize: 15, fontWeight: '700' },
-  link: { color: theme.accent, fontSize: 14, fontWeight: '600' },
+  link: { color: theme.accentSoft, fontSize: 14, fontWeight: '600' },
   item: { paddingVertical: 9, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border },
   title: { color: theme.text, fontSize: 15, fontWeight: '600' },
   meta: { color: theme.textMuted, fontSize: 12, marginTop: 2 },

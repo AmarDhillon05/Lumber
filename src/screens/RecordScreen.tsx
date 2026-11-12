@@ -313,7 +313,7 @@ const rs = StyleSheet.create({
   warn: {
     borderWidth: 1,
     borderColor: theme.warning,
-    backgroundColor: 'rgba(232,197,71,0.08)',
+    backgroundColor: 'rgba(251,191,36,0.08)', // theme.warning at 8%
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
