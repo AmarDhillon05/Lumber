@@ -1,5 +1,6 @@
-// Lumber: Library → Record → Edit/Export. A tiny state-driven navigator (the
-// route lives in the zustand store) — three screens don't need a router.
+// Lumber: Library → Record → Edit/Export, plus Recordings (saved exports).
+// A tiny state-driven navigator (the route lives in the zustand store) — four
+// screens don't need a router.
 
 import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -9,6 +10,7 @@ import { useStore } from './src/state/store';
 import { LibraryScreen } from './src/screens/LibraryScreen';
 import { RecordScreen } from './src/screens/RecordScreen';
 import { EditScreen } from './src/screens/EditScreen';
+import { RecordingsScreen } from './src/screens/RecordingsScreen';
 import { theme } from './src/theme';
 
 export default function App() {
@@ -31,6 +33,8 @@ export default function App() {
           <RecordScreen key={route.songId} songId={route.songId} />
         ) : route.name === 'edit' ? (
           <EditScreen key={route.projectId} projectId={route.projectId} />
+        ) : route.name === 'recordings' ? (
+          <RecordingsScreen openId={route.openId} back={route.back} />
         ) : (
           <LibraryScreen />
         )}

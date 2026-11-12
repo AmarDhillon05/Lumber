@@ -1,5 +1,6 @@
 // Library: an "Add a song" picker (Files / YouTube / Spotify), saved songs
-// (with their takes), per-song "Remove original drums", and the build label.
+// (with their takes), per-song "Remove original drums", a link to Recordings,
+// and the build label.
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -18,6 +19,7 @@ import { buildLabel, shortBuildLabel } from '../buildInfo';
 export function LibraryScreen() {
   const songs = useStore((s) => s.songs);
   const addSong = useStore((s) => s.addSong);
+  const recordingCount = useStore((s) => s.recordings.length);
 
   // Pick up stems separated earlier (e.g. before a reinstall of the db).
   useEffect(() => {
@@ -58,6 +60,21 @@ export function LibraryScreen() {
         contentContainerStyle={{ padding: 16, paddingBottom: 48 }}
         ListHeaderComponent={
           <View>
+            <Pressable
+              onPress={() => useStore.getState().go({ name: 'recordings' })}
+              style={({ pressed }) => [ls.recordings, pressed && { opacity: 0.7 }]}
+              accessibilityRole="button"
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={ls.title}>Recordings</Text>
+                <Text style={ls.meta}>
+                  {recordingCount
+                    ? `${recordingCount} saved · videos, mixes and takes`
+                    : 'Your saved videos, mixes and takes'}
+                </Text>
+              </View>
+              <Text style={ls.action}>Open ›</Text>
+            </Pressable>
             <AddSong onImport={onImport} />
             <Text style={[ls.h2, { marginTop: 22 }]}>Your songs</Text>
             {songs.length === 0 ? (
@@ -289,6 +306,15 @@ const ls = StyleSheet.create({
   version: { color: theme.textFaint, fontSize: 11, fontVariant: ['tabular-nums'] },
   footer: { color: theme.textFaint, fontSize: 11, textAlign: 'center', marginTop: 24 },
   hidden: { display: 'none' },
+  recordings: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: theme.border,
+    padding: 12,
+  },
   segments: {
     flexDirection: 'row',
     backgroundColor: theme.card,
