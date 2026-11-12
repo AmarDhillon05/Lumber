@@ -285,7 +285,7 @@ const ls = StyleSheet.create({
     borderTopColor: theme.border,
   },
   takeText: { flex: 1, color: theme.textSoft, fontSize: 14 },
-  action: { color: theme.accent, fontSize: 14, fontWeight: '600' },
+  action: { color: theme.accentSoft, fontSize: 14, fontWeight: '600' },
   version: { color: theme.textFaint, fontSize: 11, fontVariant: ['tabular-nums'] },
   footer: { color: theme.textFaint, fontSize: 11, textAlign: 'center', marginTop: 24 },
   hidden: { display: 'none' },

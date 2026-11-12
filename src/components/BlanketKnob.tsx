@@ -14,7 +14,7 @@ const DRAG_RANGE = 200; // px of vertical drag for the full −1..1
 const DOUBLE_TAP_MS = 300;
 const TAP_SLOP = 8; // px of movement still counted as a tap
 const HIT_SLOP = { top: 10, bottom: 10, left: 12, right: 12 };
-const GLOW = theme.drums;
+const GLOW = theme.glow;
 
 function BlanketKnobBase({
   term,
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     width: SIZE * 0.74,
     height: SIZE * 0.5,
     borderRadius: SIZE,
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: 'rgba(196,181,253,0.10)', // faint violet sheen
   },
   pointerBox: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', paddingTop: 5 },
   pointer: { width: 4, height: 14, borderRadius: 2, backgroundColor: theme.steelPointer },
