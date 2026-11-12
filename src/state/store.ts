@@ -7,12 +7,14 @@ import { File } from 'expo-file-system';
 import { fillValues } from '../dsp/presets';
 import type { SeparationResult } from '../separation';
 import { loadDb, newId, saveDb } from './persist';
+import { deleteRecordingFiles } from '../recordings/files';
 import {
   emptyDb,
   type Db,
   type LibrarySong,
   type MixSettings,
   type Project,
+  type Recording,
   type Route,
   type Settings,
   type Take,
@@ -43,6 +45,10 @@ interface State extends Db {
   updateMix(projectId: string, patch: Partial<MixSettings>): void;
   renameProject(projectId: string, name: string): void;
 
+  addRecording(rec: Recording): void;
+  renameRecording(id: string, title: string): void;
+  removeRecording(id: string): void; // also deletes its files
+
   updateSettings(patch: Partial<Settings>): void;
   setJob(id: string, job: Job | null): void;
 }
@@ -61,7 +67,14 @@ function scheduleSave() {
   saveTimer = setTimeout(() => {
     const s = useStore.getState();
     try {
-      saveDb({ version: 1, songs: s.songs, takes: s.takes, projects: s.projects, settings: s.settings });
+      saveDb({
+        version: 1,
+        songs: s.songs,
+        takes: s.takes,
+        projects: s.projects,
+        recordings: s.recordings,
+        settings: s.settings,
+      });
     } catch (e) {
       console.warn('saveDb failed', e);
     }
@@ -172,6 +185,28 @@ export const useStore = create<State>()((set, get) => ({
 
   renameProject(projectId, name) {
     set((s) => ({ projects: s.projects.map((p) => (p.id === projectId ? { ...p, name } : p)) }));
+    scheduleSave();
+  },
+
+  // Recordings outlive their song/project: deleting a song or take leaves
+  // anything already saved here alone.
+  addRecording(rec) {
+    set((s) => ({ recordings: [rec, ...s.recordings.filter((r) => r.id !== rec.id)] }));
+    scheduleSave();
+  },
+
+  renameRecording(id, title) {
+    const t = title.trim();
+    if (!t) return;
+    set((s) => ({ recordings: s.recordings.map((r) => (r.id === id ? { ...r, title: t } : r)) }));
+    scheduleSave();
+  },
+
+  removeRecording(id) {
+    const rec = get().recordings.find((r) => r.id === id);
+    if (!rec) return;
+    deleteRecordingFiles(rec);
+    set((s) => ({ recordings: s.recordings.filter((r) => r.id !== id) }));
     scheduleSave();
   },
 

@@ -54,11 +54,32 @@ export interface Settings {
   countIn: boolean;
 }
 
+// Something saved on the Recordings screen: a rendered export (mix WAV/M4A,
+// video) or a copy of a raw take. Files live in documents/lumber/recordings;
+// `fileName` is what's resolved at runtime (the app container path can change
+// between installs), `uri` is kept for reference.
+export type RecordingKind = 'video' | 'mix-wav' | 'mix-m4a' | 'take-wav' | 'take-video';
+
+export interface Recording {
+  id: string;
+  kind: RecordingKind;
+  fileName: string; // in documents/lumber/recordings
+  uri: string; // file:// at save time
+  title: string;
+  projectId?: string;
+  songId?: string;
+  createdAt: number;
+  durationSec: number;
+  size: number; // bytes
+  thumbnail?: string; // file name of a JPEG in recordings/ (videos only)
+}
+
 export interface Db {
   version: 1;
   songs: LibrarySong[];
   takes: Take[];
   projects: Project[];
+  recordings: Recording[];
   settings: Settings;
 }
 
@@ -74,10 +95,12 @@ export const emptyDb = (): Db => ({
   songs: [],
   takes: [],
   projects: [],
+  recordings: [],
   settings: { ...DEFAULT_SETTINGS },
 });
 
 export type Route =
   | { name: 'library' }
   | { name: 'record'; songId: string }
-  | { name: 'edit'; projectId: string };
+  | { name: 'edit'; projectId: string }
+  | { name: 'recordings'; openId?: string; back?: Route };

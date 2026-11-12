@@ -44,6 +44,14 @@
           "supportsBackgroundPlayback": false,
           "supportsPictureInPicture": false
         }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Lumber only adds your drum videos to Photos when you tap Save to Photos.",
+          "savePhotosPermission": "Lumber saves your drum videos to Photos when you tap Save to Photos.",
+          "granularPermissions": ["video"]
+        }
       ]
     ],
     "scheme": "lumber",
