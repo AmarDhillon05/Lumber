@@ -1,5 +1,6 @@
 // Edit / Export: song + drum lanes with alignment nudge, faders, presets and
-// the full Blanket knob set, live preview, and WAV export to the share sheet.
+// the full Blanket knob set, live preview, and exports (WAV/M4A/video) that
+// are saved to the Recordings library, with a Share button from there.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -9,10 +10,10 @@ import { renderBlanket } from '../dsp/renderBlanket';
 import type { Channels } from '../dsp/types';
 import { Preview } from '../audio/preview';
 import { loadProjectAudio, type ProjectAudio } from '../audio/sources';
-import { exportWav, finalOffsetSec, shareFile } from '../audio/export';
+import { exportWav, finalOffsetSec } from '../audio/export';
 import { toMono, windowPeaks } from '../audio/peaks';
 import { selectProject, selectSong, useStore } from '../state/store';
-import type { MixSettings } from '../state/types';
+import type { MixSettings, Recording } from '../state/types';
 import { BlanketKnob } from '../components/BlanketKnob';
 import { LockableScrollView } from '../components/ScrollLock';
 import { Waveform } from '../components/Waveform';
@@ -20,6 +21,8 @@ import { Button, Header, LabeledSlider, Section } from '../components/ui';
 import { fmtTime, theme } from '../theme';
 import { PromptMix } from '../ai/PromptMix';
 import { ExportMoreRow, VideoSection } from '../video/EditVideo';
+import { SavedBanner } from '../recordings/SavedBanner';
+import { saveExport, saveRawTake } from '../recordings/save';
 
 const COLUMNS = 90;
 const NUDGE_RANGE_MS = 300;
@@ -35,6 +38,8 @@ export function EditScreen({ projectId }: { projectId: string }) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [rendering, setRendering] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [saved, setSaved] = useState<Recording[]>([]);
+  const [savingTake, setSavingTake] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [playhead, setPlayhead] = useState(0);
   const previewRef = useRef<Preview | null>(null);
@@ -176,12 +181,25 @@ export function EditScreen({ projectId }: { projectId: string }) {
     setExporting(true);
     try {
       const processed = processedRef.current?.sig === valuesSig ? processedRef.current.channels : undefined;
-      const uri = await exportWav(project.name, audio, take, mix, processed);
-      await shareFile(uri);
+      const result = await exportWav(project.name, audio, take, mix, processed);
+      setSaved([await saveExport('mix-wav', result, project, song)]);
     } catch (e) {
       Alert.alert('Export failed', String((e as Error).message ?? e));
     } finally {
       setExporting(false);
+    }
+  };
+
+  // The take as recorded — no rendering, just copies of its files.
+  const doSaveTake = async () => {
+    if (!audio || !take || !project) return;
+    setSavingTake(true);
+    try {
+      setSaved(await saveRawTake(project, take, song, audio.drums[0].length / audio.sampleRate));
+    } catch (e) {
+      Alert.alert('Save failed', String((e as Error).message ?? e));
+    } finally {
+      setSavingTake(false);
     }
   };
 
@@ -226,7 +244,24 @@ export function EditScreen({ projectId }: { projectId: string }) {
             <Button title={exporting ? 'Exporting…' : 'Export WAV'} onPress={doExport} disabled={exporting} style={{ flex: 1 }} />
           </View>
           {exporting ? <ActivityIndicator color={theme.accent} style={{ marginTop: 8 }} /> : null}
-          <ExportMoreRow project={project} take={take} mix={mix} audio={audio} getProcessedDrums={getProcessedDrums} beforeExport={stopPreview} />
+          <ExportMoreRow
+            project={project}
+            song={song}
+            take={take}
+            mix={mix}
+            audio={audio}
+            getProcessedDrums={getProcessedDrums}
+            beforeExport={stopPreview}
+            onSaved={(rec) => setSaved([rec])}
+          />
+          <Button
+            title={savingTake ? 'Saving…' : take.video ? 'Save raw take (drums + video)' : 'Save raw take'}
+            small
+            kind="ghost"
+            onPress={doSaveTake}
+            disabled={savingTake}
+          />
+          <SavedBanner saved={saved} back={{ name: 'edit', projectId }} onDismiss={() => setSaved([])} />
           <LabeledSlider
             label="Playhead"
             value={playhead}

@@ -1,15 +1,17 @@
 // Edit screen add-ons, each mounted by EditScreen with one line:
-//   ExportMoreRow — Export M4A / Export video, under Preview / Export WAV.
+//   ExportMoreRow — Export M4A / Export video, under Preview / Export WAV;
+//                   results go to the Recordings library (onSaved).
 //   VideoSection  — the clip preview and the per-project "Video offset" nudge.
 
 import { useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import type { ProjectAudio } from '../audio/sources';
 import type { Channels } from '../dsp/types';
-import type { MixSettings, Project, Take } from '../state/types';
+import type { LibrarySong, MixSettings, Project, Recording, Take } from '../state/types';
 import { Button, LabeledSlider, Section } from '../components/ui';
 import { fmtTime, theme } from '../theme';
-import { exportM4a, exportVideo, shareMedia } from './exportVideo';
+import { saveExport } from '../recordings/save';
+import { exportM4a, exportVideo } from './exportVideo';
 import { VideoPanel } from './lazy';
 import { finalVideoOffsetSec } from './sync';
 
@@ -18,18 +20,22 @@ const FRAME_MS = 33; // one frame at 30 fps
 
 export function ExportMoreRow({
   project,
+  song,
   take,
   mix,
   audio,
   getProcessedDrums,
   beforeExport,
+  onSaved,
 }: {
   project: Project;
+  song?: LibrarySong;
   take: Take;
   mix: MixSettings;
   audio: ProjectAudio;
   getProcessedDrums: () => Channels | undefined;
   beforeExport: () => void;
+  onSaved: (rec: Recording) => void;
 }) {
   const [busy, setBusy] = useState<null | 'video' | 'm4a'>(null);
   const [progress, setProgress] = useState(0);
@@ -40,8 +46,8 @@ export function ExportMoreRow({
     setProgress(0);
     try {
       const fn = kind === 'video' ? exportVideo : exportM4a;
-      const uri = await fn(project.name, audio, take, mix, getProcessedDrums(), setProgress);
-      await shareMedia(uri);
+      const result = await fn(project.name, audio, take, mix, getProcessedDrums(), setProgress);
+      onSaved(await saveExport(kind === 'video' ? 'video' : 'mix-m4a', result, project, song));
     } catch (e) {
       Alert.alert('Export failed', String((e as Error).message ?? e));
     } finally {

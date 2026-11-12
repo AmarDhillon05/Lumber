@@ -11,8 +11,9 @@ import * as calibration from './calibration.test';
 import * as modes from './modes.test';
 import * as ai from './ai.test';
 import * as videoSync from './videoSync.test';
+import * as recordings from './recordings.test';
 
-const suites: { run(): void }[] = [modes, dsp, presets, mix, wav, offsets, calibration, ai, videoSync];
+const suites: { run(): void }[] = [modes, dsp, presets, mix, wav, offsets, calibration, ai, videoSync, recordings];
 
 for (const s of suites) s.run();
 

@@ -1,8 +1,9 @@
 // JSON persistence in the app's documents directory. One small file holds the
-// library, takes, projects and settings; audio lives next to it as files.
+// library, takes, projects, saved recordings and settings; audio lives next to it as files.
 
 import { Directory, File, Paths } from 'expo-file-system';
-import { emptyDb, DEFAULT_SETTINGS, type Db } from './types';
+import { emptyDb, type Db } from './types';
+import { migrateDb } from './migrate';
 
 export const appDir = (): Directory => {
   const d = new Directory(Paths.document, 'lumber');
@@ -22,13 +23,7 @@ export async function loadDb(): Promise<Db> {
   try {
     const f = dbFile();
     if (!f.exists) return emptyDb();
-    const raw = JSON.parse(await f.text()) as Partial<Db>;
-    return {
-      ...emptyDb(),
-      ...raw,
-      version: 1,
-      settings: { ...DEFAULT_SETTINGS, ...(raw.settings ?? {}) },
-    };
+    return migrateDb(JSON.parse(await f.text()));
   } catch (e) {
     console.warn('loadDb failed, starting empty', e);
     return emptyDb();

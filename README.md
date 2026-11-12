@@ -34,8 +34,10 @@ minus the servers. Everything runs on the phone.
   crashes the app, the next run automatically steps down to CPU, then to a slow
   single-thread mode, and tells you where the last one died.
 - **Export** — drums rendered through the chain, mixed with the song (or the
-  drumless stem), peak-limited to −1 dBFS, written as WAV and shared via the
-  iOS share sheet. **Export M4A** writes the same mix as AAC.
+  drumless stem), peak-limited to −1 dBFS and written as WAV. **Export M4A**
+  writes the same mix as AAC. Every export is saved to **Recordings** first; a
+  *Saved to Recordings* note then offers **Share** (the iOS share sheet), so
+  cancelling the share sheet loses nothing.
 - **Video** — flip on **Camera** on the Record screen to film yourself (front or
   back camera) while the take records. The camera records muted — the mic stays
   with the audio engine — and the clip is placed on the song timeline from clock
@@ -44,12 +46,20 @@ minus the servers. Everything runs on the phone.
   **Export video** renders the same mix as Export WAV and muxes it onto the clip
   with AVFoundation (`modules/lumber-media`, H.264/HEVC `.mp4`, orientation
   kept). The output is trimmed to where the clip and the song overlap.
+- **Recordings** — the **Recordings** card at the top of the Library lists
+  everything you've saved, newest first, with total storage used. Exports
+  (video, WAV, M4A) land here, and **Save raw take** in Edit copies the take as
+  recorded (drum WAV, plus the camera clip if you filmed). Tap a row to play it
+  in the app (videos with the native controls, audio with play/pause and a
+  scrubber); each one has **Share**, **Save to Photos** (videos), **Rename** and
+  **Delete**. Files live in `documents/lumber/recordings` (visible in the Files
+  app under Lumber); deleting a song or take doesn't delete its recordings.
 
 ## How it works
 
 ```
-Library ──► Record ──► Edit / Export
-  │            │            │
+Library ──► Record ──► Edit / Export ──► Recordings
+  │            │            │                  └─ src/recordings  saved files, thumbnails, player
   │            │            ├─ src/dsp          Timber DSP, presets, mixer, WAV
   │            │            ├─ src/ai           analysis, Claude prompt mix, offline interpreter
   │            └─ src/audio  engine, calibration, offsets, preview, export
@@ -71,7 +81,7 @@ for the client choice and how to update it when YouTube changes.
 
 Expo SDK 58 · React Native 0.88 (Hermes) · TypeScript ·
 `react-native-audio-api` · `onnxruntime-react-native` (Core ML EP, patched for
-RN 0.88 in `patches/`) · `expo-file-system` · zustand
+RN 0.88 in `patches/`) · `expo-file-system` · `expo-video` · `expo-media-library` · zustand
 
 ## Install on an iPhone (no Mac needed)
 
@@ -137,7 +147,17 @@ Lumber runs fully offline once these are on the phone. Do them on Wi-Fi first:
    not, note the **Video offset** (ms) that fixed it, and whether front/back
    differ. Also check portrait orientation and that the audio session still works
    (song + mic) after filming.
-8. **Remove original drums** on a full song: how long it took, whether it crashed, and how
+8. **Recordings:** do Export WAV, Export M4A and (with a filmed take) Export video. Each
+   should show *Saved to Recordings* without opening the share sheet; **Share** from that
+   note opens it, and cancelling it keeps the file. Open **Recordings** from the Library:
+   newest first, the video row has a thumbnail, sizes add up to the total at the top. Play
+   a video (native controls) and an audio file (play/pause, scrub) — check they play out
+   of the speaker, and that recording a new take afterwards still works. Try **Save to
+   Photos** (allow, then check Photos; also try after denying in Settings — it should
+   explain how to allow it), **Rename** (survives an app restart) and **Delete**. Also try
+   **Save raw take** in Edit, and check old recordings are still listed after reinstalling
+   a new build over the old one.
+9. **Remove original drums** on a full song: how long it took, whether it crashed, and how
    clean `original drums = 0` sounds.
 
 Note your iPhone model, the calibration number, any nudge you needed (audio and video), and
@@ -156,7 +176,7 @@ and anyone logging in must be listed under the app's **User Management** at
 ```bash
 npm install          # also applies patches/ via patch-package
 npm run typecheck    # app + Node tests/scripts
-npm test             # DSP, timing, separation, sources and link tests
+npm test             # DSP, timing, separation, sources, link and recordings tests
 ```
 
 With the debug build installed on the phone, `npx expo start --dev-client` on
