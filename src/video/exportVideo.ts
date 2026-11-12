@@ -1,15 +1,16 @@
-// Video + M4A export. The mix is rendered exactly like Export WAV
-// (renderMix: drum chain → place at offset → mix → −1 dBFS limiter); the
-// native LumberMedia module then does the AVFoundation part.
+// Video + M4A export. Files land in documents/lumber/exports; the caller
+// saves them into the Recordings library (src/recordings). The mix is
+// rendered exactly like Export WAV (renderMix: drum chain → place at offset →
+// mix → −1 dBFS limiter); the native LumberMedia module then does the
+// AVFoundation part.
 //
 // Video length: the output is the overlap of the clip (placed on the song
 // timeline at its offset + nudge) and the mix — both are trimmed to it, so
 // there are no black or frozen frames (planVideoExport in ./sync).
 
-import * as Sharing from 'expo-sharing';
 import { File } from 'expo-file-system';
 import { exportM4A as nativeExportM4A, getVideoInfo, muxVideo } from '../../modules/lumber-media';
-import { exportWav, renderMix } from '../audio/export';
+import { exportWav, renderMix, type ExportResult } from '../audio/export';
 import type { ProjectAudio } from '../audio/sources';
 import { encodeWav } from '../dsp/wav';
 import type { Channels } from '../dsp/types';
@@ -32,7 +33,7 @@ export async function exportVideo(
   mix: MixSettings,
   processedDrums?: Channels,
   onProgress?: (p: number) => void,
-): Promise<string> {
+): Promise<ExportResult> {
   const video = take.video;
   if (!video) throw new Error('This take has no video');
   const info = await getVideoInfo(video.uri);
@@ -47,17 +48,19 @@ export async function exportVideo(
   const wav = exportFile(`${base}.video-audio.wav`);
   wav.create();
   wav.writeSync(encodeWav(mixed.map((ch) => ch.subarray(a, b)), sr, 24));
+  const durationSec = (b - a) / sr;
   try {
-    return await muxVideo(
+    const uri = await muxVideo(
       {
         videoUri: video.uri,
         audioUri: wav.uri,
         outputUri: exportFile(`${base}.mp4`).uri,
         videoStartSec: plan.videoStartSec,
-        durationSec: (b - a) / sr,
+        durationSec,
       },
       onProgress,
     );
+    return { uri, durationSec };
   } finally {
     try {
       wav.delete();
@@ -74,19 +77,17 @@ export async function exportM4a(
   mix: MixSettings,
   processedDrums?: Channels,
   onProgress?: (p: number) => void,
-): Promise<string> {
-  const wavUri = await exportWav(name, audio, take, mix, processedDrums);
-  return nativeExportM4A(wavUri, exportFile(`${safeName(name)}.m4a`).uri, onProgress);
-}
-
-export async function shareMedia(uri: string): Promise<void> {
-  if (!(await Sharing.isAvailableAsync())) throw new Error('Sharing is not available on this device');
-  const ext = uri.split('?')[0].split('.').pop()?.toLowerCase();
-  const type =
-    ext === 'mp4'
-      ? { mimeType: 'video/mp4', UTI: 'public.mpeg-4' }
-      : ext === 'mov'
-        ? { mimeType: 'video/quicktime', UTI: 'com.apple.quicktime-movie' }
-        : { mimeType: 'audio/mp4', UTI: 'com.apple.m4a-audio' };
-  await Sharing.shareAsync(uri, { ...type, dialogTitle: 'Export' });
+): Promise<ExportResult> {
+  const wav = await exportWav(name, audio, take, mix, processedDrums);
+  try {
+    const uri = await nativeExportM4A(wav.uri, exportFile(`${safeName(name)}.m4a`).uri, onProgress);
+    return { uri, durationSec: wav.durationSec };
+  } finally {
+    try {
+      const f = new File(wav.uri);
+      if (f.exists) f.delete();
+    } catch {
+      // best effort
+    }
+  }
 }
