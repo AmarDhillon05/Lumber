@@ -40,6 +40,8 @@ jobs:
     needs: checks
     runs-on: macos-26
     timeout-minutes: 60
+    permissions:
+      contents: write # publish the .ipa and the SideStore source as release assets
     env:
       # Push builds are release builds; manual runs pick a variant.
       CONFIGURATION: ${{ (inputs.variant || 'release') == 'debug' && 'Debug' || 'Release' }}
@@ -68,6 +70,8 @@ jobs:
           printf '{ "build": "%s", "commit": "%s", "variant": "%s" }\n' \
             "$GITHUB_RUN_NUMBER" "${GITHUB_SHA:0:7}" "$CONFIGURATION" > src/buildInfo.json
           cat src/buildInfo.json
+          # CFBundleVersion = run number, so SideStore sees each build as newer.
+          node -e "const f='app.json',j=require('./'+f);j.expo.ios.buildNumber=process.env.GITHUB_RUN_NUMBER;require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
 
       - name: Expo prebuild (iOS)
         run: npx expo prebuild -p ios --clean --no-install
@@ -124,6 +128,35 @@ jobs:
           path: Lumber-unsigned.ipa
           retention-days: 14
           if-no-files-found: error
+
+      # Phone-only installs: the .ipa goes on a release (a plain download link,
+      # no GitHub login or zip), and the SideStore source at
+      # releases/download/sidestore/apps.json lists the newest builds so they
+      # show up as updates in SideStore. Only the 5 newest build releases stay.
+      - name: Publish to SideStore source
+        if: env.CONFIGURATION == 'Release' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          TAG="build-$GITHUB_RUN_NUMBER"
+          IPA="Lumber-$GITHUB_RUN_NUMBER.ipa"
+          cp Lumber-unsigned.ipa "$IPA"
+          gh release create "$TAG" "$IPA" --prerelease --target "$GITHUB_SHA" \
+            --title "Lumber build $GITHUB_RUN_NUMBER" \
+            --notes "$(git log -1 --format=%s). Unsigned; install with SideStore, Sideloadly or Impactor."
+          URL="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$IPA"
+          gh release view sidestore >/dev/null 2>&1 || gh release create sidestore --prerelease \
+            --title "SideStore source" \
+            --notes "In SideStore, add this source: https://github.com/$GITHUB_REPOSITORY/releases/download/sidestore/apps.json"
+          gh release download sidestore --pattern apps.json --output previous.json 2>/dev/null || true
+          node scripts/ci/sidestore-source.mjs previous.json apps.json "$GITHUB_RUN_NUMBER" "$URL" \
+            "$(stat -f%z "$IPA")" "$(git log -1 --format=%s)"
+          gh release upload sidestore apps.json --clobber
+          gh release list --limit 100 --json tagName --jq '.[].tagName' \
+            | grep '^build-' | sort -t- -k2 -n -r | tail -n +6 \
+            | xargs -r -I{} gh release delete {} --yes --cleanup-tag
+          echo "Installed builds: $URL"
 
       - name: Upload build log on failure
         if: failure()

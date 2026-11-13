@@ -93,6 +93,21 @@ RN 0.88 in `patches/`) · `expo-file-system` · `expo-video` · `expo-media-libr
    `Lumber-unsigned.ipa`. (Artifacts expire after 14 days. To make a fresh one, click
    **Run workflow**, choose `release`, and wait ~20 min.)
 
+### Install and update from the phone (SideStore)
+
+Every build on `main` is also published for phone-only installs:
+
+- **Direct download:** each build is a release, `build-<n>`, with `Lumber-<n>.ipa` attached
+  ([releases](https://github.com/AmarDhillon05/Lumber/releases)). The 5 newest are kept.
+- **SideStore source:** `https://github.com/AmarDhillon05/Lumber/releases/download/sidestore/apps.json`
+
+One-time setup (needs the computer once): install [SideStore](https://sidestore.io) with
+your Apple Account and set up its pairing file as SideStore's guide describes. Then, on the
+phone, open SideStore → **Sources** → **+** and paste the source URL above. Lumber shows up
+there; tap **Get**. New builds appear as updates in SideStore, and SideStore re-signs
+installed apps over Wi-Fi before the 7 days run out, so the computer isn't needed again.
+Without SideStore, iOS can't install an unsigned app from the phone alone.
+
 ### 2. Put it on the phone
 
 Sign with a free Apple Account. Windows: **Sideloadly**. Linux: **Impactor**
