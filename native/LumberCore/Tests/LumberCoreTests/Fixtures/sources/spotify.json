@@ -1,0 +1,706 @@
+{
+ "config": {
+  "clientId": "5faec3aab4e245f7a29760f019501648",
+  "redirectUri": "lumbernative://spotify-callback"
+ },
+ "verifiers": [
+  {
+   "bytes": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32,
+    36,
+    40,
+    44,
+    48,
+    52,
+    56,
+    60,
+    64,
+    68,
+    72,
+    76,
+    80,
+    84,
+    88,
+    92,
+    96,
+    100,
+    104,
+    108,
+    112,
+    116,
+    120,
+    124,
+    128,
+    132,
+    136,
+    140,
+    144,
+    148,
+    152,
+    156,
+    160,
+    164,
+    168,
+    172,
+    176,
+    180,
+    184,
+    188,
+    192,
+    196,
+    200,
+    204,
+    208,
+    212,
+    216,
+    220,
+    224,
+    228,
+    232,
+    236,
+    240,
+    244,
+    248,
+    252
+   ],
+   "value": "AEIMQUYcgkosw048_CGKOSWaeimquy26-AEIMQUYcgkosw048_CGKOSWaeimquy2"
+  },
+  {
+   "bytes": [
+    255,
+    254,
+    253,
+    252,
+    251,
+    250,
+    249,
+    248,
+    247,
+    246,
+    245,
+    244,
+    243,
+    242,
+    241,
+    240,
+    239,
+    238,
+    237,
+    236,
+    235,
+    234,
+    233,
+    232,
+    231,
+    230,
+    229,
+    228,
+    227,
+    226,
+    225,
+    224,
+    223,
+    222,
+    221,
+    220,
+    219,
+    218,
+    217,
+    216,
+    215,
+    214,
+    213
+   ],
+   "value": "543210zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQP"
+  },
+  {
+   "bytes": [
+    0,
+    37,
+    74,
+    111,
+    148,
+    185,
+    222,
+    3,
+    40,
+    77,
+    114,
+    151,
+    188,
+    225,
+    6,
+    43,
+    80,
+    117,
+    154,
+    191,
+    228,
+    9,
+    46,
+    83,
+    120,
+    157,
+    194,
+    231,
+    12,
+    49,
+    86,
+    123,
+    160,
+    197,
+    234,
+    15,
+    52,
+    89,
+    126,
+    163,
+    200,
+    237,
+    18,
+    55,
+    92,
+    129,
+    166,
+    203,
+    240,
+    21,
+    58,
+    95,
+    132,
+    169,
+    206,
+    243,
+    24,
+    61,
+    98,
+    135,
+    172,
+    209,
+    246,
+    27,
+    64,
+    101,
+    138,
+    175,
+    212,
+    249,
+    30,
+    67,
+    104,
+    141,
+    178,
+    215,
+    252,
+    33,
+    70,
+    107,
+    144,
+    181,
+    218,
+    255,
+    36,
+    73,
+    110,
+    147,
+    184,
+    221,
+    2,
+    39,
+    76,
+    113,
+    150,
+    187,
+    224,
+    5,
+    42,
+    79,
+    116,
+    153,
+    190,
+    227,
+    8,
+    45,
+    82,
+    119,
+    156,
+    193,
+    230,
+    11,
+    48,
+    85,
+    122,
+    159,
+    196,
+    233,
+    14,
+    51,
+    88,
+    125,
+    162,
+    199,
+    236,
+    17,
+    54,
+    91
+   ],
+   "value": "AlItQ1YDoLwT4bGrOzW7eJuR2Z-hMxU5c~kP0X8fCnS3a.iFqV6dAlItY9gDoLwb_jGrOzeBmJuR2hEpMxU5kHsP0XCnKvS3aFqNyV6dItQ1Y9gLwT4b_jOzW7eBmR2Z"
+  },
+  {
+   "bytes": [
+    1,
+    2,
+    3
+   ],
+   "error": "verifier needs 43-128 bytes"
+  }
+ ],
+ "challenges": [
+  {
+   "verifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+   "challenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+  },
+  {
+   "verifier": "AEIMQUYcgkosw048_CGKOSWaeimquy26-AEIMQUYcgkosw048_CGKOSWaeimquy2",
+   "challenge": "OxA7RwqEvJMsz5HWAx7Dh48jQauoqr_J6mfVEegKizc"
+  },
+  {
+   "verifier": "543210zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQP",
+   "challenge": "7KQHjkbkg6dreeCdFmH9tnuhBeWZy_MbxFXBwOhiDgE"
+  },
+  {
+   "verifier": "AlItQ1YDoLwT4bGrOzW7eJuR2Z-hMxU5c~kP0X8fCnS3a.iFqV6dAlItY9gDoLwb_jGrOzeBmJuR2hEpMxU5kHsP0XCnKvS3aFqNyV6dItQ1Y9gLwT4b_jOzW7eBmR2Z",
+   "challenge": "FStoSmBQfBeXZumhsZE_mG42vt7DxGVlleUTz9ovE7k"
+  },
+  {
+   "verifier": "",
+   "challenge": "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU"
+  }
+ ],
+ "authorizeUrl": {
+  "challenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+  "state": "st+ate/1",
+  "expected": "https://accounts.spotify.com/authorize?response_type=code&client_id=5faec3aab4e245f7a29760f019501648&redirect_uri=lumbernative%3A%2F%2Fspotify-callback&code_challenge_method=S256&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&scope=user-read-currently-playing%20user-library-read%20playlist-read-private%20playlist-read-collaborative&state=st%2Bate%2F1"
+ },
+ "callbacks": [
+  {
+   "url": "lumbernative://spotify-callback?code=abc%2B1&state=S",
+   "state": "S",
+   "value": "abc+1"
+  },
+  {
+   "url": "lumbernative://spotify-callback?error=access_denied&state=S",
+   "state": "S",
+   "error": "Spotify login was cancelled"
+  },
+  {
+   "url": "lumbernative://spotify-callback?error=server_error",
+   "state": "S",
+   "error": "Spotify login failed: server_error"
+  },
+  {
+   "url": "lumbernative://spotify-callback?code=x&state=EVIL",
+   "state": "S",
+   "error": "Spotify login failed: state mismatch"
+  },
+  {
+   "url": "lumbernative://spotify-callback?state=S",
+   "state": "S",
+   "error": "Spotify login failed: no code returned"
+  },
+  {
+   "url": "lumbernative://spotify-callback?code=a+b%20c&state=S%20T#frag",
+   "state": "S T",
+   "value": "a b c"
+  },
+  {
+   "url": "lumbernative://spotify-callback",
+   "state": "",
+   "error": "Spotify login failed: state mismatch"
+  },
+  {
+   "url": "lumbernative://spotify-callback?code=x=y&state=S&&",
+   "state": "S",
+   "value": "x"
+  }
+ ],
+ "tokens": [
+  {
+   "name": "exchange",
+   "status": 200,
+   "body": "{\"access_token\":\"A\",\"refresh_token\":\"R\",\"expires_in\":3600,\"scope\":\"s\"}",
+   "request": {
+    "url": "https://accounts.spotify.com/api/token",
+    "method": "POST",
+    "headers": {
+     "content-type": "application/x-www-form-urlencoded"
+    },
+    "body": "grant_type=authorization_code&code=CODE%2F%2B%3D&redirect_uri=lumbernative%3A%2F%2Fspotify-callback&client_id=5faec3aab4e245f7a29760f019501648&code_verifier=VER~._-"
+   },
+   "value": {
+    "accessToken": "A",
+    "refreshToken": "R",
+    "expiresAt": 3601000,
+    "scope": "s"
+   }
+  },
+  {
+   "name": "exchange-defaults",
+   "status": 200,
+   "body": "{\"access_token\":\"A\"}",
+   "request": {
+    "url": "https://accounts.spotify.com/api/token",
+    "method": "POST",
+    "headers": {
+     "content-type": "application/x-www-form-urlencoded"
+    },
+    "body": "grant_type=authorization_code&code=C&redirect_uri=lumbernative%3A%2F%2Fspotify-callback&client_id=5faec3aab4e245f7a29760f019501648&code_verifier=V"
+   },
+   "value": {
+    "accessToken": "A",
+    "refreshToken": "",
+    "expiresAt": 3601000,
+    "scope": ""
+   }
+  },
+  {
+   "name": "refresh-keeps-old",
+   "status": 200,
+   "body": "{\"access_token\":\"new\",\"expires_in\":60}",
+   "request": {
+    "url": "https://accounts.spotify.com/api/token",
+    "method": "POST",
+    "headers": {
+     "content-type": "application/x-www-form-urlencoded"
+    },
+    "body": "grant_type=refresh_token&refresh_token=r1&client_id=5faec3aab4e245f7a29760f019501648"
+   },
+   "value": {
+    "accessToken": "new",
+    "refreshToken": "r1",
+    "expiresAt": 62000,
+    "scope": "prev-scope"
+   }
+  },
+  {
+   "name": "refresh-400",
+   "status": 400,
+   "body": "{\"error\":\"invalid_grant\",\"error_description\":\"Refresh token revoked\"}",
+   "request": {
+    "url": "https://accounts.spotify.com/api/token",
+    "method": "POST",
+    "headers": {
+     "content-type": "application/x-www-form-urlencoded"
+    },
+    "body": "grant_type=refresh_token&refresh_token=r1&client_id=5faec3aab4e245f7a29760f019501648"
+   },
+   "error": "Spotify token error 400: Refresh token revoked"
+  },
+  {
+   "name": "refresh-500-html",
+   "status": 500,
+   "body": "<html>oops</html>",
+   "request": {
+    "url": "https://accounts.spotify.com/api/token",
+    "method": "POST",
+    "headers": {
+     "content-type": "application/x-www-form-urlencoded"
+    },
+    "body": "grant_type=refresh_token&refresh_token=r1&client_id=5faec3aab4e245f7a29760f019501648"
+   },
+   "error": "Spotify token error 500: unknown"
+  },
+  {
+   "name": "refresh-401-error-only",
+   "status": 401,
+   "body": "{\"error\":\"invalid_client\"}",
+   "request": {
+    "url": "https://accounts.spotify.com/api/token",
+    "method": "POST",
+    "headers": {
+     "content-type": "application/x-www-form-urlencoded"
+    },
+    "body": "grant_type=refresh_token&refresh_token=r1&client_id=5faec3aab4e245f7a29760f019501648"
+   },
+   "error": "Spotify token error 401: invalid_client"
+  }
+ ],
+ "toTrack": [
+  {
+   "input": {
+    "type": "track",
+    "id": "x",
+    "name": "Song",
+    "artists": [
+     {
+      "name": "A"
+     },
+     {
+      "name": "B"
+     },
+     {},
+     {
+      "name": ""
+     }
+    ],
+    "duration_ms": 204500,
+    "album": {
+     "images": [
+      {
+       "url": "img"
+      },
+      {
+       "url": "small"
+      }
+     ]
+    }
+   },
+   "expected": {
+    "trackId": "x",
+    "title": "Song",
+    "artists": [
+     "A",
+     "B"
+    ],
+    "durationSec": 205,
+    "artworkUrl": "img"
+   }
+  },
+  {
+   "input": {
+    "type": "episode",
+    "id": "e"
+   },
+   "expected": null
+  },
+  {
+   "input": {
+    "id": null,
+    "name": "x"
+   },
+   "expected": null
+  },
+  {
+   "input": {
+    "id": "l",
+    "is_local": true,
+    "name": "x"
+   },
+   "expected": null
+  },
+  {
+   "input": {
+    "id": "n",
+    "name": "No dur",
+    "duration_ms": 0
+   },
+   "expected": {
+    "trackId": "n",
+    "title": "No dur",
+    "artists": []
+   }
+  },
+  {
+   "input": {
+    "id": "r",
+    "name": "Round",
+    "duration_ms": 1500,
+    "album": {
+     "images": []
+    }
+   },
+   "expected": {
+    "trackId": "r",
+    "title": "Round",
+    "artists": [],
+    "durationSec": 2
+   }
+  },
+  {
+   "input": {
+    "id": "r2",
+    "name": "Round2",
+    "duration_ms": 2499
+   },
+   "expected": {
+    "trackId": "r2",
+    "title": "Round2",
+    "artists": [],
+    "durationSec": 2
+   }
+  },
+  {
+   "input": null,
+   "expected": null
+  }
+ ],
+ "pages": [
+  {
+   "kind": "playlistTracks",
+   "id": "pl 1/x",
+   "offset": 50,
+   "body": {
+    "items": [
+     {
+      "item": {
+       "id": "a",
+       "name": "One",
+       "artists": []
+      }
+     },
+     {
+      "track": {
+       "id": "b",
+       "name": "Two",
+       "artists": []
+      }
+     },
+     {
+      "item": null
+     },
+     {
+      "item": {
+       "type": "episode",
+       "id": "ep"
+      }
+     }
+    ],
+    "next": "https://…"
+   },
+   "url": "https://api.spotify.com/v1/playlists/pl%201%2Fx/items?limit=50&offset=50",
+   "expected": {
+    "items": [
+     {
+      "trackId": "a",
+      "title": "One",
+      "artists": []
+     },
+     {
+      "trackId": "b",
+      "title": "Two",
+      "artists": []
+     }
+    ],
+    "next": 54
+   }
+  },
+  {
+   "kind": "likedTracks",
+   "offset": 0,
+   "body": {
+    "items": [
+     {
+      "track": {
+       "id": "t1",
+       "name": "Liked",
+       "artists": [
+        {
+         "name": "Z"
+        }
+       ],
+       "duration_ms": 1000
+      }
+     }
+    ],
+    "next": null
+   },
+   "url": "https://api.spotify.com/v1/me/tracks?limit=50&offset=0",
+   "expected": {
+    "items": [
+     {
+      "trackId": "t1",
+      "title": "Liked",
+      "artists": [
+       "Z"
+      ],
+      "durationSec": 1
+     }
+    ],
+    "next": null
+   }
+  },
+  {
+   "kind": "playlists",
+   "offset": 100,
+   "body": {
+    "items": [
+     {
+      "id": "p1",
+      "name": "Mine",
+      "items": {
+       "total": 12
+      },
+      "images": [
+       {
+        "url": "pimg"
+       }
+      ]
+     },
+     {
+      "id": "p2",
+      "name": "Old",
+      "tracks": {
+       "total": 3
+      }
+     },
+     {
+      "name": "no id"
+     },
+     null
+    ],
+    "next": "n"
+   },
+   "url": "https://api.spotify.com/v1/me/playlists?limit=50&offset=100",
+   "expected": {
+    "items": [
+     {
+      "id": "p1",
+      "name": "Mine",
+      "trackCount": 12,
+      "artworkUrl": "pimg"
+     },
+     {
+      "id": "p2",
+      "name": "Old",
+      "trackCount": 3
+     }
+    ],
+    "next": 104
+   }
+  },
+  {
+   "kind": "currentlyPlaying",
+   "body": {
+    "is_playing": true,
+    "item": {
+     "type": "track",
+     "id": "cp",
+     "name": "Now",
+     "artists": [
+      {
+       "name": "Q"
+      }
+     ],
+     "duration_ms": 99999
+    }
+   },
+   "url": "https://api.spotify.com/v1/me/player/currently-playing",
+   "expected": {
+    "trackId": "cp",
+    "title": "Now",
+    "artists": [
+     "Q"
+    ],
+    "durationSec": 100
+   }
+  }
+ ]
+}

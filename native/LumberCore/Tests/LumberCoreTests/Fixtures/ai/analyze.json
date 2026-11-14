@@ -1,0 +1,1306 @@
+{
+ "sampleRate": 48000,
+ "cases": [
+  {
+   "name": "sine1k",
+   "channels": [
+    {
+     "type": "tone",
+     "freq": 1000,
+     "amp": 0.5,
+     "n": 192000
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     0,
+     0.06526309251785278,
+     0.129409521818161,
+     0.19134171307086945
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -9.03089995259387,
+    "peakDb": -6.020599913279624,
+    "crestDb": 3.010300039314246,
+    "loudnessLufs": -9.283738498035154,
+    "dynamicRangeDb": 0.08983865827773663,
+    "noiseFloorDb": -9.06529636368346,
+    "bands": {
+     "sub": -119.99405668698147,
+     "low": -111.65118238919796,
+     "lowMid": -81.33112216384711,
+     "mid": -3.2000295806009474e-8,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 1000.0000000197324,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -9,
+    "peakDb": -6,
+    "crestDb": 3,
+    "loudnessLufs": -9.3,
+    "dynamicRangeDb": 0.1,
+    "noiseFloorDb": -9.1,
+    "bands": {
+     "sub": -120,
+     "low": -111.7,
+     "lowMid": -81.3,
+     "mid": 0,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 1000,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "tone80",
+   "channels": [
+    {
+     "type": "tone",
+     "freq": 80,
+     "amp": 0.5,
+     "n": 96000
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     0,
+     0.005235892254859209,
+     0.01047120988368988,
+     0.015705378726124763
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 2,
+    "channels": 1,
+    "rmsDb": -9.032634250120033,
+    "peakDb": -6.020599913279624,
+    "crestDb": 3.0120343368404088,
+    "loudnessLufs": -11.499274805784136,
+    "dynamicRangeDb": 1.2566001889318912,
+    "noiseFloorDb": -9.694837999545099,
+    "bands": {
+     "sub": -29.7571606761458,
+     "low": -0.004595153732801578,
+     "lowMid": -82.99101369488896,
+     "mid": -113.50624714033566,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 80.00009176199056,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 2,
+    "channels": 1,
+    "rmsDb": -9,
+    "peakDb": -6,
+    "crestDb": 3,
+    "loudnessLufs": -11.5,
+    "dynamicRangeDb": 1.3,
+    "noiseFloorDb": -9.7,
+    "bands": {
+     "sub": -29.8,
+     "low": 0,
+     "lowMid": -83,
+     "mid": -113.5,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 80,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "brightNoise",
+   "channels": [
+    {
+     "type": "diff",
+     "of": {
+      "type": "noise",
+      "n": 192000,
+      "seed": 1
+     }
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     0,
+     0.1328151375055313,
+     0.13497136533260345,
+     0.2006412297487259
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -7.778794504116964,
+    "peakDb": -0.016039768328864987,
+    "crestDb": 7.762754735788099,
+    "loudnessLufs": -4.474243177836329,
+    "dynamicRangeDb": 0.7349818645350537,
+    "noiseFloorDb": -8.113223627297685,
+    "bands": {
+     "sub": -72.93625441905745,
+     "low": -55.231703760034904,
+     "lowMid": -40.624125195077056,
+     "mid": -25.735619482955773,
+     "presence": -14.667092978570311,
+     "air": -0.16329225806667094
+    },
+    "centroidHz": 14370.52028309296,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -7.8,
+    "peakDb": 0,
+    "crestDb": 7.8,
+    "loudnessLufs": -4.5,
+    "dynamicRangeDb": 0.7,
+    "noiseFloorDb": -8.1,
+    "bands": {
+     "sub": -72.9,
+     "low": -55.2,
+     "lowMid": -40.6,
+     "mid": -25.7,
+     "presence": -14.7,
+     "air": -0.2
+    },
+    "centroidHz": 14371,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "darkNoise",
+   "channels": [
+    {
+     "type": "lowpass",
+     "of": {
+      "type": "noise",
+      "n": 192000,
+      "seed": 1
+     },
+     "a": 0.97
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     -0.015812668949365616,
+     -0.02318204753100872,
+     -0.022232064977288246,
+     -0.009272106923162937
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -22.868271041280934,
+    "peakDb": -9.38252483436061,
+    "crestDb": 13.485746206920325,
+    "loudnessLufs": -23.919242695622824,
+    "dynamicRangeDb": 4.478225992805438,
+    "noiseFloorDb": -25.123760012490322,
+    "bands": {
+     "sub": -8.611014306354365,
+     "low": -4.200190947408348,
+     "lowMid": -5.167048330035392,
+     "mid": -9.11264661631293,
+     "presence": -14.626195394206201,
+     "air": -16.838414988416403
+    },
+    "centroidHz": 714.8946576954465,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -22.9,
+    "peakDb": -9.4,
+    "crestDb": 13.5,
+    "loudnessLufs": -23.9,
+    "dynamicRangeDb": 4.5,
+    "noiseFloorDb": -25.1,
+    "bands": {
+     "sub": -8.6,
+     "low": -4.2,
+     "lowMid": -5.2,
+     "mid": -9.1,
+     "presence": -14.6,
+     "air": -16.8
+    },
+    "centroidHz": 715,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "kit",
+   "channels": [
+    {
+     "type": "hits",
+     "sec": 8,
+     "every": 0.25,
+     "tau": 0.03,
+     "amp": 0.8
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     -0.41795068979263306,
+     0.6611299514770508,
+     0.17973685264587402,
+     0.6817485094070435
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 8,
+    "channels": 1,
+    "rmsDb": -18.905952444326495,
+    "peakDb": -1.9756828782314617,
+    "crestDb": 16.930269566095035,
+    "loudnessLufs": -15.842727987319494,
+    "dynamicRangeDb": 59.89955818298311,
+    "noiseFloorDb": -70.17429924728943,
+    "bands": {
+     "sub": -27.49318260802946,
+     "low": -20.110982254808857,
+     "lowMid": -15.588271321393218,
+     "mid": -10.733409466447254,
+     "presence": -7.48864179431565,
+     "air": -1.5608280498797586
+    },
+    "centroidHz": 9899.948873909832,
+    "onsetsPerSec": 3.875,
+    "decayMs": 74.66666666666666,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 8,
+    "channels": 1,
+    "rmsDb": -18.9,
+    "peakDb": -2,
+    "crestDb": 16.9,
+    "loudnessLufs": -15.8,
+    "dynamicRangeDb": 59.9,
+    "noiseFloorDb": -70.2,
+    "bands": {
+     "sub": -27.5,
+     "low": -20.1,
+     "lowMid": -15.6,
+     "mid": -10.7,
+     "presence": -7.5,
+     "air": -1.6
+    },
+    "centroidHz": 9900,
+    "onsetsPerSec": 3.88,
+    "decayMs": 75,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "ringy",
+   "channels": [
+    {
+     "type": "hits",
+     "sec": 8,
+     "every": 0.5,
+     "tau": 0.12,
+     "amp": 0.8
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     -0.41795068979263306,
+     0.6614744067192078,
+     0.17992419004440308,
+     0.6828145980834961
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 8,
+    "channels": 1,
+    "rmsDb": -15.915593999771398,
+    "peakDb": -1.9756828782314617,
+    "crestDb": 13.939911121539936,
+    "loudnessLufs": -12.872821344623175,
+    "dynamicRangeDb": 30.232180076983113,
+    "noiseFloorDb": -38.818404928095916,
+    "bands": {
+     "sub": -26.631295367995385,
+     "low": -20.07170529341866,
+     "lowMid": -15.324317232945779,
+     "mid": -10.695091835424757,
+     "presence": -7.63909938525582,
+     "air": -1.5415080110260484
+    },
+    "centroidHz": 9959.323862977124,
+    "onsetsPerSec": 1.875,
+    "decayMs": 288,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 8,
+    "channels": 1,
+    "rmsDb": -15.9,
+    "peakDb": -2,
+    "crestDb": 13.9,
+    "loudnessLufs": -12.9,
+    "dynamicRangeDb": 30.2,
+    "noiseFloorDb": -38.8,
+    "bands": {
+     "sub": -26.6,
+     "low": -20.1,
+     "lowMid": -15.3,
+     "mid": -10.7,
+     "presence": -7.6,
+     "air": -1.5
+    },
+    "centroidHz": 9959,
+    "onsetsPerSec": 1.88,
+    "decayMs": 288,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "stereoSame",
+   "channels": [
+    {
+     "type": "noise",
+     "n": 96000,
+     "seed": 3
+    },
+    {
+     "type": "noise",
+     "n": 96000,
+     "seed": 3
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     -0.5255387425422668,
+     0.10135640949010849,
+     0.7473171353340149,
+     0.5578320026397705
+    ],
+    [
+     -0.5255387425422668,
+     0.10135640949010849,
+     0.7473171353340149,
+     0.5578320026397705
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 2,
+    "channels": 2,
+    "rmsDb": -4.792849442447177,
+    "peakDb": -0.0000025885972179066273,
+    "crestDb": 4.79284685384996,
+    "loudnessLufs": 1.2909291338761997,
+    "dynamicRangeDb": 0.4981371266070713,
+    "noiseFloorDb": -5.003361857182325,
+    "bands": {
+     "sub": -26.86320713735742,
+     "low": -19.957355237152306,
+     "lowMid": -15.497074748951722,
+     "mid": -10.621614373830322,
+     "presence": -7.629507044598691,
+     "air": -1.5467119461490348
+    },
+    "centroidHz": 10022.152723601963,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": 0
+   },
+   "rounded": {
+    "durationSec": 2,
+    "channels": 2,
+    "rmsDb": -4.8,
+    "peakDb": 0,
+    "crestDb": 4.8,
+    "loudnessLufs": 1.3,
+    "dynamicRangeDb": 0.5,
+    "noiseFloorDb": -5,
+    "bands": {
+     "sub": -26.9,
+     "low": -20,
+     "lowMid": -15.5,
+     "mid": -10.6,
+     "presence": -7.6,
+     "air": -1.5
+    },
+    "centroidHz": 10022,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": 0
+   }
+  },
+  {
+   "name": "stereoNeg",
+   "channels": [
+    {
+     "type": "noise",
+     "n": 96000,
+     "seed": 3
+    },
+    {
+     "type": "neg",
+     "of": {
+      "type": "noise",
+      "n": 96000,
+      "seed": 3
+     }
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     -0.5255387425422668,
+     0.10135640949010849,
+     0.7473171353340149,
+     0.5578320026397705
+    ],
+    [
+     0.5255387425422668,
+     -0.10135640949010849,
+     -0.7473171353340149,
+     -0.5578320026397705
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 2,
+    "channels": 2,
+    "rmsDb": -4.792849442447177,
+    "peakDb": -0.0000025885972179066273,
+    "crestDb": 4.79284685384996,
+    "loudnessLufs": 1.2909291338761997,
+    "dynamicRangeDb": 0,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": 1
+   },
+   "rounded": {
+    "durationSec": 2,
+    "channels": 2,
+    "rmsDb": -4.8,
+    "peakDb": 0,
+    "crestDb": 4.8,
+    "loudnessLufs": 1.3,
+    "dynamicRangeDb": 0,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": 1
+   }
+  },
+  {
+   "name": "stereoIndep",
+   "channels": [
+    {
+     "type": "noise",
+     "n": 96000,
+     "seed": 3
+    },
+    {
+     "type": "noise",
+     "n": 96000,
+     "seed": 9
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     -0.5255387425422668,
+     0.10135640949010849,
+     0.7473171353340149,
+     0.5578320026397705
+    ],
+    [
+     -0.520888090133667,
+     -0.8101984262466431,
+     0.9638164043426514,
+     -0.9979715943336487
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 2,
+    "channels": 2,
+    "rmsDb": -4.79396937387741,
+    "peakDb": -0.0000025885972179066273,
+    "crestDb": 4.793966785280192,
+    "loudnessLufs": 1.2832362730202869,
+    "dynamicRangeDb": 0.6518080207556585,
+    "noiseFloorDb": -8.076211274900455,
+    "bands": {
+     "sub": -26.930016164791773,
+     "low": -20.068501681741164,
+     "lowMid": -15.432777656622608,
+     "mid": -10.45603998491654,
+     "presence": -7.66752478997396,
+     "air": -1.559116155638204
+    },
+    "centroidHz": 10004.393662685492,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": 0.4999926706903586
+   },
+   "rounded": {
+    "durationSec": 2,
+    "channels": 2,
+    "rmsDb": -4.8,
+    "peakDb": 0,
+    "crestDb": 4.8,
+    "loudnessLufs": 1.3,
+    "dynamicRangeDb": 0.7,
+    "noiseFloorDb": -8.1,
+    "bands": {
+     "sub": -26.9,
+     "low": -20.1,
+     "lowMid": -15.4,
+     "mid": -10.5,
+     "presence": -7.7,
+     "air": -1.6
+    },
+    "centroidHz": 10004,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": 0.5
+   }
+  },
+  {
+   "name": "silence",
+   "channels": [
+    {
+     "type": "zeros",
+     "n": 48000
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     0,
+     0,
+     0,
+     0
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 1,
+    "channels": 1,
+    "rmsDb": -120,
+    "peakDb": -120,
+    "crestDb": 0,
+    "loudnessLufs": -120,
+    "dynamicRangeDb": 0,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 1,
+    "channels": 1,
+    "rmsDb": -120,
+    "peakDb": -120,
+    "crestDb": 0,
+    "loudnessLufs": -120,
+    "dynamicRangeDb": 0,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "empty",
+   "channels": [
+    {
+     "type": "zeros",
+     "n": 0
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    []
+   ],
+   "descriptors": {
+    "durationSec": 0,
+    "channels": 1,
+    "rmsDb": -120,
+    "peakDb": -120,
+    "crestDb": 0,
+    "loudnessLufs": -120,
+    "dynamicRangeDb": 0,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 0,
+    "channels": 1,
+    "rmsDb": -120,
+    "peakDb": -120,
+    "crestDb": 0,
+    "loudnessLufs": -120,
+    "dynamicRangeDb": 0,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "short",
+   "channels": [
+    {
+     "type": "tone",
+     "freq": 440,
+     "amp": 0.3,
+     "n": 3000
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     0,
+     0.017269207164645195,
+     0.034481145441532135,
+     0.05157873034477234
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 0.0625,
+    "channels": 1,
+    "rmsDb": -13.461968722474179,
+    "peakDb": -10.457574560460515,
+    "crestDb": 3.0043941620136643,
+    "loudnessLufs": -14.215841441703047,
+    "dynamicRangeDb": 0.25820644132030246,
+    "noiseFloorDb": -13.603178422202106,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 0.1,
+    "channels": 1,
+    "rmsDb": -13.5,
+    "peakDb": -10.5,
+    "crestDb": 3,
+    "loudnessLufs": -14.2,
+    "dynamicRangeDb": 0.3,
+    "noiseFloorDb": -13.6,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "firstHalf",
+   "channels": [
+    {
+     "type": "concat",
+     "parts": [
+      {
+       "type": "zeros",
+       "n": 240000
+      },
+      {
+       "type": "tone",
+       "freq": 1000,
+       "amp": 0.5,
+       "n": 240000
+      }
+     ]
+    }
+   ],
+   "opts": {
+    "maxSec": 5
+   },
+   "firstSamples": [
+    [
+     0,
+     0,
+     0,
+     0
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 5,
+    "channels": 1,
+    "rmsDb": -120,
+    "peakDb": -120,
+    "crestDb": 0,
+    "loudnessLufs": -120,
+    "dynamicRangeDb": 0,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 5,
+    "channels": 1,
+    "rmsDb": -120,
+    "peakDb": -120,
+    "crestDb": 0,
+    "loudnessLufs": -120,
+    "dynamicRangeDb": 0,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -120,
+     "low": -120,
+     "lowMid": -120,
+     "mid": -120,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 0,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "secondHalf",
+   "channels": [
+    {
+     "type": "concat",
+     "parts": [
+      {
+       "type": "zeros",
+       "n": 240000
+      },
+      {
+       "type": "tone",
+       "freq": 1000,
+       "amp": 0.5,
+       "n": 240000
+      }
+     ]
+    }
+   ],
+   "opts": {
+    "startSec": 5,
+    "maxSec": 5
+   },
+   "firstSamples": [
+    [
+     0,
+     0,
+     0,
+     0
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 5,
+    "channels": 1,
+    "rmsDb": -9.03089995259373,
+    "peakDb": -6.020599913279624,
+    "crestDb": 3.0103000393141057,
+    "loudnessLufs": -9.283737197543728,
+    "dynamicRangeDb": 0.08983865827773663,
+    "noiseFloorDb": -9.06529636368346,
+    "bands": {
+     "sub": -119.50319223549562,
+     "low": -111.33360810471484,
+     "lowMid": -81.32726588208857,
+     "mid": -3.203143345797029e-8,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 1000.0000000869906,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 5,
+    "channels": 1,
+    "rmsDb": -9,
+    "peakDb": -6,
+    "crestDb": 3,
+    "loudnessLufs": -9.3,
+    "dynamicRangeDb": 0.1,
+    "noiseFloorDb": -9.1,
+    "bands": {
+     "sub": -119.5,
+     "low": -111.3,
+     "lowMid": -81.3,
+     "mid": 0,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 1000,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "fewWindows",
+   "channels": [
+    {
+     "type": "hits",
+     "sec": 4,
+     "every": 0.25,
+     "tau": 0.05,
+     "amp": 0.8
+    }
+   ],
+   "opts": {
+    "fftWindows": 3,
+    "startSec": 0.5
+   },
+   "firstSamples": [
+    [
+     -0.41795068979263306,
+     0.6613136529922485,
+     0.17983673512935638,
+     0.6823168992996216
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 3.5,
+    "channels": 1,
+    "rmsDb": -16.716602314698473,
+    "peakDb": -1.9756828782314617,
+    "crestDb": 14.740919436467012,
+    "loudnessLufs": -13.652595629624125,
+    "dynamicRangeDb": 35.868057903709,
+    "noiseFloorDb": -44.98467422431361,
+    "bands": {
+     "sub": -28.856604494387735,
+     "low": -20.735898232747818,
+     "lowMid": -16.12900356449573,
+     "mid": -10.976942865207825,
+     "presence": -7.797890343770117,
+     "air": -1.4268028785369815
+    },
+    "centroidHz": 10010.241145521495,
+    "onsetsPerSec": 3.7142857142857144,
+    "decayMs": 117.33333333333333,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 3.5,
+    "channels": 1,
+    "rmsDb": -16.7,
+    "peakDb": -2,
+    "crestDb": 14.7,
+    "loudnessLufs": -13.7,
+    "dynamicRangeDb": 35.9,
+    "noiseFloorDb": -45,
+    "bands": {
+     "sub": -28.9,
+     "low": -20.7,
+     "lowMid": -16.1,
+     "mid": -11,
+     "presence": -7.8,
+     "air": -1.4
+    },
+    "centroidHz": 10010,
+    "onsetsPerSec": 3.71,
+    "decayMs": 117,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "oneWindow",
+   "channels": [
+    {
+     "type": "diff",
+     "of": {
+      "type": "noise",
+      "n": 4800,
+      "seed": 5
+     }
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     0,
+     0.4940800070762634,
+     -0.48901060223579407,
+     0.6098735928535461
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 0.1,
+    "channels": 1,
+    "rmsDb": -7.677212714221193,
+    "peakDb": -0.1453907692056044,
+    "crestDb": 7.531821945015589,
+    "loudnessLufs": -4.3662470746343605,
+    "dynamicRangeDb": 0.5997095053333066,
+    "noiseFloorDb": -7.9803734596992815,
+    "bands": {
+     "sub": -73.44988204185955,
+     "low": -54.31036481120282,
+     "lowMid": -42.01458663855792,
+     "mid": -26.19158801009503,
+     "presence": -14.8055341275446,
+     "air": -0.15716258370824
+    },
+    "centroidHz": 14371.876294745023,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 0.1,
+    "channels": 1,
+    "rmsDb": -7.7,
+    "peakDb": -0.1,
+    "crestDb": 7.5,
+    "loudnessLufs": -4.4,
+    "dynamicRangeDb": 0.6,
+    "noiseFloorDb": -8,
+    "bands": {
+     "sub": -73.4,
+     "low": -54.3,
+     "lowMid": -42,
+     "mid": -26.2,
+     "presence": -14.8,
+     "air": -0.2
+    },
+    "centroidHz": 14372,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "pulses",
+   "channels": [
+    {
+     "type": "pulses",
+     "n": 192000,
+     "period": 12000,
+     "width": 400,
+     "amp": 0.5
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     0.5,
+     0.5,
+     0.5,
+     0.5
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -20.791812460476248,
+    "peakDb": -6.020599913279624,
+    "crestDb": 14.771212547196622,
+    "loudnessLufs": -26.79525957827495,
+    "dynamicRangeDb": 108.47032539791456,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -3.8369066364602897,
+     "low": -3.6030108236094414,
+     "lowMid": -9.841356116519865,
+     "mid": -14.906498959601509,
+     "presence": -20.429239845664608,
+     "air": -22.71278060361383
+    },
+    "centroidHz": 248.39223241302807,
+    "onsetsPerSec": 3.75,
+    "decayMs": 10.666666666666666,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -20.8,
+    "peakDb": -6,
+    "crestDb": 14.8,
+    "loudnessLufs": -26.8,
+    "dynamicRangeDb": 108.5,
+    "noiseFloorDb": -120,
+    "bands": {
+     "sub": -3.8,
+     "low": -3.6,
+     "lowMid": -9.8,
+     "mid": -14.9,
+     "presence": -20.4,
+     "air": -22.7
+    },
+    "centroidHz": 248,
+    "onsetsPerSec": 3.75,
+    "decayMs": 11,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "slowSine",
+   "channels": [
+    {
+     "type": "slowSine",
+     "n": 288000,
+     "amp": 0.1,
+     "div": 10
+    }
+   ],
+   "opts": {
+    "startSec": 2,
+    "maxSec": 4
+   },
+   "firstSamples": [
+    [
+     0,
+     0.009983341209590435,
+     0.019866932183504105,
+     0.029552020132541656
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -23.010518709174967,
+    "peakDb": -19.99999987057016,
+    "crestDb": 3.0105188386048063,
+    "loudnessLufs": -23.556606787811894,
+    "dynamicRangeDb": 0.1327610029704438,
+    "noiseFloorDb": -23.075979001652446,
+    "bands": {
+     "sub": -116.65589227520542,
+     "low": -106.84200492513219,
+     "lowMid": -0.00004799472601658968,
+     "mid": -49.56594095560733,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 763.9437268284033,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   },
+   "rounded": {
+    "durationSec": 4,
+    "channels": 1,
+    "rmsDb": -23,
+    "peakDb": -20,
+    "crestDb": 3,
+    "loudnessLufs": -23.6,
+    "dynamicRangeDb": 0.1,
+    "noiseFloorDb": -23.1,
+    "bands": {
+     "sub": -116.7,
+     "low": -106.8,
+     "lowMid": 0,
+     "mid": -49.6,
+     "presence": -120,
+     "air": -120
+    },
+    "centroidHz": 764,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": null
+   }
+  },
+  {
+   "name": "threeChannels",
+   "channels": [
+    {
+     "type": "noise",
+     "n": 48000,
+     "seed": 1
+    },
+    {
+     "type": "noise",
+     "n": 48000,
+     "seed": 2
+    },
+    {
+     "type": "noise",
+     "n": 48000,
+     "seed": 3
+    }
+   ],
+   "opts": null,
+   "firstSamples": [
+    [
+     -0.5270889401435852,
+     -0.2614586651325226,
+     0.008484064601361752,
+     0.4097665250301361
+    ],
+    [
+     -0.526313841342926,
+     -0.08005112409591675,
+     -0.6220993995666504,
+     0.4837992489337921
+    ],
+    [
+     -0.5255387425422668,
+     0.10135640949010849,
+     0.7473171353340149,
+     0.5578320026397705
+    ]
+   ],
+   "descriptors": {
+    "durationSec": 1,
+    "channels": 2,
+    "rmsDb": -4.752055801958244,
+    "peakDb": -0.00007455190870919651,
+    "crestDb": 4.751981250049535,
+    "loudnessLufs": 1.3331867234091828,
+    "dynamicRangeDb": 0.5092373138164401,
+    "noiseFloorDb": -8.005621671912058,
+    "bands": {
+     "sub": -27.267050381516857,
+     "low": -20.008630759698917,
+     "lowMid": -15.578202469686708,
+     "mid": -10.4526659126736,
+     "presence": -7.643873002771894,
+     "air": -1.559408210868981
+    },
+    "centroidHz": 9958.630574558423,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": 0.5014139087542663
+   },
+   "rounded": {
+    "durationSec": 1,
+    "channels": 2,
+    "rmsDb": -4.8,
+    "peakDb": 0,
+    "crestDb": 4.8,
+    "loudnessLufs": 1.3,
+    "dynamicRangeDb": 0.5,
+    "noiseFloorDb": -8,
+    "bands": {
+     "sub": -27.3,
+     "low": -20,
+     "lowMid": -15.6,
+     "mid": -10.5,
+     "presence": -7.6,
+     "air": -1.6
+    },
+    "centroidHz": 9959,
+    "onsetsPerSec": 0,
+    "decayMs": 0,
+    "stereoWidth": 0.501
+   }
+  }
+ ]
+}
