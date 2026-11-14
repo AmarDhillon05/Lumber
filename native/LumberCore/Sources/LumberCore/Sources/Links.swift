@@ -149,7 +149,10 @@ public enum Links {
             if e.hasPrefix("#") {
                 let isHex = e.dropFirst().first.map { $0 == "x" || $0 == "X" } ?? false
                 let digits = isHex ? String(e.dropFirst(2)) : String(e.dropFirst())
-                guard let code = UInt32(digits, radix: isHex ? 16 : 10), let scalar = Unicode.Scalar(code) else { return all }
+                guard let code = UInt32(digits, radix: isHex ? 16 : 10) else { return all }
+                // JS yields a lone surrogate here, which becomes U+FFFD once encoded.
+                if (0xD800...0xDFFF).contains(code) { return "\u{FFFD}" }
+                guard let scalar = Unicode.Scalar(code) else { return all }
                 return String(Character(scalar))
             }
             return entities[e.lowercased()] ?? all
