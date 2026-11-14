@@ -246,10 +246,17 @@ public enum Links {
     }
 
     public static func rankMatches(_ track: SpotifyTrack, _ hits: [VideoHit]) -> [VideoHit] {
-        hits.enumerated()
-            .map { (i: $0.offset, h: $0.element, s: scoreMatch(track, $0.element) - Double($0.offset) * 0.5) }
-            .sorted { $0.s != $1.s ? $0.s > $1.s : $0.i < $1.i }
-            .map(\.h)
+        // Spelled out step by step: the chained tuple version is too slow for
+        // Xcode's type checker in release builds.
+        struct Scored { let index: Int; let hit: VideoHit; let score: Double }
+        var scored: [Scored] = []
+        scored.reserveCapacity(hits.count)
+        for (index, hit) in hits.enumerated() {
+            let score: Double = scoreMatch(track, hit) - Double(index) * 0.5 // slight tie-break by YouTube's order
+            scored.append(Scored(index: index, hit: hit, score: score))
+        }
+        scored.sort { a, b in a.score != b.score ? a.score > b.score : a.index < b.index }
+        return scored.map { $0.hit }
     }
 
     // MARK: Entry points
