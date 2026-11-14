@@ -141,7 +141,7 @@ public struct AnalyzeOptions: Sendable {
     }
 }
 
-public struct MixAnalysis: Sendable, Equatable {
+public struct MixAnalysis: Sendable, Equatable, Codable {
     public var drums: AudioDescriptors
     public var song: AudioDescriptors?
     public var songIsDrumless: Bool // song descriptors come from the no-drums stem
