@@ -10,3 +10,7 @@ models/
 .env*
 .DS_Store
 .claude/worktrees/
+.build/
+native/*.xcodeproj/
+native/**/*.xcodeproj/
+.swiftpm/
