@@ -1,0 +1,1608 @@
+{
+ "keys": [
+  "volume",
+  "high_pass_rumble",
+  "denoise",
+  "kick_presence",
+  "snare_body",
+  "boxiness",
+  "attack",
+  "harshness",
+  "air",
+  "brightness",
+  "resonance",
+  "dynamic_range",
+  "detail",
+  "punch",
+  "sustain",
+  "consistency",
+  "pumping",
+  "roominess",
+  "width",
+  "depth",
+  "warmth",
+  "presence",
+  "fullness",
+  "clipping",
+  "naturalness"
+ ],
+ "ranges": [
+  {
+   "key": "volume",
+   "min": -1,
+   "max": 1
+  },
+  {
+   "key": "high_pass_rumble",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "denoise",
+   "min": 0,
+   "max": 0.35
+  },
+  {
+   "key": "kick_presence",
+   "min": -1,
+   "max": 1
+  },
+  {
+   "key": "snare_body",
+   "min": -1,
+   "max": 1
+  },
+  {
+   "key": "boxiness",
+   "min": -1,
+   "max": 1
+  },
+  {
+   "key": "attack",
+   "min": -1,
+   "max": 1
+  },
+  {
+   "key": "harshness",
+   "min": -1,
+   "max": 1
+  },
+  {
+   "key": "air",
+   "min": -1,
+   "max": 1
+  },
+  {
+   "key": "brightness",
+   "min": -1,
+   "max": 1
+  },
+  {
+   "key": "resonance",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "dynamic_range",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "detail",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "punch",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "sustain",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "consistency",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "pumping",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "roominess",
+   "min": 0,
+   "max": 0.35
+  },
+  {
+   "key": "width",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "depth",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "warmth",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "presence",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "fullness",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "clipping",
+   "min": 0,
+   "max": 1
+  },
+  {
+   "key": "naturalness",
+   "min": 0,
+   "max": 1
+  }
+ ],
+ "clamp": [
+  {
+   "key": "volume",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "volume",
+   "input": -0.5,
+   "expected": -0.5
+  },
+  {
+   "key": "volume",
+   "input": -4,
+   "expected": -1
+  },
+  {
+   "key": "volume",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "volume",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "volume",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "volume",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "denoise",
+   "input": 3,
+   "expected": 0.35
+  },
+  {
+   "key": "denoise",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "denoise",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "denoise",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "denoise",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "denoise",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "denoise",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "kick_presence",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "kick_presence",
+   "input": -0.5,
+   "expected": -0.5
+  },
+  {
+   "key": "kick_presence",
+   "input": -4,
+   "expected": -1
+  },
+  {
+   "key": "kick_presence",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "kick_presence",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "kick_presence",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "kick_presence",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "snare_body",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "snare_body",
+   "input": -0.5,
+   "expected": -0.5
+  },
+  {
+   "key": "snare_body",
+   "input": -4,
+   "expected": -1
+  },
+  {
+   "key": "snare_body",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "snare_body",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "snare_body",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "snare_body",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "boxiness",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "boxiness",
+   "input": -0.5,
+   "expected": -0.5
+  },
+  {
+   "key": "boxiness",
+   "input": -4,
+   "expected": -1
+  },
+  {
+   "key": "boxiness",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "boxiness",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "boxiness",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "boxiness",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "attack",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "attack",
+   "input": -0.5,
+   "expected": -0.5
+  },
+  {
+   "key": "attack",
+   "input": -4,
+   "expected": -1
+  },
+  {
+   "key": "attack",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "attack",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "attack",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "attack",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "harshness",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "harshness",
+   "input": -0.5,
+   "expected": -0.5
+  },
+  {
+   "key": "harshness",
+   "input": -4,
+   "expected": -1
+  },
+  {
+   "key": "harshness",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "harshness",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "harshness",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "harshness",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "air",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "air",
+   "input": -0.5,
+   "expected": -0.5
+  },
+  {
+   "key": "air",
+   "input": -4,
+   "expected": -1
+  },
+  {
+   "key": "air",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "air",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "air",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "air",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "brightness",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "brightness",
+   "input": -0.5,
+   "expected": -0.5
+  },
+  {
+   "key": "brightness",
+   "input": -4,
+   "expected": -1
+  },
+  {
+   "key": "brightness",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "brightness",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "brightness",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "brightness",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "resonance",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "resonance",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "resonance",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "resonance",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "resonance",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "resonance",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "resonance",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "dynamic_range",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "dynamic_range",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "dynamic_range",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "dynamic_range",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "dynamic_range",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "dynamic_range",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "dynamic_range",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "detail",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "detail",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "detail",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "detail",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "detail",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "detail",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "detail",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "punch",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "punch",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "punch",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "punch",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "punch",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "punch",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "punch",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "sustain",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "sustain",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "sustain",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "sustain",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "sustain",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "sustain",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "sustain",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "consistency",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "consistency",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "consistency",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "consistency",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "consistency",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "consistency",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "consistency",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "pumping",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "pumping",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "pumping",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "pumping",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "pumping",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "pumping",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "pumping",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "roominess",
+   "input": 3,
+   "expected": 0.35
+  },
+  {
+   "key": "roominess",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "roominess",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "roominess",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "roominess",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "roominess",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "roominess",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "width",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "width",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "width",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "width",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "width",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "width",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "width",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "depth",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "depth",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "depth",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "depth",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "depth",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "depth",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "depth",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "warmth",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "warmth",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "warmth",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "warmth",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "warmth",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "warmth",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "warmth",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "presence",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "presence",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "presence",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "presence",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "presence",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "presence",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "presence",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "fullness",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "fullness",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "fullness",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "fullness",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "fullness",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "fullness",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "fullness",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "clipping",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "clipping",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "clipping",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "clipping",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "clipping",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "clipping",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "clipping",
+   "input": 0.35,
+   "expected": 0.35
+  },
+  {
+   "key": "naturalness",
+   "input": 3,
+   "expected": 1
+  },
+  {
+   "key": "naturalness",
+   "input": -0.5,
+   "expected": 0
+  },
+  {
+   "key": "naturalness",
+   "input": -4,
+   "expected": 0
+  },
+  {
+   "key": "naturalness",
+   "input": 0.1234567,
+   "expected": 0.123
+  },
+  {
+   "key": "naturalness",
+   "input": 0.0005,
+   "expected": 0.001
+  },
+  {
+   "key": "naturalness",
+   "input": -0.0005,
+   "expected": 0
+  },
+  {
+   "key": "naturalness",
+   "input": 0.35,
+   "expected": 0.35
+  }
+ ],
+ "effective": [
+  {
+   "key": "volume",
+   "input": -0.4,
+   "expected": -0.4
+  },
+  {
+   "key": "volume",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "high_pass_rumble",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "denoise",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "denoise",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "kick_presence",
+   "input": -0.4,
+   "expected": -0.4
+  },
+  {
+   "key": "kick_presence",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "snare_body",
+   "input": -0.4,
+   "expected": -0.4
+  },
+  {
+   "key": "snare_body",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "boxiness",
+   "input": -0.4,
+   "expected": -0.4
+  },
+  {
+   "key": "boxiness",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "attack",
+   "input": -0.4,
+   "expected": -0.4
+  },
+  {
+   "key": "attack",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "harshness",
+   "input": -0.4,
+   "expected": -0.4
+  },
+  {
+   "key": "harshness",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "air",
+   "input": -0.4,
+   "expected": -0.4
+  },
+  {
+   "key": "air",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "brightness",
+   "input": -0.4,
+   "expected": -0.4
+  },
+  {
+   "key": "brightness",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "resonance",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "resonance",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "dynamic_range",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "dynamic_range",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "detail",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "detail",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "punch",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "punch",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "sustain",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "sustain",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "consistency",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "consistency",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "pumping",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "pumping",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "roominess",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "roominess",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "width",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "width",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "depth",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "depth",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "warmth",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "warmth",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "presence",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "presence",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "fullness",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "fullness",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "clipping",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "clipping",
+   "input": 0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "naturalness",
+   "input": -0.4,
+   "expected": 0.4
+  },
+  {
+   "key": "naturalness",
+   "input": 0.4,
+   "expected": 0.4
+  }
+ ],
+ "gain": [
+  {
+   "input": -1,
+   "expected": 0
+  },
+  {
+   "input": 0,
+   "expected": 0
+  },
+  {
+   "input": 0.12345,
+   "expected": 0.123
+  },
+  {
+   "input": 1.5,
+   "expected": 1.5
+  },
+  {
+   "input": 1.50049,
+   "expected": 1.5
+  },
+  {
+   "input": 9,
+   "expected": 1.5
+  }
+ ],
+ "base": {
+  "volume": 0,
+  "high_pass_rumble": 0,
+  "denoise": 0,
+  "kick_presence": 0,
+  "snare_body": 0,
+  "boxiness": 0,
+  "attack": 0,
+  "harshness": 0,
+  "air": -0.5,
+  "brightness": 0,
+  "resonance": 0,
+  "dynamic_range": 0,
+  "detail": 0,
+  "punch": 0,
+  "sustain": 0,
+  "consistency": 0,
+  "pumping": 0,
+  "roominess": 0,
+  "width": 0,
+  "depth": 0,
+  "warmth": 0.2,
+  "presence": 0,
+  "fullness": 0,
+  "clipping": 0,
+  "naturalness": 0
+ },
+ "sanitize": [
+  {
+   "input": {
+    "punch": 0.5,
+    "air": -2,
+    "bogus": 1,
+    "warmth": "loud",
+    "depth": null
+   },
+   "values": {
+    "volume": 0,
+    "high_pass_rumble": 0,
+    "denoise": 0,
+    "kick_presence": 0,
+    "snare_body": 0,
+    "boxiness": 0,
+    "attack": 0,
+    "harshness": 0,
+    "air": -1,
+    "brightness": 0,
+    "resonance": 0,
+    "dynamic_range": 0,
+    "detail": 0,
+    "punch": 0.5,
+    "sustain": 0,
+    "consistency": 0,
+    "pumping": 0,
+    "roominess": 0,
+    "width": 0,
+    "depth": 0,
+    "warmth": 0.2,
+    "presence": 0,
+    "fullness": 0,
+    "clipping": 0,
+    "naturalness": 0
+   },
+   "dropped": [
+    "bogus",
+    "warmth",
+    "depth"
+   ]
+  },
+  {
+   "input": null,
+   "values": {
+    "volume": 0,
+    "high_pass_rumble": 0,
+    "denoise": 0,
+    "kick_presence": 0,
+    "snare_body": 0,
+    "boxiness": 0,
+    "attack": 0,
+    "harshness": 0,
+    "air": -0.5,
+    "brightness": 0,
+    "resonance": 0,
+    "dynamic_range": 0,
+    "detail": 0,
+    "punch": 0,
+    "sustain": 0,
+    "consistency": 0,
+    "pumping": 0,
+    "roominess": 0,
+    "width": 0,
+    "depth": 0,
+    "warmth": 0.2,
+    "presence": 0,
+    "fullness": 0,
+    "clipping": 0,
+    "naturalness": 0
+   },
+   "dropped": []
+  },
+  {
+   "input": [
+    1,
+    2
+   ],
+   "values": {
+    "volume": 0,
+    "high_pass_rumble": 0,
+    "denoise": 0,
+    "kick_presence": 0,
+    "snare_body": 0,
+    "boxiness": 0,
+    "attack": 0,
+    "harshness": 0,
+    "air": -0.5,
+    "brightness": 0,
+    "resonance": 0,
+    "dynamic_range": 0,
+    "detail": 0,
+    "punch": 0,
+    "sustain": 0,
+    "consistency": 0,
+    "pumping": 0,
+    "roominess": 0,
+    "width": 0,
+    "depth": 0,
+    "warmth": 0.2,
+    "presence": 0,
+    "fullness": 0,
+    "clipping": 0,
+    "naturalness": 0
+   },
+   "dropped": [
+    "0",
+    "1"
+   ]
+  },
+  {
+   "input": "x",
+   "values": {
+    "volume": 0,
+    "high_pass_rumble": 0,
+    "denoise": 0,
+    "kick_presence": 0,
+    "snare_body": 0,
+    "boxiness": 0,
+    "attack": 0,
+    "harshness": 0,
+    "air": -0.5,
+    "brightness": 0,
+    "resonance": 0,
+    "dynamic_range": 0,
+    "detail": 0,
+    "punch": 0,
+    "sustain": 0,
+    "consistency": 0,
+    "pumping": 0,
+    "roominess": 0,
+    "width": 0,
+    "depth": 0,
+    "warmth": 0.2,
+    "presence": 0,
+    "fullness": 0,
+    "clipping": 0,
+    "naturalness": 0
+   },
+   "dropped": []
+  },
+  {
+   "input": {
+    "denoise": 0.9,
+    "roominess": -1,
+    "brightness": 0.12345,
+    "width": 1e-9,
+    "volume": -7,
+    "sustain": 1.0005
+   },
+   "values": {
+    "volume": -1,
+    "high_pass_rumble": 0,
+    "denoise": 0.35,
+    "kick_presence": 0,
+    "snare_body": 0,
+    "boxiness": 0,
+    "attack": 0,
+    "harshness": 0,
+    "air": -0.5,
+    "brightness": 0.123,
+    "resonance": 0,
+    "dynamic_range": 0,
+    "detail": 0,
+    "punch": 0,
+    "sustain": 1,
+    "consistency": 0,
+    "pumping": 0,
+    "roominess": 0,
+    "width": 0,
+    "depth": 0,
+    "warmth": 0.2,
+    "presence": 0,
+    "fullness": 0,
+    "clipping": 0,
+    "naturalness": 0
+   },
+   "dropped": []
+  },
+  {
+   "input": {},
+   "values": {
+    "volume": 0,
+    "high_pass_rumble": 0,
+    "denoise": 0,
+    "kick_presence": 0,
+    "snare_body": 0,
+    "boxiness": 0,
+    "attack": 0,
+    "harshness": 0,
+    "air": -0.5,
+    "brightness": 0,
+    "resonance": 0,
+    "dynamic_range": 0,
+    "detail": 0,
+    "punch": 0,
+    "sustain": 0,
+    "consistency": 0,
+    "pumping": 0,
+    "roominess": 0,
+    "width": 0,
+    "depth": 0,
+    "warmth": 0.2,
+    "presence": 0,
+    "fullness": 0,
+    "clipping": 0,
+    "naturalness": 0
+   },
+   "dropped": []
+  }
+ ],
+ "changed": {
+  "a": {
+   "volume": 0,
+   "high_pass_rumble": 0,
+   "denoise": 0,
+   "kick_presence": 0,
+   "snare_body": 0,
+   "boxiness": 0,
+   "attack": 0,
+   "harshness": 0,
+   "air": -0.5,
+   "brightness": 0,
+   "resonance": 0,
+   "dynamic_range": 0,
+   "detail": 0,
+   "punch": 0,
+   "sustain": 0,
+   "consistency": 0,
+   "pumping": 0,
+   "roominess": 0,
+   "width": 0,
+   "depth": 0,
+   "warmth": 0.2,
+   "presence": 0,
+   "fullness": 0,
+   "clipping": 0,
+   "naturalness": 0
+  },
+  "b": {
+   "volume": 0,
+   "high_pass_rumble": 0,
+   "denoise": 0,
+   "kick_presence": 0,
+   "snare_body": 0,
+   "boxiness": 0,
+   "attack": 0,
+   "harshness": 0,
+   "air": -0.5,
+   "brightness": 0,
+   "resonance": 0,
+   "dynamic_range": 0,
+   "detail": 0,
+   "punch": 0.0011,
+   "sustain": 0,
+   "consistency": 0,
+   "pumping": 0,
+   "roominess": 0,
+   "width": 0,
+   "depth": 0,
+   "warmth": 0.2005,
+   "presence": 0,
+   "fullness": 0,
+   "clipping": 0,
+   "naturalness": 0
+  },
+  "expected": [
+   "punch"
+  ]
+ }
+}
