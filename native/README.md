@@ -24,8 +24,49 @@ source until it reaches parity, then replaces it.
   (presets, ranges, DSP math, Demucs constants) and prove it with fixtures.
 - Colors come from `Theme.swift` (purple/gray/blue palette from `../src/theme.ts`).
 
+## App layout (`App/Sources`)
+
+- `App/` — `LumberApp` (entry, `NavigationStack`), `ServicesFactory.swift`
+  (`Services.live()`: which implementation backs each service).
+- `State/` — `AppModel` (`@Observable`, db.json), Codable models, per-screen
+  sessions (`RecordSession`, `EditSession`, …), the service protocols
+  (`Services.swift`) and mocks. Foundation-only: CI typechecks it on Linux.
+- `UI/` — SwiftUI screens: Library, Record, Edit, Recordings.
+- `Theme/` — colors.
+- `Platform/`, `Separation/` — AVFoundation / Photos / ONNX implementations of the
+  service protocols.
+
+Data lives in `Documents/lumber/` (`db.json` plus `songs/`, `stems/`, `takes/`,
+`videos/`, `recordings/`); paths in db.json are relative to Documents.
+
 ## Build
 
 - Linux: `cd native/LumberCore && swift test`
 - iOS: `.github/workflows/native-ios.yml` (XcodeGen → unsigned `xcodebuild` → `.ipa`
-  → release + SideStore source entry).
+  → release `native-build-<run>` + SideStore source entry). Runs on pushes to `main`
+  that touch `native/**`, on pull requests, and by hand (Actions → Native iOS build →
+  Run workflow). `CFBundleVersion` is the run number.
+
+## Install "Lumber (native)" on the iPhone
+
+It's in the same SideStore source as the RN app, as a second app:
+
+1. In SideStore → Sources → **+**, add
+   `https://github.com/AmarDhillon05/Lumber/releases/download/sidestore/apps.json`
+   (skip if you already added it for Lumber).
+2. Open the source and install **Lumber (native)**. It installs next to "Lumber" —
+   different bundle id (`com.amardhillon.lumber.native`), separate data.
+3. New builds on `main` show up as updates in SideStore. Each `.ipa` is also on the
+   `native-build-<run>` release for Sideloadly / Impactor.
+
+Free Apple accounts allow 3 sideloaded apps at once; the native app counts as one.
+
+## Spotify
+
+The native app uses its own redirect URI. In the Spotify developer dashboard
+(your app → Settings → Redirect URIs) add:
+
+    lumbernative://spotify-callback
+
+next to the RN app's URI, and save. The `lumbernative` URL scheme is registered in
+`project.yml`.
