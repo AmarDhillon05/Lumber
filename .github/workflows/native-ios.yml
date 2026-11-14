@@ -1,0 +1,190 @@
+# Builds the native app ("Lumber (native)", com.amardhillon.lumber.native)
+# from native/: LumberCore tests on Linux first, then XcodeGen → unsigned
+# xcodebuild on macOS → .ipa. On main it publishes a release and adds the
+# build to the shared SideStore source next to the RN app.
+#
+# Cost note: macOS minutes are billed at 10x on private repos; the Linux job
+# runs first so a failing test never spends them.
+
+name: Native iOS build
+
+on:
+  workflow_dispatch:
+    inputs:
+      simulator_tests:
+        description: 'Also run LumberCore tests on an iOS Simulator'
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - 'native/**'
+      - '.github/workflows/native-ios.yml'
+      - 'scripts/ci/sidestore-source.mjs'
+  pull_request:
+    paths:
+      - 'native/**'
+      - '.github/workflows/native-ios.yml'
+
+concurrency:
+  group: native-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    container: swift:6.4.2-noble
+    steps:
+      - uses: actions/checkout@v7
+      - name: swift test (LumberCore)
+        working-directory: native/LumberCore
+        run: swift test
+      # The app's State layer is Foundation-only on purpose (no SwiftUI, no
+      # LumberCore import), so Swift 6 strict-concurrency mistakes in it are
+      # caught here instead of on macOS.
+      - name: Typecheck App/Sources/State (Swift 6)
+        run: swiftc -swift-version 6 -typecheck native/App/Sources/State/*.swift
+
+  ios:
+    needs: core
+    runs-on: macos-26
+    timeout-minutes: 60
+    permissions:
+      contents: write # publish the .ipa and the SideStore source as release assets
+    env:
+      CONFIGURATION: Release
+      SCHEME: LumberNative
+      PRODUCT: LumberNative
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.6.app
+          xcodebuild -version
+
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen --version
+          xcodegen generate --spec native/project.yml
+
+      - uses: actions/cache@v5
+        with:
+          path: native/.spm
+          key: native-spm-${{ runner.os }}-${{ hashFiles('native/project.yml', 'native/LumberCore/Package.swift') }}
+
+      - name: Resolve packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project native/LumberNative.xcodeproj \
+            -scheme "$SCHEME" \
+            -clonedSourcePackagesDirPath native/.spm
+
+      - name: Optional — LumberCore tests on an iOS Simulator
+        if: inputs.simulator_tests
+        working-directory: native/LumberCore
+        run: |
+          set -o pipefail
+          UDID=$(xcrun simctl list devices available -j \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for k,v in d.items() if "iOS" in k for x in v if x["name"].startswith("iPhone")))')
+          echo "Simulator $UDID"
+          xcodebuild test -scheme LumberCore -destination "id=$UDID" | tail -n 40
+
+      - name: xcodebuild (iphoneos, unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project native/LumberNative.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            -clonedSourcePackagesDirPath native/.spm \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            LUMBER_COMMIT="${GITHUB_SHA:0:7}" \
+            build > xcodebuild.log 2>&1 && STATUS=0 || STATUS=$?
+          grep -E '^(\*\*|error:|.*error:)' xcodebuild.log || true
+          if [ "$STATUS" -ne 0 ]; then
+            echo "::error::xcodebuild failed ($STATUS) — see the xcodebuild-log artifact"
+            exit "$STATUS"
+          fi
+          # The .app folder can exist after a failed link; require the binary.
+          test -f "build/Build/Products/${CONFIGURATION}-iphoneos/${PRODUCT}.app/${PRODUCT}"
+
+      - name: Package LumberNative.ipa
+        run: |
+          APP="build/Build/Products/${CONFIGURATION}-iphoneos/${PRODUCT}.app"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist"
+          plutil -convert json -o Info.json "$APP/Info.plist"
+          rm -rf Payload && mkdir Payload
+          cp -R "$APP" "Payload/${PRODUCT}.app"
+          zip -qry LumberNative-unsigned.ipa Payload
+          ls -lh LumberNative-unsigned.ipa
+          # SwiftUI apps are small (no JS bundle), but an empty bundle is tiny.
+          test "$(stat -f%z LumberNative-unsigned.ipa)" -gt 300000
+          test -f "Payload/${PRODUCT}.app/Assets.car"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: LumberNative-${{ github.run_number }}
+          path: LumberNative-unsigned.ipa
+          retention-days: 14
+          if-no-files-found: error
+
+      # Same flow as ios.yml: the .ipa goes on a release, and the shared
+      # SideStore source (releases/download/sidestore/apps.json) gets a second
+      # app entry for com.amardhillon.lumber.native; the RN entry is kept.
+      # Only the 5 newest native-build releases stay.
+      - name: Publish to SideStore source
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          TAG="native-build-$GITHUB_RUN_NUMBER"
+          IPA="LumberNative-$GITHUB_RUN_NUMBER.ipa"
+          cp LumberNative-unsigned.ipa "$IPA"
+          gh release create "$TAG" "$IPA" --prerelease --target "$GITHUB_SHA" \
+            --title "Lumber (native) build $GITHUB_RUN_NUMBER" \
+            --notes "$(git log -1 --format=%s). Unsigned; install with SideStore, Sideloadly or Impactor."
+          URL="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$IPA"
+          gh release view sidestore >/dev/null 2>&1 || gh release create sidestore --prerelease \
+            --title "SideStore source" \
+            --notes "In SideStore, add this source: https://github.com/$GITHUB_REPOSITORY/releases/download/sidestore/apps.json"
+          # The RN workflow updates the same file; re-check after uploading and
+          # redo the merge if a concurrent run replaced it without this build.
+          for attempt in 1 2 3; do
+            rm -f previous.json
+            gh release download sidestore --pattern apps.json --output previous.json 2>/dev/null || true
+            node scripts/ci/sidestore-source.mjs previous.json apps.json "$GITHUB_RUN_NUMBER" "$URL" \
+              "$(stat -f%z "$IPA")" "$(git log -1 --format=%s)" \
+              --bundle-id=com.amardhillon.lumber.native --name="Lumber (native)" \
+              --info-json=Info.json --subtitle="Drum along to any song (native rewrite)"
+            gh release upload sidestore apps.json --clobber
+            sleep 15
+            rm -f check.json
+            gh release download sidestore --pattern apps.json --output check.json
+            if node -e "const j=require('./check.json');process.exit(j.apps.some(a=>a.bundleIdentifier==='com.amardhillon.lumber.native'&&a.versions.some(v=>v.buildVersion===process.env.GITHUB_RUN_NUMBER))?0:1)"; then
+              break
+            fi
+            echo "apps.json changed underneath us (attempt $attempt); merging again"
+          done
+          gh release list --limit 100 --json tagName --jq '.[].tagName' \
+            | grep '^native-build-' | sort -t- -k3 -n -r | tail -n +6 \
+            | xargs -r -I{} gh release delete {} --yes --cleanup-tag
+          echo "Installed builds: $URL"
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-xcodebuild-log-${{ github.run_number }}
+          path: xcodebuild.log
+          if-no-files-found: ignore
