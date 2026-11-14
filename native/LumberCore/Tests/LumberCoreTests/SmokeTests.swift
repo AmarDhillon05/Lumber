@@ -3,6 +3,6 @@ import XCTest
 
 final class SmokeTests: XCTestCase {
     func testVersion() {
-        XCTAssertFalse(LumberCore.version.isEmpty)
+        XCTAssertFalse(LumberCoreInfo.version.isEmpty)
     }
 }

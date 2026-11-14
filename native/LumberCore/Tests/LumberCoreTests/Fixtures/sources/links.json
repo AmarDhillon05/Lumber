@@ -1,0 +1,461 @@
+{
+ "parseLink": [
+  {
+   "input": "https://www.youtube.com/watch?v=pAgnJDJN4VA&t=10s",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "youtube.com/watch?feature=share&v=pAgnJDJN4VA",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "https://youtu.be/pAgnJDJN4VA?si=xyz",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "https://music.youtube.com/watch?v=pAgnJDJN4VA&list=RD",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "https://m.youtube.com/shorts/pAgnJDJN4VA",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "https://www.youtube-nocookie.com/embed/pAgnJDJN4VA?rel=0",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "https://www.youtube.com/live/pAgnJDJN4VA",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "HTTPS://WWW.YOUTUBE.COM/watch?v=pAgnJDJN4VA",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "https://www.youtube.com/watch?v=short",
+   "expected": null
+  },
+  {
+   "input": "https://www.youtube.com/watch?v",
+   "expected": null
+  },
+  {
+   "input": "https://youtu.be/abc",
+   "expected": null
+  },
+  {
+   "input": "  https://youtu.be/pAgnJDJN4VA  ",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=abc",
+   "expected": {
+    "kind": "spotify",
+    "trackId": "08mG3Y1vljYA6bvDt4Wqkj"
+   }
+  },
+  {
+   "input": "https://open.spotify.com/intl-de/track/08mG3Y1vljYA6bvDt4Wqkj",
+   "expected": {
+    "kind": "spotify",
+    "trackId": "08mG3Y1vljYA6bvDt4Wqkj"
+   }
+  },
+  {
+   "input": "spotify:track:08mG3Y1vljYA6bvDt4Wqkj",
+   "expected": {
+    "kind": "spotify",
+    "trackId": "08mG3Y1vljYA6bvDt4Wqkj"
+   }
+  },
+  {
+   "input": "spotify:track:08mG3Y1vljYA6bvDt4Wqk",
+   "expected": null
+  },
+  {
+   "input": "https://play.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj",
+   "expected": {
+    "kind": "spotify",
+    "trackId": "08mG3Y1vljYA6bvDt4Wqkj"
+   }
+  },
+  {
+   "input": "https://spotify.link/AbCdEf",
+   "expected": {
+    "kind": "spotify-short",
+    "url": "https://spotify.link/AbCdEf"
+   }
+  },
+  {
+   "input": "spotify.app.link/XyZ?_p=1",
+   "expected": {
+    "kind": "spotify-short",
+    "url": "https://spotify.app.link/XyZ?_p=1"
+   }
+  },
+  {
+   "input": "back in black",
+   "expected": null
+  },
+  {
+   "input": "https://open.spotify.com/album/1wOhTFS4m9tbPGlKbwGaBg",
+   "expected": null
+  },
+  {
+   "input": "https://example.com/watch?v=pAgnJDJN4VA",
+   "expected": null
+  },
+  {
+   "input": "https://www.youtube.com/watch?v=pAgnJDJN4VA#t=1",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "youtube.com/watch?list=x&v=pAgnJDJN4VA&v=zzzzzzzzzzz",
+   "expected": {
+    "kind": "youtube",
+    "videoId": "pAgnJDJN4VA"
+   }
+  },
+  {
+   "input": "",
+   "expected": null
+  }
+ ],
+ "decodeEntities": [
+  {
+   "input": "&quot;a&quot; &#65;",
+   "expected": "\"a\" A"
+  },
+  {
+   "input": "&AMP; &Lt; &nbsp;|&apos;&#x1F600;&#X41;",
+   "expected": "& <  |'😀A"
+  },
+  {
+   "input": "&unknown; & &;",
+   "expected": "&unknown; & &;"
+  },
+  {
+   "input": "&#xD83D;",
+   "expected": "\ud83d"
+  },
+  {
+   "input": "plain",
+   "expected": "plain"
+  }
+ ],
+ "spotifyPages": [
+  {
+   "trackId": "id",
+   "html": "<html><head>\n<meta property=\"og:title\" content=\"Don&#x27;t Stop Me Now &amp; More\"/>\n<meta property=\"og:description\" content=\"Queen · Jazz · Song · 1978\"/>\n<meta property=\"og:image\" content=\"https://i.scdn.co/image/abc\"/>\n<meta name=\"music:duration\" content=\"209\"/>\n<meta name=\"music:musician_description\" content=\"Queen, Guest Artist\"/>\n</head></html>",
+   "value": {
+    "trackId": "id",
+    "title": "Don't Stop Me Now & More",
+    "artists": [
+     "Queen",
+     "Guest Artist"
+    ],
+    "durationSec": 209,
+    "artworkUrl": "https://i.scdn.co/image/abc"
+   }
+  },
+  {
+   "trackId": "fallback",
+   "html": "<meta property=\"og:title\" content=\"Song &quot;Q&quot; &#233;t&eacute;\"/><meta property=\"og:description\" content=\"AC/DC · Back In Black · Song · 1980\"/><meta name=\"music:duration\" content=\"255.5\"/>",
+   "value": {
+    "trackId": "fallback",
+    "title": "Song \"Q\" ét&eacute;",
+    "artists": [
+     "AC/DC"
+    ],
+    "durationSec": 255.5
+   }
+  },
+  {
+   "trackId": "nodur",
+   "html": "<META PROPERTY=\"og:title\" CONTENT=\"Upper\"/><meta name=\"music:duration\" content=\"x\"/>",
+   "value": {
+    "trackId": "nodur",
+    "title": "Upper",
+    "artists": []
+   }
+  },
+  {
+   "trackId": "empty",
+   "html": "<html></html>",
+   "error": "Could not read the Spotify track (page format changed?)"
+  },
+  {
+   "trackId": "emptytitle",
+   "html": "<meta property=\"og:title\" content=\"\"/>",
+   "error": "Could not read the Spotify track (page format changed?)"
+  }
+ ],
+ "ranking": [
+  {
+   "track": {
+    "trackId": "x",
+    "title": "Back In Black",
+    "artists": [
+     "AC/DC"
+    ],
+    "durationSec": 255
+   },
+   "hits": [
+    {
+     "videoId": "cover",
+     "title": "Back In Black - AC/DC (DRUM COVER)",
+     "channel": "Some Drummer",
+     "durationSec": 255
+    },
+    {
+     "videoId": "live",
+     "title": "AC/DC - Back In Black (Live At River Plate)",
+     "channel": "AC/DC",
+     "durationSec": 270
+    },
+    {
+     "videoId": "long",
+     "title": "AC/DC - Back In Black (Extended)",
+     "channel": "Fan",
+     "durationSec": 400
+    },
+    {
+     "videoId": "topic",
+     "title": "Back In Black",
+     "channel": "AC/DC - Topic",
+     "durationSec": 255
+    },
+    {
+     "videoId": "vevo",
+     "title": "AC/DC - Back In Black (Official Video)",
+     "channel": "acdcVEVO",
+     "durationSec": 256
+    }
+   ],
+   "scores": [
+    55,
+    37,
+    -25,
+    112,
+    104
+   ],
+   "expected": [
+    "topic",
+    "vevo",
+    "cover",
+    "live",
+    "long"
+   ]
+  },
+  {
+   "track": {
+    "trackId": "x",
+    "title": "Mr. Brightside",
+    "artists": [
+     "The Killers"
+    ],
+    "durationSec": 222
+   },
+   "hits": [
+    {
+     "videoId": "k1",
+     "title": "The Killers - Mr. Brightside (Official Music Video)",
+     "channel": "TheKillersMusic",
+     "durationSec": 228
+    },
+    {
+     "videoId": "k2",
+     "title": "Mr. Brightside (Live From The Royal Albert Hall)",
+     "channel": "The Killers",
+     "durationSec": 240
+    },
+    {
+     "videoId": "k3",
+     "title": "Mr Brightside - lyrics",
+     "channel": "LyricVids",
+     "durationSec": 222
+    },
+    {
+     "videoId": "k4",
+     "title": "mr. brightside but it’s slowed + reverb",
+     "channel": "chill",
+     "durationSec": 300
+    },
+    {
+     "videoId": "k5",
+     "title": "Mr. Brightside",
+     "channel": "The Killers - Topic",
+     "durationSec": 223
+    }
+   ],
+   "scores": [
+    70,
+    17,
+    40,
+    -65,
+    112
+   ],
+   "expected": [
+    "k5",
+    "k1",
+    "k3",
+    "k2",
+    "k4"
+   ]
+  },
+  {
+   "track": {
+    "trackId": "x",
+    "title": "Señorita (Live)",
+    "artists": [
+     "Shawn Mendes",
+     "Camila Cabello"
+    ]
+   },
+   "hits": [
+    {
+     "videoId": "s1",
+     "title": "Shawn Mendes, Camila Cabello - Señorita (Live)",
+     "channel": "ShawnMendesVEVO",
+     "durationSec": 190
+    },
+    {
+     "videoId": "s2",
+     "title": "Senorita"
+    },
+    {
+     "videoId": "s3",
+     "title": "Señorita karaoke version",
+     "channel": "Sing King",
+     "durationSec": 191
+    }
+   ],
+   "scores": [
+    56,
+    12.5,
+    -37.5
+   ],
+   "expected": [
+    "s1",
+    "s2",
+    "s3"
+   ]
+  },
+  {
+   "track": {
+    "trackId": "x",
+    "title": "Untitled",
+    "artists": []
+   },
+   "hits": [
+    {
+     "videoId": "u1",
+     "title": "Untitled",
+     "channel": "x",
+     "durationSec": 0
+    },
+    {
+     "videoId": "u2",
+     "title": "Untitled",
+     "channel": "x",
+     "durationSec": 0
+    }
+   ],
+   "scores": [
+    25,
+    25
+   ],
+   "expected": [
+    "u1",
+    "u2"
+   ]
+  },
+  {
+   "track": {
+    "trackId": "x",
+    "title": "Song",
+    "artists": [
+     "Artist"
+    ],
+    "durationSec": 200
+   },
+   "hits": [
+    {
+     "videoId": "d1",
+     "title": "Song",
+     "channel": "a",
+     "durationSec": 203
+    },
+    {
+     "videoId": "d2",
+     "title": "Song",
+     "channel": "a",
+     "durationSec": 210
+    },
+    {
+     "videoId": "d3",
+     "title": "Song",
+     "channel": "a",
+     "durationSec": 230
+    },
+    {
+     "videoId": "d4",
+     "title": "Song",
+     "channel": "a",
+     "durationSec": 300
+    },
+    {
+     "videoId": "d5",
+     "title": "Song 8D audio",
+     "channel": "a",
+     "durationSec": 201
+    }
+   ],
+   "scores": [
+    55,
+    35,
+    15,
+    -15,
+    48
+   ],
+   "expected": [
+    "d1",
+    "d5",
+    "d2",
+    "d3",
+    "d4"
+   ]
+  }
+ ]
+}

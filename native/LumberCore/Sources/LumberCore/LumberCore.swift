@@ -4,6 +4,6 @@
 //   Timing/      take alignment offsets, latency calibration, video sync
 //   Sources/     YouTube (InnerTube), pasted links, Spotify page/auth/API matching
 //   AI/          audio descriptors, offline prompt interpreter, Claude request/response
-public enum LumberCore {
+public enum LumberCoreInfo {
     public static let version = "0.1.0"
 }

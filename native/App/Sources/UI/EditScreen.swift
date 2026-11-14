@@ -237,6 +237,9 @@ private struct EditContent: View {
 
 private struct PromptMixBox: View {
     @Bindable var session: EditSession
+    @State private var editingKey = false
+    @State private var keyDraft = ""
+    @State private var keyVersion = 0 // re-reads the mode label after the key changes
 
     var body: some View {
         CardSection {
@@ -248,6 +251,28 @@ private struct PromptMixBox: View {
                 Text(session.promptModeLabel)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Theme.accentSoft)
+                    .id(keyVersion)
+                Button {
+                    keyDraft = ""
+                    editingKey = true
+                } label: {
+                    Image(systemName: "key.fill").foregroundStyle(Theme.accentSoft)
+                }
+                .accessibilityLabel("Anthropic API key")
+            }
+            .alert("Anthropic API key", isPresented: $editingKey) {
+                SecureField("sk-ant-…", text: $keyDraft)
+                Button("Save") {
+                    try? LivePromptMix.setAPIKey(keyDraft.trimmingCharacters(in: .whitespacesAndNewlines))
+                    keyVersion += 1
+                }
+                Button("Remove key", role: .destructive) {
+                    try? LivePromptMix.setAPIKey(nil)
+                    keyVersion += 1
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Stored in the iOS keychain on this phone. Without a key, an offline interpreter maps sound words to knob moves.")
             }
             HStack(spacing: 8) {
                 TextField("e.g. punchy and dry", text: $session.prompt, axis: .vertical)

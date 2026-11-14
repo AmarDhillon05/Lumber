@@ -1,0 +1,106 @@
+{
+ "names": [
+  {
+   "name": "Song.M4A",
+   "ext": "m4a",
+   "supported": true,
+   "title": "Song",
+   "stored": "file-abcdef0123456789.m4a"
+  },
+  {
+   "name": "a.aiff",
+   "ext": "aiff",
+   "supported": true,
+   "title": "a",
+   "stored": "file-abcdef0123456789.aiff"
+  },
+  {
+   "name": "a.flac",
+   "ext": "flac",
+   "supported": false,
+   "title": "a",
+   "stored": "file-abcdef0123456789.flac"
+  },
+  {
+   "name": "01_Back In Black.mp3",
+   "ext": "mp3",
+   "supported": true,
+   "title": "01 Back In Black",
+   "stored": "file-abcdef0123456789.mp3"
+  },
+  {
+   "name": "x.WAV",
+   "ext": "wav",
+   "supported": true,
+   "title": "x",
+   "stored": "file-abcdef0123456789.wav"
+  },
+  {
+   "name": "noext",
+   "ext": null,
+   "supported": false,
+   "title": "noext",
+   "stored": "file-abcdef0123456789.audio"
+  },
+  {
+   "name": " spaced.mp3 ",
+   "ext": "mp3",
+   "supported": true,
+   "title": "spaced.mp3",
+   "stored": "file-abcdef0123456789.mp3"
+  },
+  {
+   "name": ".mp3",
+   "ext": "mp3",
+   "supported": true,
+   "title": "Untitled",
+   "stored": "file-abcdef0123456789.mp3"
+  },
+  {
+   "name": "a.b.c.aif",
+   "ext": "aif",
+   "supported": true,
+   "title": "a.b.c",
+   "stored": "file-abcdef0123456789.aif"
+  },
+  {
+   "name": "__.wav",
+   "ext": "wav",
+   "supported": true,
+   "title": "Untitled",
+   "stored": "file-abcdef0123456789.wav"
+  },
+  {
+   "name": "weird.mp3x",
+   "ext": "mp3x",
+   "supported": false,
+   "title": "weird",
+   "stored": "file-abcdef0123456789.mp3x"
+  },
+  {
+   "name": "trailingdot.",
+   "ext": null,
+   "supported": false,
+   "title": "trailingdot.",
+   "stored": "file-abcdef0123456789.audio"
+  }
+ ],
+ "sha256": [
+  {
+   "input": "",
+   "hex": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "input": "abc",
+   "hex": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  {
+   "input": "The quick brown fox jumps over the lazy dog",
+   "hex": "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592"
+  },
+  {
+   "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "hex": "44f8354494a5ba03ba1792a8d3e9c534c47a9181980fde7a3f44b06ef2ae7c7f"
+  }
+ ]
+}
