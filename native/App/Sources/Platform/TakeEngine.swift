@@ -47,8 +47,8 @@ public struct TakeOptions: Sendable {
     public var startSec: Double
     /// Loop region. While only playing, the song loops forever; while
     /// recording, one pass is recorded and `onAutoStop` fires at the loop end.
-    public var loop: LoopRegion?
-    public var countIn: CountIn?
+    public var loop: TakeLoop?
+    public var countIn: TakeCountIn?
     public var record: Bool
     /// Where take WAVs are written (created if missing).
     public var takesDirectory: URL
@@ -61,8 +61,8 @@ public struct TakeOptions: Sendable {
     public init(
         songURL: URL,
         startSec: Double = 0,
-        loop: LoopRegion? = nil,
-        countIn: CountIn? = nil,
+        loop: TakeLoop? = nil,
+        countIn: TakeCountIn? = nil,
         record: Bool = true,
         takesDirectory: URL,
         calibrationResidualMs: Double = 0,
@@ -83,7 +83,7 @@ public struct TakeOptions: Sendable {
 
 /// When the song started and how late it was heard; lets other recorders
 /// (the camera) be placed on the song timeline.
-public struct TransportTiming: Sendable, Equatable, Codable {
+public struct EngineTransportTiming: Sendable, Equatable, Codable {
     /// Song position the transport started from.
     public var songStartSec: Double
     /// Host time (seconds) at which that song position was rendered.
@@ -132,14 +132,14 @@ public struct TakeResult: Sendable, Equatable, Codable {
     /// Song time where video time 0 belongs.
     public var videoOffsetSec: Double?
     public var videoDurationSec: Double?
-    public var videoFacing: CameraFacing?
-    public var videoSyncSource: VideoSyncSource?
-    public var timing: TransportTiming
+    public var videoFacing: CaptureFacing?
+    public var videoSyncSource: ClipSyncSource?
+    public var timing: EngineTransportTiming
     public var syncSource: TakeSyncSource
     public var diagnostics: TakeDiagnostics
 
     /// This take with a camera clip placed on the song timeline (TakeClock.videoOffset).
-    public func attachingVideo(_ clip: CameraClip) -> TakeResult {
+    public func attachingVideo(_ clip: CapturedClip) -> TakeResult {
         var r = self
         r.videoURL = clip.url
         r.videoOffsetSec = TakeClock.videoOffset(
@@ -205,7 +205,7 @@ public final class TakeEngine {
 
     private struct Transport {
         var startSec: Double
-        var loop: LoopRegion?
+        var loop: TakeLoop?
         var record: Bool
         var songStartHost: UInt64
         var songStartHostSec: Double
@@ -248,7 +248,7 @@ public final class TakeEngine {
     }
 
     /// Timing of the running transport, for placing other recorders (camera).
-    public var transportTiming: TransportTiming? {
+    public var transportTiming: EngineTransportTiming? {
         guard let t = transport else { return nil }
         return Self.timing(for: t, songStartHostSec: t.songStartHostSec)
     }
@@ -283,9 +283,9 @@ public final class TakeEngine {
 
         configureGraph(songFormat: format)
 
-        var loop: LoopRegion? = nil
+        var loop: TakeLoop? = nil
         if let l = options.loop, l.isValid, l.start < songDuration {
-            loop = LoopRegion(start: l.start, end: min(l.end, songDuration))
+            loop = TakeLoop(start: l.start, end: min(l.end, songDuration))
         }
         var startSec = min(max(0, options.startSec), max(0, songDuration - 0.05))
         if let l = loop, !options.record, startSec >= l.end { startSec = l.start }
@@ -591,14 +591,14 @@ public final class TakeEngine {
 
     // MARK: Helpers
 
-    private static func timing(for t: Transport, songStartHostSec: Double) -> TransportTiming {
+    private static func timing(for t: Transport, songStartHostSec: Double) -> EngineTransportTiming {
         // Residual is attributed to the output side (Bluetooth / DAC delay
         // the session under-reports); the built-in mic path is reported well.
         let total = LatencyMath.compensationSec(
             reportedOutputSec: t.reportedOutputSec, reportedInputSec: t.reportedInputSec, residualMs: t.residualMs
         )
         let input = min(t.reportedInputSec, total)
-        return TransportTiming(
+        return EngineTransportTiming(
             songStartSec: t.startSec,
             songStartHostSec: songStartHostSec,
             outputLatencySec: total - input,
@@ -633,7 +633,7 @@ public final class TakeEngine {
 
     /// Reads a song region into memory (for the `.loops` buffer). Uses its own
     /// AVAudioFile so the player's scheduled segment file is never touched.
-    nonisolated static func readRegion(_ url: URL, _ region: LoopRegion) throws -> AVAudioPCMBuffer? {
+    nonisolated static func readRegion(_ url: URL, _ region: TakeLoop) throws -> AVAudioPCMBuffer? {
         let f = try AVAudioFile(forReading: url)
         let rate = f.processingFormat.sampleRate
         let a = max(0, AVAudioFramePosition((region.start * rate).rounded()))

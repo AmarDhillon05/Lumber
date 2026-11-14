@@ -1,23 +1,18 @@
 // The only Platform file that imports LumberCore. Everything the platform
-// layer needs from the pure core goes through here, so adapting to the
-// core's final API names is a one-file change.
+// layer needs from the pure core goes through here, so a change in the
+// core's API is a one-file change.
 //
-// Expected LumberCore API (Timing/Calibration.swift, port of src/audio/calibration.ts):
+// LumberCore API used (native/core-dsp, Timing/Calibration.swift, port of
+// src/audio/calibration.ts):
 //
-//   public struct LatencyEstimate: Sendable {
-//       public var latencyMs: Double     // measured round trip
-//       public var confidence: Double    // peak-to-median of the coarse correlation
-//       public var spreadMs: Double      // per-click lag spread
-//   }
-//   public enum Calibration {
-//       public static let clickCount: Int          // 8
-//       public static let intervalSec: Double      // 0.5
-//       public static func estimateLatency(
-//           recorded: [Float], sampleRate: Double, clickFileTimes: [Double],
-//           maxLagSec: Double = 0.6, template: [Float]? = nil
-//       ) -> LatencyEstimate
-//       public static func isReliable(_ e: LatencyEstimate) -> Bool   // confidence >= 8 && spreadMs <= 2
-//   }
+//   Timing.estimateLatency(_ recorded: [Float], sampleRate: Double,
+//                          clickFileTimes: [Double], maxLagSec: Double = 0.6,
+//                          template: [Float]? = nil) -> Timing.LatencyEstimate
+//   Timing.LatencyEstimate { latencyMs, confidence, spreadMs, isReliable }
+//
+// The click itself (Timing.makeClick / ClickOptions) is mirrored by
+// ClickSynth in TakeClock.swift (identical math), so the waveform played and
+// the matched-filter template are the same; the template is passed explicitly.
 
 import LumberCore
 
@@ -37,18 +32,13 @@ enum CoreBridge {
         clickFileTimes: [Double],
         template: [Float]
     ) -> Estimate {
-        let e = Calibration.estimateLatency(
-            recorded: recorded,
+        let e = Timing.estimateLatency(
+            recorded,
             sampleRate: sampleRate,
             clickFileTimes: clickFileTimes,
             maxLagSec: 0.6,
             template: template
         )
-        return Estimate(
-            latencyMs: e.latencyMs,
-            confidence: e.confidence,
-            spreadMs: e.spreadMs,
-            isReliable: Calibration.isReliable(e)
-        )
+        return Estimate(latencyMs: e.latencyMs, confidence: e.confidence, spreadMs: e.spreadMs, isReliable: e.isReliable)
     }
 }

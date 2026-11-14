@@ -9,15 +9,15 @@
 //   file time  — position inside the recorded drum WAV (0 = first mic sample).
 //   song time  — position inside the song file; also the export timeline.
 //
-// Several of these mirror functions LumberCore's Timing module is expected to
-// own (median, quantile, transportPosition, drumStartFor, clampBpm, makeClick).
+// Several of these mirror functions in LumberCore's Timing namespace
+// (median, quantile, transportPosition, drumStartFor, clampBpm, makeClick).
 // They are duplicated here only so the platform layer has no hard dependency
-// on names that do not exist yet. TODO: use LumberCore once Timing/DSP land.
+// on core names (only CoreBridge imports LumberCore). TODO: use LumberCore Timing.
 
 import Foundation
 
 /// A loop region on the song timeline (seconds).
-public struct LoopRegion: Sendable, Codable, Equatable, Hashable {
+public struct TakeLoop: Sendable, Codable, Equatable, Hashable {
     public var start: Double
     public var end: Double
 
@@ -31,7 +31,7 @@ public struct LoopRegion: Sendable, Codable, Equatable, Hashable {
 }
 
 /// Count-in clicks before the song.
-public struct CountIn: Sendable, Codable, Equatable, Hashable {
+public struct TakeCountIn: Sendable, Codable, Equatable, Hashable {
     public var bpm: Double
     public var beats: Int
 
@@ -90,7 +90,7 @@ public enum TakeClock {
         nowHostSec: Double,
         songStartHostSec: Double,
         songStartSec: Double,
-        loop: LoopRegion?
+        loop: TakeLoop?
     ) -> Double {
         let pos = songStartSec + max(0, nowHostSec - songStartHostSec)
         guard let loop, loop.isValid, pos >= loop.end else { return pos }
@@ -105,13 +105,13 @@ public enum TakeClock {
     public static func beatSeconds(bpm: Double) -> Double { 60 / clampBpm(bpm) }
 
     /// Length of the count-in (seconds); the song starts this long after the first click.
-    public static func countInSeconds(_ countIn: CountIn?) -> Double {
+    public static func countInSeconds(_ countIn: TakeCountIn?) -> Double {
         guard let countIn, countIn.beats > 0 else { return 0 }
         return Double(countIn.beats) * beatSeconds(bpm: countIn.bpm)
     }
 
     /// Click start times (seconds from the first click).
-    public static func countInClickTimes(_ countIn: CountIn?) -> [Double] {
+    public static func countInClickTimes(_ countIn: TakeCountIn?) -> [Double] {
         guard let countIn, countIn.beats > 0 else { return [] }
         let beat = beatSeconds(bpm: countIn.bpm)
         return (0..<countIn.beats).map { Double($0) * beat }
