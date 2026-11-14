@@ -18,6 +18,10 @@ on:
         default: debug
   push:
     branches: [main]
+    # The native app has its own workflow (native-ios.yml).
+    paths-ignore:
+      - 'native/**'
+      - '.github/workflows/native-ios.yml'
 
 concurrency:
   group: ios-${{ github.ref }}-${{ inputs.variant || 'release' }}
