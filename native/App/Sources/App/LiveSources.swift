@@ -160,7 +160,7 @@ enum Keychain {
 final class LiveSpotify: NSObject, SpotifyService, ASWebAuthenticationPresentationContextProviding {
     private let config = SpotifyConfig.lumberNative
     private let store = KeychainTokenStore()
-    private lazy var session = SpotifySession(http: http, config: config, store: store)
+    private lazy var session = LumberCore.SpotifySession(http: http, config: config, store: store)
     private lazy var api = SpotifyAPI(http: http, session: session)
     private var authSession: ASWebAuthenticationSession?
 

@@ -170,7 +170,10 @@ struct ProjectAudio: Sendable {
     static func load(_ r: ProjectAudioRequest) async throws -> ProjectAudio {
         let rate = AudioFileIO.editingSampleRate
         let bed = try await AudioFileIO.decodeDetached(r.bedURL, sampleRate: rate, channelCount: 2)
-        let orig = try await r.stems.map { try await AudioFileIO.decodeDetached($0.drums, sampleRate: rate, channelCount: 2) }
+        var orig: DecodedAudio?
+        if let stems = r.stems {
+            orig = try await AudioFileIO.decodeDetached(stems.drums, sampleRate: rate, channelCount: 2)
+        }
         let take = try await AudioFileIO.decodeDetached(r.takeURL, sampleRate: rate)
         return ProjectAudio(bed: bed.channels, originalDrums: orig?.channels, take: take.channels, sampleRate: rate)
     }
