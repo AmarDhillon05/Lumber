@@ -1,6 +1,6 @@
-// The services the app runs with. Each starts as a mock (State/MockServices.swift);
-// swap in the App/Sources/Platform implementation as it lands, e.g.
-//   audio: AVAudioEngineService(),
+// The services the app runs with: real ones from App/LiveServices.swift, plus
+// mocks (State/MockServices.swift) for song sources, Spotify and prompt
+// mixing until their LumberCore ports land.
 // The screens only see the protocols in State/Services.swift.
 
 extension Services {
@@ -8,13 +8,13 @@ extension Services {
         Services(
             sources: MockSongSourceService(),
             spotify: MockSpotifyService(),
-            audio: MockAudioEngineService(),
-            camera: MockCameraService(),
-            preview: MockMixPreviewService(),
-            separation: MockSeparationService(),
+            audio: LiveAudioEngine(),
+            camera: LiveCamera(),
+            preview: LiveMixPreview(),
+            separation: LiveSeparation(),
             promptMix: MockPromptMixService(),
-            export: MockExportService(),
-            photos: MockPhotoLibraryService()
+            export: LiveExport(),
+            photos: LivePhotos()
         )
     }
 }
