@@ -49,11 +49,11 @@ private struct Collect: StemSink {
 
 private struct Sampled: Decodable { let idx: [Int]; let val: [Double]; let sum: Double; let sumSq: Double }
 private struct RunFixture: Decodable { let n: Int; let blocks: Int; let channels: [Sampled] }
-private struct Fixture: Decodable { let spectrogram: Sampled; let single: RunFixture; let multi: RunFixture }
+private struct SeparationFixture: Decodable { let spectrogram: Sampled; let single: RunFixture; let multi: RunFixture }
 
-private func fixture() throws -> Fixture {
+private func fixture() throws -> SeparationFixture {
     let url = try XCTUnwrap(Bundle.module.url(forResource: "separation", withExtension: "json", subdirectory: "Fixtures/separation"))
-    return try JSONDecoder().decode(Fixture.self, from: Data(contentsOf: url))
+    return try JSONDecoder().decode(SeparationFixture.self, from: Data(contentsOf: url))
 }
 
 private func assertMatches(_ got: [Float], _ want: Sampled, tol: Double, _ label: String, file: StaticString = #filePath, line: UInt = #line) {
