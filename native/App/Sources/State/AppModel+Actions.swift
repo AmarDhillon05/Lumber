@@ -83,9 +83,7 @@ extension AppModel {
             if let timing, let start = clip.startHostTime {
                 let ext = clip.url.pathExtension.isEmpty ? "mov" : clip.url.pathExtension
                 let moved = try files.place(clip.url, in: .videos, name: "take-\(id).\(ext)")
-                // Song time at video frame 0: the song reaches the drummer's ears
-                // outputLatencySec after it's rendered, and they play to what they hear.
-                let offset = timing.songStartSec + (start - timing.songStartHostTime) - timing.outputLatencySec
+                let offset = timing.videoOffset(videoStartHostTime: start)
                 video = TakeVideo(uri: files.reference(for: moved), offsetSec: offset,
                                   durationSec: clip.durationSec, facing: clip.facing, syncSource: .call)
             } else {

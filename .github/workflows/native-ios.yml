@@ -44,6 +44,10 @@ jobs:
       # caught here instead of on macOS.
       - name: Typecheck App/Sources/State (Swift 6)
         run: swiftc -swift-version 6 -typecheck native/App/Sources/State/*.swift
+      # Sync math (Platform/TakeClock.swift) and the State layer with mock
+      # services: offsets, nudges, what reaches export.
+      - name: App logic tests (Linux)
+        run: native/AppLogicTests/run.sh
 
   ios:
     needs: core
