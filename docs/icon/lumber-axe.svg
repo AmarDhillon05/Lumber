@@ -1,0 +1,40 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="38%" cy="30%" r="85%">
+      <stop offset="0" stop-color="#2a1f4d"/><stop offset="0.55" stop-color="#16122a"/><stop offset="1" stop-color="#0b0a14"/>
+    </radialGradient>
+    <linearGradient id="handle" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c5cd6"/><stop offset="0.45" stop-color="#b9a6f7"/><stop offset="1" stop-color="#5b3fb8"/>
+    </linearGradient>
+    <linearGradient id="head" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c4b5fd"/><stop offset="0.35" stop-color="#8b5cf6"/><stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ede9fe" stop-opacity="0"/><stop offset="1" stop-color="#f5f3ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.45"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <circle cx="560" cy="440" r="380" fill="url(#glow)"/>
+  <!-- the axe, rotated 35° -->
+  <g transform="translate(410 505) rotate(35)" filter="url(#shadow)">
+    <!-- handle -->
+    <rect x="-30" y="-340" width="60" height="720" rx="30" fill="url(#handle)"/>
+    <rect x="-12" y="-300" width="13" height="560" rx="6.5" fill="#ffffff" opacity="0.22"/>
+    <rect x="-30" y="262" width="60" height="118" rx="28" fill="#4c1d95"/>
+    <rect x="-30" y="282" width="60" height="12" fill="#3b0f7a" opacity="0.85"/>
+    <rect x="-30" y="312" width="60" height="12" fill="#3b0f7a" opacity="0.85"/>
+    <!-- head: one silhouette, poll on the left, flared bit on the right -->
+    <path d="M -58 -312 L 34 -312 C 110 -312 170 -338 262 -392 Q 352 -205 262 -18 C 172 -64 110 -92 34 -104 L -58 -104 Q -74 -208 -58 -312 Z" fill="url(#head)"/>
+    <!-- sharpened edge -->
+    <path d="M 262 -392 Q 352 -205 262 -18 L 238 -34 Q 318 -205 238 -372 Z" fill="url(#edge)"/>
+    <!-- top bevel and eye -->
+    <path d="M -58 -312 L 34 -312 C 110 -312 170 -338 262 -392 L 252 -372 C 168 -326 108 -298 34 -296 L -54 -296 Z" fill="#ede9fe" opacity="0.45"/>
+    <ellipse cx="-6" cy="-208" rx="16" ry="22" fill="#2e1065" opacity="0.55"/>
+  </g>
+</svg>

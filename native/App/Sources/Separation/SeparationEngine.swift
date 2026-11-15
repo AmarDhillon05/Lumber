@@ -143,40 +143,22 @@ final class SeparationEngine: @unchecked Sendable {
         return files
     }
 
-    /// Any audio file → [left, right] floats at `sampleRate`.
+    /// Any audio file → [left, right] floats at `sampleRate`. Uses the shared
+    /// decoder (Platform/AudioFileIO), which stops cleanly at end of file;
+    /// AVAudioFile's last read can fail without an NSError there, which Swift
+    /// surfaces as `Foundation._GenericObjCError`.
     private func decodeStereo(_ url: URL, sampleRate: Double) throws -> [[Float]] {
-        let file: AVAudioFile
-        do { file = try AVAudioFile(forReading: url) } catch { throw SeparationError.decode(error.localizedDescription) }
-        guard let target = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 2, interleaved: false),
-              let converter = AVAudioConverter(from: file.processingFormat, to: target) else {
-            throw SeparationError.decode("unsupported audio format")
-        }
-        let ratio = sampleRate / file.processingFormat.sampleRate
-        let capacity = AVAudioFrameCount(Double(file.length) * ratio + 4096)
-        guard let out = AVAudioPCMBuffer(pcmFormat: target, frameCapacity: capacity) else { throw SeparationError.decode("out of memory") }
-        let chunk: AVAudioFrameCount = 32_768
-        var readError: Error?
-        var finished = false
-        var convError: NSError?
-        let status = converter.convert(to: out, error: &convError) { _, outStatus in
-            if finished { outStatus.pointee = .endOfStream; return nil }
-            guard let buf = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: chunk) else {
-                outStatus.pointee = .endOfStream; return nil
+        do {
+            let decoded = try AudioFileIO.decode(url, sampleRate: sampleRate, channelCount: 2)
+            guard decoded.channels.count == 2, !(decoded.channels.first?.isEmpty ?? true) else {
+                throw SeparationError.decode("the file has no audio")
             }
-            do { try file.read(into: buf, frameCount: chunk) } catch { readError = error }
-            if buf.frameLength == 0 {
-                finished = true
-                outStatus.pointee = .endOfStream
-                return nil
-            }
-            outStatus.pointee = .haveData
-            return buf
+            return decoded.channels
+        } catch let e as SeparationError {
+            throw e
+        } catch {
+            throw SeparationError.decode(error.localizedDescription)
         }
-        if let readError { throw SeparationError.decode(readError.localizedDescription) }
-        if status == .error { throw SeparationError.decode(convError?.localizedDescription ?? "conversion failed") }
-        let n = Int(out.frameLength)
-        guard let data = out.floatChannelData else { throw SeparationError.decode("no samples") }
-        return (0..<2).map { Array(UnsafeBufferPointer(start: data[$0], count: n)) }
     }
 }
 
