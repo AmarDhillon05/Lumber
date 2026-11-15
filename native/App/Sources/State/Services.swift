@@ -143,8 +143,13 @@ struct TransportRequest: Sendable {
 struct TransportTiming: Sendable {
     var songStartSec: Double
     /// Host time (seconds, CACurrentMediaTime clock) at which song time
-    /// `songStartSec` reached the output (after any count-in).
+    /// `songStartSec` was rendered by the engine (after any count-in).
     var songStartHostTime: Double
+    /// How long rendered audio takes to reach the player's ears (reported
+    /// output latency + the calibrated residual). The drummer plays to what
+    /// they hear, so camera frames line up with the song this much later
+    /// than the render clock says.
+    var outputLatencySec: Double = 0
 }
 
 /// The mic recording from `stop()` after a recording start.
