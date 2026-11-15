@@ -17,6 +17,7 @@ final class LiveAudioEngine: AudioEngineService {
     private let engine: TakeEngine
     private let store = LatencyStore.shared
     private lazy var calibrator = LatencyCalibrator(engine: engine, store: store)
+    private var residualMs = 0.0 // calibration residual used for the current take
 
     init() {
         engine = TakeEngine(session: AudioSessionManager.shared)
@@ -52,6 +53,7 @@ final class LiveAudioEngine: AudioEngineService {
 
     func start(_ request: TransportRequest, onAutoStop: @escaping @MainActor @Sendable () -> Void) async throws {
         engine.onAutoStop = { onAutoStop() }
+        residualMs = store.residualMs(for: session.refreshRoute())
         let options = TakeOptions(
             songURL: request.songURL,
             startSec: request.startSec,
@@ -60,7 +62,7 @@ final class LiveAudioEngine: AudioEngineService {
             record: request.record,
             takesDirectory: FileManager.default.temporaryDirectory,
             // Latency = what iOS reports for the route + the calibrated residual.
-            calibrationResidualMs: store.residualMs(for: session.refreshRoute())
+            calibrationResidualMs: residualMs
         )
         try await engine.start(options)
     }
@@ -69,7 +71,11 @@ final class LiveAudioEngine: AudioEngineService {
     func countInRemaining() -> Double { engine.countInRemaining }
 
     func transportTiming() -> TransportTiming? {
-        engine.transportTiming.map { TransportTiming(songStartSec: $0.songStartSec, songStartHostTime: $0.songStartHostSec) }
+        guard let t = engine.transportTiming else { return nil }
+        // The calibration residual is the round trip iOS doesn't report; with a
+        // built-in mic nearly all of it is on the output side.
+        let output = max(0, t.outputLatencySec + residualMs / 1000)
+        return TransportTiming(songStartSec: t.songStartSec, songStartHostTime: t.songStartHostSec, outputLatencySec: output)
     }
 
     func stop() async throws -> RecordedTake? {
