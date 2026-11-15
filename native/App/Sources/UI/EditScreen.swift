@@ -149,6 +149,10 @@ private struct EditContent: View {
     private func videoSection(_ mix: MixSettings) -> some View {
         let nudge = mix.videoNudgeMs ?? 0
         return CardSection("Video") {
+            if let url = session.videoURL {
+                EditVideoPreview(url: url, offsetSec: session.videoOffsetSec,
+                                 playhead: session.playhead, playing: session.playing)
+            }
             HintText("Video offset \(nudge > 0 ? "+" : "")\(Int(nudge.rounded())) ms on top of the recorded sync. Nudge until hits line up with the sound.")
             HStack(spacing: 8) {
                 Button("−1 fr") { session.nudgeVideo(-EditSession.frameMs) }.lumberButton(small: true)

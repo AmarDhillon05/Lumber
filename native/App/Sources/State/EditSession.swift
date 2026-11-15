@@ -89,6 +89,14 @@ final class EditSession {
 
     var songDuration: Double { audio?.songDurationSec ?? 0 }
 
+    /// The take's camera clip, if it was filmed.
+    var videoURL: URL? { take?.video.map { model.url($0.uri) } }
+
+    /// Song time where video time 0 belongs, video nudge included (same as export).
+    var videoOffsetSec: Double {
+        (take?.video?.offsetSec ?? 0) + (mix?.videoNudgeMs ?? 0) / 1000
+    }
+
     // MARK: Lifecycle
 
     func load() async {
