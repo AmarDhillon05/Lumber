@@ -592,17 +592,14 @@ public final class TakeEngine {
     // MARK: Helpers
 
     private static func timing(for t: Transport, songStartHostSec: Double) -> EngineTransportTiming {
-        // Residual is attributed to the output side (Bluetooth / DAC delay
-        // the session under-reports); the built-in mic path is reported well.
-        let total = LatencyMath.compensationSec(
+        let parts = LatencyMath.split(
             reportedOutputSec: t.reportedOutputSec, reportedInputSec: t.reportedInputSec, residualMs: t.residualMs
         )
-        let input = min(t.reportedInputSec, total)
         return EngineTransportTiming(
             songStartSec: t.startSec,
             songStartHostSec: songStartHostSec,
-            outputLatencySec: total - input,
-            inputLatencySec: input
+            outputLatencySec: parts.outputSec,
+            inputLatencySec: parts.inputSec
         )
     }
 

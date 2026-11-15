@@ -239,4 +239,19 @@ public enum LatencyMath {
     public static func compensationSec(reportedOutputSec: Double, reportedInputSec: Double, residualMs: Double) -> Double {
         max(0, reportedOutputSec + reportedInputSec + residualMs / 1000)
     }
+
+    /// The compensation split into its output (render → ear) and input
+    /// (mic → stamped buffer) parts. The residual is attributed to the output
+    /// side (Bluetooth / DAC delay the session under-reports; the built-in mic
+    /// path is reported well). The parts always add up to `compensationSec`,
+    /// and the residual is in `outputSec` exactly once.
+    public static func split(
+        reportedOutputSec: Double, reportedInputSec: Double, residualMs: Double
+    ) -> (outputSec: Double, inputSec: Double) {
+        let total = compensationSec(
+            reportedOutputSec: reportedOutputSec, reportedInputSec: reportedInputSec, residualMs: residualMs
+        )
+        let input = min(max(0, reportedInputSec), total)
+        return (total - input, input)
+    }
 }

@@ -150,6 +150,14 @@ struct TransportTiming: Sendable {
     /// they hear, so camera frames line up with the song this much later
     /// than the render clock says.
     var outputLatencySec: Double = 0
+
+    /// Song time where frame 0 of a camera clip belongs. Camera frames carry
+    /// their capture time, and the drummer plays to what they hear, so the
+    /// clip lines up with the song `outputLatencySec` after the render clock.
+    /// Same formula as TakeClock.videoOffset (checked by native/AppLogicTests).
+    func videoOffset(videoStartHostTime: Double) -> Double {
+        songStartSec + (videoStartHostTime - songStartHostTime) - outputLatencySec
+    }
 }
 
 /// The mic recording from `stop()` after a recording start.
