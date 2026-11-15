@@ -105,6 +105,42 @@ targets:
         LumberCommit: $(LUMBER_COMMIT)
         LumberConfiguration: $(CONFIGURATION)
 
+  # Simulator tests (CI: "Simulator tests" step). The unit tests run inside
+  # the app (TEST_HOST) against the real services; the UI test launches it.
+  LumberNativeTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: AppTests
+    dependencies:
+      - target: LumberNative
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.amardhillon.lumber.native.tests
+        GENERATE_INFOPLIST_FILE: "YES"
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/LumberNative.app/LumberNative
+        BUNDLE_LOADER: $(TEST_HOST)
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        TARGETED_DEVICE_FAMILY: "1"
+
+  LumberNativeUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: UITests
+    dependencies:
+      - target: LumberNative
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.amardhillon.lumber.native.uitests
+        GENERATE_INFOPLIST_FILE: "YES"
+        TEST_TARGET_NAME: LumberNative
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1"
+
 schemes:
   LumberNative:
     build:
@@ -112,5 +148,10 @@ schemes:
         LumberNative: all
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - LumberNativeTests
+        - LumberNativeUITests
     archive:
       config: Release

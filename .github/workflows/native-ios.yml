@@ -52,7 +52,7 @@ jobs:
   ios:
     needs: core
     runs-on: macos-26
-    timeout-minutes: 60
+    timeout-minutes: 90
     permissions:
       contents: write # publish the .ipa and the SideStore source as release assets
     env:
@@ -94,6 +94,46 @@ jobs:
             | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for k,v in d.items() if "iOS" in k for x in v if x["name"].startswith("iPhone")))')
           echo "Simulator $UDID"
           xcodebuild test -scheme LumberCore -destination "id=$UDID" | tail -n 40
+
+      # The real services on a simulator (import, render, WAV/M4A/video
+      # export with a picture/sound sync check, drum removal on CPU) plus a
+      # launch test. A failure here stops the build from reaching SideStore.
+      - name: Simulator tests
+        run: |
+          set -o pipefail
+          UDID=$(xcrun simctl list devices available -j \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for k,v in sorted(d.items(), reverse=True) if "iOS" in k for x in v if x["name"].startswith("iPhone")))')
+          echo "Simulator $UDID"
+          xcrun simctl boot "$UDID" || true
+          xcodebuild test \
+            -project native/LumberNative.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "id=$UDID" \
+            -derivedDataPath build-sim \
+            -clonedSourcePackagesDirPath native/.spm \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -resultBundlePath SimTests.xcresult \
+            CODE_SIGN_IDENTITY=- CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=NO \
+            > simtests.log 2>&1 && STATUS=0 || STATUS=$?
+          grep -E "Test Case .*(passed|failed)|error:|: XCT|took|click at|reconstruction|Executed" simtests.log | tail -n 80 || true
+          if [ "$STATUS" -ne 0 ]; then
+            tail -n 60 simtests.log
+            echo "::error::Simulator tests failed ($STATUS) — see the simulator-tests artifact"
+            exit "$STATUS"
+          fi
+
+      - name: Upload simulator test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-simulator-tests-${{ github.run_number }}
+          path: |
+            simtests.log
+            SimTests.xcresult
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: xcodebuild (iphoneos, unsigned)
         run: |

@@ -66,6 +66,15 @@ final class SeparationEngine: @unchecked Sendable {
 
     func currentModeLabel() -> String { readState().mode.label }
 
+    /// Simulator tests: run on CPU (the simulator has no Neural Engine; CPU is
+    /// also the mode a phone falls back to after a crash).
+    func useCPUModeForTesting() {
+        var s = readState()
+        s.mode = .cpu
+        s.inProgress = nil
+        writeState(s)
+    }
+
     // MARK: Model
 
     func isModelDownloaded() -> Bool { fm.fileExists(atPath: modelFile.path) && fm.fileExists(atPath: modelDone.path) }
