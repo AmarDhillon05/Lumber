@@ -26,7 +26,6 @@ struct EditScreen: View {
 
 private struct EditContent: View {
     @Bindable var session: EditSession
-    @State private var knobActive = false
 
     var body: some View {
         Group {
@@ -78,7 +77,6 @@ private struct EditContent: View {
             .padding(Theme.gutter)
             .padding(.bottom, 48)
         }
-        .scrollDisabled(knobActive)
         .scrollDismissesKeyboard(.interactively)
     }
 
@@ -235,14 +233,9 @@ private struct EditContent: View {
 
     private func knobSection(_ category: KnobCategory, terms: [KnobTermInfo], mix: MixSettings) -> some View {
         CardSection(category.rawValue) {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 78), spacing: 4)], spacing: 12) {
+            VStack(spacing: 2) {
                 ForEach(terms) { info in
-                    KnobView(
-                        info: info,
-                        value: mix.values[info.key] ?? 0,
-                        onChange: { session.setKnob(info.key, $0) },
-                        onActiveChange: { knobActive = $0 }
-                    )
+                    KnobView(info: info, value: mix.values[info.key] ?? 0, onChange: { session.setKnob(info.key, $0) })
                 }
             }
         }

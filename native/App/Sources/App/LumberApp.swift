@@ -44,7 +44,10 @@ struct RootView: View {
         }
         .tint(Theme.accent)
         .preferredColorScheme(.dark)
-        .task { await model.load() }
+        .task {
+            await model.load()
+            if CommandLine.arguments.contains(DemoContent.launchArgument) { try? model.seedDemoIfEmpty() }
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active { model.saveNow() }
         }

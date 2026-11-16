@@ -318,6 +318,29 @@ test("master defaults on, and an explicit off sticks") {
     check(decoded.master == false, "persists")
 }
 
+// MARK: - Demo content
+
+await testAsync("demo seeding fills an empty library once") {
+    let (model, _) = makeModel()
+    try model.seedDemoIfEmpty()
+    check(model.songs.count == 2, "two songs (\(model.songs.count))")
+    check(model.projects.count == 1 && model.takes.count == 1, "one take with a project")
+    for song in model.songs {
+        let d = SilentWav.duration(of: model.url(song.uri)) ?? 0
+        near(d, song.durationSec ?? -1, 0.01, "\(song.title) file length")
+    }
+    let take = try XCTUnwrapLike(model.takes.first)
+    near(SilentWav.duration(of: model.url(take.drumsUri)) ?? 0, 16, 0.01, "take length")
+    check(model.audioRequest(for: model.projects[0]) != nil, "project resolves to files")
+    try model.seedDemoIfEmpty()
+    check(model.songs.count == 2, "second call is a no-op")
+}
+
+func XCTUnwrapLike<T>(_ v: T?) throws -> T {
+    guard let v else { throw ServiceError.failed("unexpected nil") }
+    return v
+}
+
 // MARK: - Done
 
 print(failures == 0 ? "\nAll \(checks) checks passed." : "\n\(failures) of \(checks) checks FAILED.")
