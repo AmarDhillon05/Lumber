@@ -20,6 +20,7 @@ extension Services {
             preview: MockMixPreviewService(),
             separation: MockSeparationService(),
             promptMix: MockPromptMixService(),
+            autoMix: MockAutoMixService(),
             export: MockExportService(),
             photos: MockPhotoLibraryService()
         )
@@ -280,6 +281,15 @@ final class MockPromptMixService: PromptMixService {
 
     func interpret(_ request: PromptMixRequest) async throws -> PromptMixResult {
         throw ServiceError.notImplemented("Describe the sound")
+    }
+}
+
+// MARK: - Auto mix
+
+@MainActor
+final class MockAutoMixService: AutoMixService {
+    func run(_ request: AutoMixRequest) async throws -> AutoMixResult {
+        throw ServiceError.notImplemented("Auto mix")
     }
 }
 

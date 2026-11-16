@@ -49,7 +49,12 @@ final class EditSession {
         var songGain: Double
         var drumGain: Double
         var presetId: String?
+        var nudgeMs: Double
     }
+
+    // Auto mix
+    private(set) var autoMixBusy: AutoMixStep? // the step shown while running (nil = idle)
+    private(set) var autoMixNotes: [String] = []
 
     @ObservationIgnored private var history: [Snapshot] = []
     @ObservationIgnored private var renderTask: Task<Void, Never>?
@@ -288,10 +293,7 @@ final class EditSession {
             let result = try await model.services.promptMix.interpret(
                 PromptMixRequest(prompt: text, mix: project.mix, audio: request, drumOffsetSec: drumOffset)
             )
-            let m = project.mix
-            history.append(Snapshot(values: m.values, songGain: m.songGain, drumGain: m.drumGain, presetId: m.presetId))
-            if history.count > EditSession.maxUndo { history.removeFirst(history.count - EditSession.maxUndo) }
-            undoCount = history.count
+            pushUndo(project.mix)
             updateMix {
                 $0.values = KnobCatalog.filledValues(result.values)
                 if let g = result.songGain { $0.songGain = g }
@@ -307,7 +309,17 @@ final class EditSession {
         promptBusy = false
     }
 
-    func undoPrompt() {
+    func undoPrompt() { undo() }
+
+    private func pushUndo(_ m: MixSettings) {
+        history.append(Snapshot(values: m.values, songGain: m.songGain, drumGain: m.drumGain,
+                                presetId: m.presetId, nudgeMs: m.nudgeMs))
+        if history.count > EditSession.maxUndo { history.removeFirst(history.count - EditSession.maxUndo) }
+        undoCount = history.count
+    }
+
+    /// Steps back one "Describe the sound" or Auto mix change.
+    func undo() {
         guard let last = history.popLast() else { return }
         undoCount = history.count
         updateMix {
@@ -315,9 +327,53 @@ final class EditSession {
             $0.songGain = last.songGain
             $0.drumGain = last.drumGain
             $0.presetId = last.presetId
+            $0.nudgeMs = last.nudgeMs
         }
         promptResult = nil
         promptStatus = "Undone."
+        autoMixNotes = ["Undone."]
+        refreshPeaks()
         scheduleRender()
     }
+
+    // MARK: Auto mix
+
+    /// Runs the given steps (align → tone → level) and applies the result in
+    /// one undoable change.
+    func autoMix(_ steps: Set<AutoMixStep>) async {
+        guard autoMixBusy == nil, !steps.isEmpty, let project, let request = model.audioRequest(for: project) else { return }
+        autoMixBusy = AutoMixStep.allCases.first { steps.contains($0) }
+        autoMixNotes = []
+        defer { autoMixBusy = nil }
+        do {
+            let result = try await model.services.autoMix.run(
+                AutoMixRequest(audio: request, mix: project.mix, drumOffsetSec: drumOffset, steps: steps)
+            )
+            var notes = result.notes
+            pushUndo(project.mix)
+            updateMix { m in
+                if let d = result.nudgeDeltaMs {
+                    let wanted = m.nudgeMs + d
+                    let clamped = max(-EditSession.nudgeRangeMs, min(EditSession.nudgeRangeMs, wanted.rounded()))
+                    if clamped != wanted.rounded() {
+                        notes.append("The nudge is limited to ±\(Int(EditSession.nudgeRangeMs)) ms; check the latency calibration for this route.")
+                    }
+                    m.nudgeMs = clamped
+                }
+                if let v = result.values {
+                    m.values = KnobCatalog.filledValues(v)
+                    m.presetId = nil
+                }
+                if let g = result.songGain { m.songGain = g }
+                if let g = result.drumGain { m.drumGain = g }
+            }
+            autoMixNotes = notes
+            refreshPeaks()
+            scheduleRender()
+        } catch {
+            autoMixNotes = [error.localizedDescription]
+        }
+    }
+
+    func setMaster(_ on: Bool) { updateMix { $0.master = on } }
 }

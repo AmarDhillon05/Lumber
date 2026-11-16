@@ -137,6 +137,42 @@ final class PipelineTests: XCTestCase {
         try await checkVideoSync(videoOffset: -0.5, drumOffset: 0.0, expectedOut: 0.5, expectedLength: 2.5)
     }
 
+    // MARK: Auto mix
+
+    func testAutoMixFindsAKnownAlignmentErrorAgainstTheSong() async throws {
+        // The take is a cut of the song itself from 2.0 s; the app is told 1.97 s.
+        let song = try MediaFixtures.groove(seconds: 9, in: dir)
+        let decoded = try AudioFileIO.decode(song, sampleRate: 48_000, channelCount: 1).channels
+        let excerpt = Array(decoded[0][96_000..<336_000])
+        let take = dir.appendingPathComponent("take-excerpt.wav")
+        try AudioFileIO.writeWAV([excerpt], sampleRate: 48_000, to: take, format: .float32)
+        let r = try await LiveAutoMix().run(AutoMixRequest(
+            audio: request(song: song, take: take), mix: .defaults(), drumOffsetSec: 1.97, steps: [.align, .level]
+        ))
+        print("auto mix: nudge \(r.nudgeDeltaMs ?? .nan) ms, drum gain \(r.drumGain ?? .nan); \(r.notes)")
+        XCTAssertEqual(r.nudgeDeltaMs ?? .nan, 30, accuracy: 3)
+        XCTAssertNotNil(r.drumGain)
+        XCTAssertNil(r.values, "tone needs stems and wasn't asked for")
+    }
+
+    func testMasteredExportIsLouderThanPlain() async throws {
+        let song = try MediaFixtures.song(seconds: 8, in: dir, amplitude: 0.02)
+        let take = try MediaFixtures.take(seconds: 3, clickAt: 0.5, in: dir)
+        var plainMix = MixSettings.defaults()
+        plainMix.master = false
+        func export(_ mix: MixSettings) async throws -> [[Float]] {
+            let r = ExportRequest(format: .wav, title: "m", audio: request(song: song, take: take), mix: mix,
+                                  drumOffsetSec: 2, video: nil)
+            return try AudioFileIO.decode(try await LiveExport().export(r) { _ in }.url, sampleRate: 48_000).channels
+        }
+        let plain = try await export(plainMix)
+        let mastered = try await export(.defaults())
+        let ratio = MediaFixtures.rms(mastered[0]) / max(1e-9, MediaFixtures.rms(plain[0]))
+        print("mastered / plain RMS: \(20 * log10(ratio)) dB")
+        XCTAssertGreaterThan(ratio, 2, "a quiet mix should come out louder with master on")
+        XCTAssertLessThanOrEqual(mastered.flatMap { $0 }.map(abs).max() ?? 0, 0.9)
+    }
+
     // MARK: Drum removal
 
     func testDrumRemovalOnAShortClip() async throws {

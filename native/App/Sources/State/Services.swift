@@ -326,6 +326,35 @@ protocol PromptMixService: AnyObject, Sendable {
     func interpret(_ request: PromptMixRequest) async throws -> PromptMixResult
 }
 
+// MARK: - Auto mix
+
+/// Steps run in this order whatever the set: align, tone, level.
+enum AutoMixStep: String, Sendable, CaseIterable, Hashable {
+    case align, tone, level
+}
+
+struct AutoMixRequest: Sendable {
+    var audio: ProjectAudioRequest
+    var mix: MixSettings
+    var drumOffsetSec: Double // take.drumOffsetSec + nudge
+    var steps: Set<AutoMixStep>
+}
+
+struct AutoMixResult: Sendable {
+    /// Change to apply to the alignment nudge (ms); nil when align didn't run
+    /// or wasn't confident.
+    var nudgeDeltaMs: Double?
+    var values: [String: Double]? // full knob state after tone match
+    var songGain: Double?
+    var drumGain: Double?
+    var notes: [String]
+}
+
+@MainActor
+protocol AutoMixService: AnyObject, Sendable {
+    func run(_ request: AutoMixRequest) async throws -> AutoMixResult
+}
+
 // MARK: - Export
 
 enum ExportFormat: String, Sendable, CaseIterable {
@@ -388,6 +417,7 @@ final class Services {
     let preview: any MixPreviewService
     let separation: any SeparationService
     let promptMix: any PromptMixService
+    let autoMix: any AutoMixService
     let export: any ExportService
     let photos: any PhotoLibraryService
 
@@ -399,6 +429,7 @@ final class Services {
         preview: any MixPreviewService,
         separation: any SeparationService,
         promptMix: any PromptMixService,
+        autoMix: any AutoMixService,
         export: any ExportService,
         photos: any PhotoLibraryService
     ) {
@@ -409,6 +440,7 @@ final class Services {
         self.preview = preview
         self.separation = separation
         self.promptMix = promptMix
+        self.autoMix = autoMix
         self.export = export
         self.photos = photos
     }
