@@ -147,13 +147,26 @@ final class CapturingExport: ExportService {
     }
 }
 
+/// Auto mix stand-in returning a fixed result and recording the request.
 @MainActor
-func makeModel(export: any ExportService = MockExportService()) -> (AppModel, URL) {
+final class FixedAutoMix: AutoMixService {
+    var result: AutoMixResult
+    var last: AutoMixRequest?
+    init(_ result: AutoMixResult) { self.result = result }
+    func run(_ request: AutoMixRequest) async throws -> AutoMixResult {
+        last = request
+        return result
+    }
+}
+
+@MainActor
+func makeModel(export: any ExportService = MockExportService(),
+               autoMix: any AutoMixService = MockAutoMixService()) -> (AppModel, URL) {
     let docs = tempDir()
     let m = Services.mock()
     let services = Services(
         sources: m.sources, spotify: m.spotify, audio: m.audio, camera: m.camera, preview: m.preview,
-        separation: m.separation, promptMix: m.promptMix, export: export, photos: m.photos
+        separation: m.separation, promptMix: m.promptMix, autoMix: autoMix, export: export, photos: m.photos
     )
     return (AppModel(services: services, files: DocumentStore(documents: docs)), docs)
 }
@@ -235,6 +248,74 @@ await testAsync("export: stems switch the bed to the drumless stem") {
     model.setStems("file:test", SeparationOutput(drumsURL: d, noDrumsURL: n, sampleRate: 44_100))
     _ = try await model.exportMix(.wav, projectId: project.id) { _ in }
     check(export.last?.audio.bedURL.lastPathComponent == "no_drums.wav", "bed is \(export.last?.audio.bedURL.lastPathComponent ?? "nil")")
+}
+
+// MARK: - Auto mix in Edit
+
+await testAsync("auto mix: applies nudge, knobs and faders as one undoable change") {
+    var knobs = KnobCatalog.zeroValues()
+    knobs["brightness"] = 0.4
+    let fake = FixedAutoMix(AutoMixResult(nudgeDeltaMs: 37.4, values: knobs, songGain: 0.62, drumGain: 1.3,
+                                          notes: ["Moved the drums +37 ms"]))
+    let (model, docs) = makeModel(autoMix: fake)
+    let project = try addSongAndTake(model, docs: docs, timing: nil, clipStart: nil)
+    model.updateMix(project.id) {
+        $0.nudgeMs = 5
+        $0.presetId = "warm"
+    }
+    let session = EditSession(projectId: project.id, model: model)
+    await session.autoMix([.align, .tone, .level])
+
+    near(fake.last?.drumOffsetSec ?? .nan, 8.123 + 0.005, 1e-9, "request uses the current offset incl. nudge")
+    check(fake.last?.steps == [.align, .tone, .level], "steps passed through")
+    guard let mix = model.project(project.id)?.mix else { return check(false, "project missing") }
+    near(mix.nudgeMs, 42, 1e-9, "nudge 5 + 37.4, rounded to whole ms")
+    near(mix.values["brightness"] ?? .nan, 0.4, 1e-12, "knobs applied")
+    check(mix.values.count == KnobCatalog.zeroValues().count, "knob map filled")
+    check(mix.presetId == nil, "preset cleared by tone change")
+    near(mix.songGain, 0.62, 1e-12, "song gain")
+    near(mix.drumGain, 1.3, 1e-12, "drum gain")
+    check(session.autoMixNotes == ["Moved the drums +37 ms"], "notes shown: \(session.autoMixNotes)")
+    check(session.undoCount == 1, "one undo step")
+
+    session.undo()
+    guard let back = model.project(project.id)?.mix else { return check(false, "project missing") }
+    near(back.nudgeMs, 5, 1e-12, "undo restores the nudge")
+    check(back.presetId == "warm", "undo restores the preset")
+    near(back.values["brightness"] ?? .nan, 0, 1e-12, "undo restores knobs")
+    near(back.songGain, 0.8, 1e-12, "undo restores song gain")
+}
+
+await testAsync("auto mix: a correction beyond the nudge range is clamped and explained") {
+    let fake = FixedAutoMix(AutoMixResult(nudgeDeltaMs: 420, values: nil, songGain: nil, drumGain: nil, notes: []))
+    let (model, docs) = makeModel(autoMix: fake)
+    let project = try addSongAndTake(model, docs: docs, timing: nil, clipStart: nil)
+    let session = EditSession(projectId: project.id, model: model)
+    await session.autoMix([.align])
+    near(model.project(project.id)?.mix.nudgeMs ?? .nan, EditSession.nudgeRangeMs, 1e-12, "clamped")
+    check(session.autoMixNotes.contains { $0.contains("calibration") }, "explains the clamp")
+    near(model.project(project.id)?.mix.songGain ?? .nan, 0.8, 1e-12, "faders untouched when level didn't run")
+}
+
+await testAsync("auto mix: a failure changes nothing and shows the error") {
+    let (model, docs) = makeModel() // the mock throws
+    let project = try addSongAndTake(model, docs: docs, timing: nil, clipStart: nil)
+    let session = EditSession(projectId: project.id, model: model)
+    let before = model.project(project.id)?.mix
+    await session.autoMix([.level])
+    check(model.project(project.id)?.mix == before, "mix unchanged")
+    check(session.undoCount == 0, "no undo step")
+    check(session.autoMixNotes.first?.contains("isn't available") == true, "error shown: \(session.autoMixNotes)")
+    check(session.autoMixBusy == nil, "not stuck busy")
+}
+
+test("master defaults on, and an explicit off sticks") {
+    var m = MixSettings.defaults()
+    check(m.masterOn, "default on")
+    m.master = false
+    check(!m.masterOn, "off")
+    let decoded = try JSONDecoder().decode(MixSettings.self, from: JSONEncoder().encode(m))
+    check(decoded.master == false, "persists")
 }
 
 // MARK: - Done

@@ -12,6 +12,7 @@ extension Services {
             preview: LiveMixPreview(),
             separation: LiveSeparation(),
             promptMix: LivePromptMix(),
+            autoMix: LiveAutoMix(),
             export: LiveExport(),
             photos: LivePhotos()
         )

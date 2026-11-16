@@ -63,6 +63,7 @@ private struct EditContent: View {
                 if let take = session.take, take.video != nil {
                     videoSection(mix)
                 }
+                AutoMixCard(session: session)
                 alignmentSection(mix)
                 mixSection(mix)
                 PromptMixBox(session: session)
@@ -114,6 +115,17 @@ private struct EditContent: View {
             }
             if session.exporting != nil {
                 ProgressBar(progress: session.exportProgress, color: Theme.blue)
+            }
+            if let mix = session.mix {
+                Toggle("Master exports (glue + −14 LUFS)", isOn: Binding(
+                    get: { mix.masterOn }, set: { session.setMaster($0) }
+                ))
+                .font(.footnote)
+                .foregroundStyle(Theme.textSoft)
+                .tint(Theme.accent)
+                HintText(mix.masterOn
+                    ? "Exports get gentle bus compression and streaming loudness. The preview plays the mix without it."
+                    : "Exports are only peak-limited to −1 dBFS.")
             }
             Button(session.savingTake ? "Saving…" : (session.take?.video != nil ? "Save raw take (drums + video)" : "Save raw take")) {
                 session.saveRawTake()
@@ -234,6 +246,52 @@ private struct EditContent: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Auto mix
+
+private struct AutoMixCard: View {
+    @Bindable var session: EditSession
+
+    var body: some View {
+        CardSection("Auto mix") {
+            HintText(session.hasStems
+                ? "Lines your take up with the original drums, matches their tone and level."
+                : "Lines your take up with the song's beat and sets its level. Remove original drums for tighter alignment and tone matching.")
+            Button(session.autoMixBusy != nil ? "Listening…" : "Auto mix") {
+                Task { await session.autoMix(session.hasStems ? [.align, .tone, .level] : [.align, .level]) }
+            }
+            .lumberButton(.primary, fill: true)
+            .disabled(session.autoMixBusy != nil)
+            HStack(spacing: 8) {
+                step("Align", .align)
+                step("Tone", .tone).disabled(!session.hasStems || session.autoMixBusy != nil)
+                step("Level", .level)
+            }
+            if session.autoMixBusy != nil {
+                HStack(spacing: 8) {
+                    ProgressView().tint(Theme.accent)
+                    HintText("Comparing your take with the \(session.hasStems ? "original drums" : "song")…")
+                }
+            }
+            ForEach(Array(session.autoMixNotes.enumerated()), id: \.offset) { _, note in
+                Text(note)
+                    .font(.footnote)
+                    .foregroundStyle(Theme.textSoft)
+            }
+            if session.undoCount > 0 && !session.autoMixNotes.isEmpty {
+                Button(session.undoCount > 1 ? "Undo (\(session.undoCount))" : "Undo") { session.undo() }
+                    .lumberButton(.ghost, small: true)
+                    .disabled(session.autoMixBusy != nil)
+            }
+        }
+    }
+
+    private func step(_ title: String, _ step: AutoMixStep) -> some View {
+        Button(title) { Task { await session.autoMix([step]) } }
+            .lumberButton(small: true)
+            .disabled(session.autoMixBusy != nil)
     }
 }
 

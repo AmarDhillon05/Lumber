@@ -298,6 +298,31 @@ final class LiveMixPreview: MixPreviewService {
     }
 }
 
+// MARK: - Auto mix
+
+@MainActor
+final class LiveAutoMix: AutoMixService {
+    func run(_ request: AutoMixRequest) async throws -> AutoMixResult {
+        let a = try await ProjectAudio.load(request.audio)
+        let input = AutoMix.Input(
+            take: a.take, song: a.bed, originalDrums: a.originalDrums, sampleRate: a.sampleRate,
+            drumOffsetSec: request.drumOffsetSec, values: KnobBridge.values(request.mix.values),
+            songGain: request.mix.songGain, drumGain: request.mix.drumGain
+        )
+        let steps = Set(request.steps.compactMap { AutoMix.Step(rawValue: $0.rawValue) })
+        let out = await Task.detached(priority: .userInitiated) { AutoMix.run(input, steps: steps) }.value
+        let reliable = out.align?.isReliable ?? false
+        var knobs: [String: Double]?
+        if out.tone != nil {
+            knobs = Dictionary(uniqueKeysWithValues: out.values.map { ($0.key.rawValue, $0.value) })
+        }
+        return AutoMixResult(
+            nudgeDeltaMs: reliable ? out.appliedDeltaSec * 1000 : nil,
+            values: knobs, songGain: out.level?.songGain, drumGain: out.level?.drumGain, notes: out.notes
+        )
+    }
+}
+
 // MARK: - Export
 
 @MainActor
@@ -314,7 +339,8 @@ final class LiveExport: ExportService {
             DSP.mixTake(DSP.MixOptions(
                 song: a.bed, drums: drums, sampleRate: a.sampleRate, drumOffsetSec: offset,
                 songGain: mix.songGain, drumGain: mix.drumGain,
-                originalDrums: a.originalDrums.map { DSP.OriginalDrums(drums: $0, noDrums: a.bed, amount: mix.originalDrums) }
+                originalDrums: a.originalDrums.map { DSP.OriginalDrums(drums: $0, noDrums: a.bed, amount: mix.originalDrums) },
+                master: mix.masterOn ? AutoMix.MasterOptions() : nil
             ))
         }.value
         progress(0.6)

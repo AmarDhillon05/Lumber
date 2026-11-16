@@ -37,14 +37,17 @@ extension DSP {
         public var ceilingDb: Double
         /// After limiting, scale so the peak sits exactly at the ceiling (default false).
         public var normalize: Bool
+        /// Master the sum (glue, loudness, limit) instead of only limiting it.
+        public var master: AutoMix.MasterOptions?
 
         public init(song: [[Float]], drums: [[Float]], sampleRate: Double, drumOffsetSec: Double,
                     songGain: Double = 1, drumGain: Double = 1, originalDrums: OriginalDrums? = nil,
-                    limit: Bool = true, ceilingDb: Double = -1, normalize: Bool = false) {
+                    limit: Bool = true, ceilingDb: Double = -1, normalize: Bool = false,
+                    master: AutoMix.MasterOptions? = nil) {
             self.song = song; self.drums = drums; self.sampleRate = sampleRate
             self.drumOffsetSec = drumOffsetSec; self.songGain = songGain; self.drumGain = drumGain
             self.originalDrums = originalDrums; self.limit = limit; self.ceilingDb = ceilingDb
-            self.normalize = normalize
+            self.normalize = normalize; self.master = master
         }
     }
 
@@ -105,6 +108,10 @@ extension DSP {
             }
         }
 
+        if let m = o.master {
+            AutoMix.master(&out, sampleRate: o.sampleRate, m)
+            return out
+        }
         if o.limit { limitPeaks(&out, sampleRate: o.sampleRate, LimiterOptions(ceilingDb: o.ceilingDb)) }
         if o.normalize { normalizePeak(&out, ceilingDb: o.ceilingDb) }
         return out

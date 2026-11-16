@@ -85,6 +85,10 @@ struct MixSettings: Codable, Hashable, Sendable {
     var values: [String: Double] // Blanket knob term -> -1...1
     var presetId: String?
     var videoNudgeMs: Double?
+    /// Export through the master stage (glue + loudness + limit). nil = on.
+    var master: Bool?
+
+    var masterOn: Bool { master ?? true }
 
     static func defaults() -> MixSettings {
         MixSettings(
@@ -296,6 +300,7 @@ extension MixSettings {
         values = KnobCatalog.filledValues(c.value(.values, default: [:]))
         presetId = c.optional(.presetId)
         videoNudgeMs = c.optional(.videoNudgeMs)
+        master = c.optional(.master)
     }
 }
 

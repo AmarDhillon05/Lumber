@@ -117,7 +117,7 @@ jobs:
             -resultBundlePath SimTests.xcresult \
             CODE_SIGN_IDENTITY=- CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=NO \
             > simtests.log 2>&1 && STATUS=0 || STATUS=$?
-          grep -E "Test Case .*(passed|failed)|error:|: XCT|took|click at|reconstruction|Executed" simtests.log | tail -n 80 || true
+          grep -E "Test Case .*(passed|failed)|error:|: XCT|took|click at|reconstruction|auto mix|mastered|Executed" simtests.log | tail -n 80 || true
           if [ "$STATUS" -ne 0 ]; then
             tail -n 60 simtests.log
             echo "::error::Simulator tests failed ($STATUS) — see the simulator-tests artifact"
