@@ -43,10 +43,17 @@ struct LibraryScreen: View {
         .scrollDismissesKeyboard(.interactively)
         .lumberScreen("Lumber")
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Text(BuildInfo.shortLabel)
-                    .font(.caption2.monospacedDigit())
-                    .foregroundStyle(Theme.textFaint)
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 7) {
+                    Image("Logo")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                    Text("Lumber")
+                        .font(.system(.title3, design: .rounded).weight(.heavy))
+                        .foregroundStyle(Theme.text)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Lumber")
             }
         }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.audio]) { result in
@@ -243,13 +250,19 @@ private struct SongRow: View {
         let job = model.jobs[AppModel.separationJobId(song.id)]
         let running = job?.isRunning == true
         VStack(alignment: .leading, spacing: 10) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(song.title)
-                    .font(.headline)
-                    .foregroundStyle(Theme.text)
-                Text(meta)
-                    .font(.caption)
-                    .foregroundStyle(Theme.textMuted)
+            HStack(spacing: 12) {
+                ArtworkTile(title: song.title, url: song.artworkUrl)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(song.title)
+                        .font(.headline)
+                        .foregroundStyle(Theme.text)
+                        .lineLimit(2)
+                    Text(meta)
+                        .font(.caption)
+                        .foregroundStyle(Theme.textMuted)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 0)
             }
             .contextMenu {
                 Button("Delete song", systemImage: "trash", role: .destructive) { confirmDelete = true }
@@ -261,7 +274,7 @@ private struct SongRow: View {
                 }
                 .lumberButton(.primary, small: true)
                 if song.stems == nil {
-                    Button(running ? "Removing… \(Int(((job?.progress ?? 0) * 100).rounded()))%" : "Remove original drums") {
+                    Button(running ? "Removing… \(Int(((job?.progress ?? 0) * 100).rounded()))%" : "Remove drums") {
                         Task { await model.removeOriginalDrums(song.id) }
                     }
                     .lumberButton(small: true)
@@ -285,7 +298,10 @@ private struct SongRow: View {
                 Divider().overlay(Theme.border)
                 NavigationLink(value: Route.edit(projectId: project.id)) {
                     HStack {
-                        Text("🥁 \(project.name)")
+                        Image(systemName: "waveform")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Theme.drums)
+                        Text(project.name)
                             .font(.subheadline)
                             .foregroundStyle(Theme.textSoft)
                             .lineLimit(1)

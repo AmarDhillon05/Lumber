@@ -244,3 +244,88 @@ extension View {
         )
     }
 }
+
+// MARK: - Collapsible card
+
+/// A card whose body folds away; the header shows a short status on the right.
+struct CollapsibleCard<Content: View>: View {
+    let title: String
+    var status: String?
+    @Binding var isOpen: Bool
+    let content: Content
+
+    init(_ title: String, status: String? = nil, isOpen: Binding<Bool>, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.status = status
+        self._isOpen = isOpen
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { isOpen.toggle() }
+            } label: {
+                HStack(spacing: 8) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(Theme.text)
+                    Spacer()
+                    if let status {
+                        Text(status)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Theme.accentSoft)
+                    }
+                    Image(systemName: "chevron.down")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.textMuted)
+                        .rotationEffect(.degrees(isOpen ? 0 : -90))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            if isOpen { content }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.card, in: RoundedRectangle(cornerRadius: Theme.radius))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.border, lineWidth: 1))
+    }
+}
+
+// MARK: - Artwork
+
+/// Song artwork: the remote thumbnail when there is one, else a tile with the
+/// title's first letter on a colour picked from the title (stable per song).
+struct ArtworkTile: View {
+    let title: String
+    let url: String?
+    var size: CGFloat = 48
+
+    private static let palette: [Color] = [Theme.accent, Theme.blue, Color(hex: 0x6D28D9), Color(hex: 0x2563EB), Color(hex: 0x7C3AED), Color(hex: 0x0EA5E9)]
+
+    var body: some View {
+        ZStack {
+            tile
+            if let url, let u = URL(string: url) {
+                AsyncImage(url: u) { phase in
+                    if let image = phase.image { image.resizable().scaledToFill() }
+                }
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.08), lineWidth: 1))
+    }
+
+    private var tile: some View {
+        let seed = title.unicodeScalars.reduce(UInt32(0)) { $0 &* 31 &+ $1.value }
+        let base = Self.palette[Int(seed % UInt32(Self.palette.count))]
+        return ZStack {
+            LinearGradient(colors: [base, base.opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            Text(String(title.trimmingCharacters(in: .whitespaces).prefix(1)).uppercased())
+                .font(.system(size: size * 0.42, weight: .bold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.92))
+        }
+    }
+}

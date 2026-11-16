@@ -32,10 +32,20 @@ final class ScreenshotTour: XCTestCase {
         XCTAssertTrue(app.staticTexts["Auto mix"].waitForExistence(timeout: 30), "Edit didn't load")
         sleep(2)
         shot(app, "04-edit")
-        for i in 5...9 {
+        for i in 5...7 {
             app.swipeUp()
             sleep(1)
             shot(app, String(format: "%02d-edit-scrolled", i))
+        }
+        // Open one knob group to show the − / + rows.
+        let frequency = app.buttons["Frequency"].firstMatch
+        if frequency.waitForExistence(timeout: 5) {
+            frequency.tap()
+            sleep(1)
+            shot(app, "08-edit-knobs")
+            app.swipeUp()
+            sleep(1)
+            shot(app, "09-edit-knobs-scrolled")
         }
         XCTAssertEqual(app.state, .runningForeground)
     }

@@ -1,6 +1,6 @@
 // One Blanket term as a row of big buttons: name (tap for what it does),
-// a bar showing the setting, − / + in steps of 1 (of 10; hold to repeat),
-// and a reset button once it's moved. Two-sided terms (EQ: boost / cut) run
+// a bar showing the setting, the number (tap to reset to 0) and − / + in
+// steps of 1 (of 10; hold to repeat). Two-sided terms (EQ: boost / cut) run
 // −10…+10 from the middle; the rest run 0…10.
 //
 // Replaces the rotary knobs, which were fiddly to turn inside a scroll view.
@@ -22,12 +22,17 @@ struct KnobView: View {
     var body: some View {
         HStack(spacing: 10) {
             Button { showInfo = true } label: {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(info.label)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(moved ? Theme.text : Theme.textSoft)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Text(info.label)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(moved ? Theme.text : Theme.textSoft)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        Image(systemName: "info.circle")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.textFaint)
+                    }
                     LevelBar(value: value, bipolar: info.bipolar)
                         .frame(height: 6)
                 }
@@ -42,25 +47,22 @@ struct KnobView: View {
                     .presentationCompactAdaptation(.popover)
             }
 
-            Text(steps == 0 ? "0" : (steps > 0 && info.bipolar ? "+\(steps)" : "\(steps)"))
-                .font(.subheadline.monospacedDigit().weight(.semibold))
-                .foregroundStyle(moved ? Theme.accentSoft : Theme.textFaint)
-                .frame(width: 32)
+            // The number doubles as reset: tap it to go back to 0.
+            Button { set(0) } label: {
+                Text(steps == 0 ? "0" : (steps > 0 && info.bipolar ? "+\(steps)" : "\(steps)"))
+                    .font(.subheadline.monospacedDigit().weight(.semibold))
+                    .foregroundStyle(moved ? Theme.accentSoft : Theme.textFaint)
+                    .frame(width: 36, height: 40)
+                    .background(moved ? Theme.accent.opacity(0.14) : Color.clear, in: RoundedRectangle(cornerRadius: 8))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(!moved)
+            .accessibilityLabel("Reset \(info.label)")
 
             stepButton("minus", enabled: value > lower + 0.001) { set(value - Self.step) }
             stepButton("plus", enabled: value < 0.999) { set(value + Self.step) }
 
-            Button { set(0) } label: {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.footnote.weight(.semibold))
-                    .frame(width: 28, height: 40)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(Theme.textMuted)
-            .opacity(moved ? 1 : 0)
-            .disabled(!moved)
-            .accessibilityLabel("Reset \(info.label)")
         }
         .padding(.vertical, 4)
         .sensoryFeedback(.selection, trigger: steps)
@@ -84,14 +86,15 @@ struct KnobView: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.body.weight(.bold))
-                .frame(width: 44, height: 40)
-                .background(Theme.surface, in: RoundedRectangle(cornerRadius: 10))
+                .frame(width: 46, height: 40)
+                .background(Theme.cardRaised, in: RoundedRectangle(cornerRadius: 10))
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.border, lineWidth: 1))
+                .opacity(enabled ? 1 : 0.4)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .buttonRepeatBehavior(.enabled)
-        .foregroundStyle(enabled ? Theme.text : Theme.textFaint)
+        .foregroundStyle(Theme.text)
         .disabled(!enabled)
         .accessibilityLabel(symbol == "plus" ? "More \(info.label)" : "Less \(info.label)")
     }
@@ -110,9 +113,10 @@ private struct LevelBar: View {
             let len = CGFloat(abs(value)) * span
             let x = value >= 0 ? origin : origin - len
             ZStack(alignment: .leading) {
-                Capsule().fill(Theme.surface)
+                Capsule().fill(Theme.cardRaised)
+                    .overlay(Capsule().stroke(Theme.border, lineWidth: 1))
                 if bipolar {
-                    Rectangle().fill(Theme.border).frame(width: 1.5).offset(x: origin - 0.75)
+                    Rectangle().fill(Theme.textFaint).frame(width: 2, height: 10).offset(x: origin - 1)
                 }
                 Capsule()
                     .fill(LinearGradient(colors: [Theme.accent, Theme.blue], startPoint: .leading, endPoint: .trailing))

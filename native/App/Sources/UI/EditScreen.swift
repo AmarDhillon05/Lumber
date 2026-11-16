@@ -26,6 +26,7 @@ struct EditScreen: View {
 
 private struct EditContent: View {
     @Bindable var session: EditSession
+    @State private var openGroups: Set<KnobCategory> = []
 
     var body: some View {
         Group {
@@ -58,15 +59,21 @@ private struct EditContent: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 lanes
-                transportAndExport
+                transport
+                AutoMixCard(session: session)
+                PromptMixBox(session: session)
+                presetsSection(mix)
+                mixSection(mix)
+                alignmentSection(mix)
                 if let take = session.take, take.video != nil {
                     videoSection(mix)
                 }
-                AutoMixCard(session: session)
-                alignmentSection(mix)
-                mixSection(mix)
-                PromptMixBox(session: session)
-                presetsSection(mix)
+                exportCard(mix)
+                Text("Fine-tune")
+                    .font(.title3.bold())
+                    .foregroundStyle(Theme.text)
+                    .padding(.top, 8)
+                HintText("Every knob of the drum chain, by group. Presets, Auto mix and Describe the sound set these for you.")
                 ForEach(KnobCategory.allCases, id: \.self) { category in
                     let terms = KnobCatalog.terms(in: category)
                     if !terms.isEmpty {
@@ -98,43 +105,14 @@ private struct EditContent: View {
         }
     }
 
-    private var transportAndExport: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Button(session.playing ? "Stop" : "▶ Preview") { session.togglePlay() }
-                    .lumberButton(.primary, fill: true)
-                exportButton(.wav, title: "Export WAV")
+    private var transport: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                session.togglePlay()
+            } label: {
+                Label(session.playing ? "Stop" : "Preview", systemImage: session.playing ? "stop.fill" : "play.fill")
             }
-            HStack(spacing: 8) {
-                exportButton(.m4a, title: "Export M4A")
-                if session.take?.video != nil {
-                    exportButton(.video, title: "Export video")
-                }
-            }
-            if session.exporting != nil {
-                ProgressBar(progress: session.exportProgress, color: Theme.blue)
-            }
-            if let mix = session.mix {
-                Toggle("Master exports (glue + −14 LUFS)", isOn: Binding(
-                    get: { mix.masterOn }, set: { session.setMaster($0) }
-                ))
-                .font(.footnote)
-                .foregroundStyle(Theme.textSoft)
-                .tint(Theme.accent)
-                HintText(mix.masterOn
-                    ? "Exports get gentle bus compression and streaming loudness. The preview plays the mix without it."
-                    : "Exports are only peak-limited to −1 dBFS.")
-            }
-            Button(session.savingTake ? "Saving…" : (session.take?.video != nil ? "Save raw take (drums + video)" : "Save raw take")) {
-                session.saveRawTake()
-            }
-            .lumberButton(.ghost, small: true)
-            .disabled(session.savingTake)
-
-            if !session.saved.isEmpty {
-                SavedBanner(saved: session.saved) { session.saved = [] }
-            }
-
+            .lumberButton(.primary, fill: true)
             LabeledSlider(
                 label: "Playhead",
                 value: session.playhead,
@@ -145,9 +123,39 @@ private struct EditContent: View {
         }
     }
 
+    private func exportCard(_ mix: MixSettings) -> some View {
+        CardSection("Export") {
+            HStack(spacing: 8) {
+                exportButton(.wav, title: "WAV")
+                exportButton(.m4a, title: "M4A")
+                if session.take?.video != nil {
+                    exportButton(.video, title: "Video")
+                }
+            }
+            if session.exporting != nil {
+                ProgressBar(progress: session.exportProgress, color: Theme.blue)
+            }
+            Toggle("Master (glue + −14 LUFS)", isOn: Binding(get: { mix.masterOn }, set: { session.setMaster($0) }))
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSoft)
+                .tint(Theme.accent)
+            HintText(mix.masterOn
+                ? "Gentle bus compression and streaming loudness on export. The preview plays the mix without it."
+                : "Exports are only peak-limited to −1 dBFS.")
+            Button(session.savingTake ? "Saving…" : (session.take?.video != nil ? "Save raw take (drums + video)" : "Save raw take")) {
+                session.saveRawTake()
+            }
+            .lumberButton(small: true)
+            .disabled(session.savingTake)
+            if !session.saved.isEmpty {
+                SavedBanner(saved: session.saved) { session.saved = [] }
+            }
+        }
+    }
+
     private func exportButton(_ format: ExportFormat, title: String) -> some View {
         let busy = session.exporting == format
-        return Button(busy ? (format == .video ? "Video \(Int((session.exportProgress * 100).rounded()))%" : "Exporting…") : title) {
+        return Button(busy ? "\(Int((session.exportProgress * 100).rounded()))%" : title) {
             Task { await session.export(format) }
         }
         .lumberButton(fill: true)
@@ -232,7 +240,15 @@ private struct EditContent: View {
     }
 
     private func knobSection(_ category: KnobCategory, terms: [KnobTermInfo], mix: MixSettings) -> some View {
-        CardSection(category.rawValue) {
+        let changed = terms.filter { abs(mix.values[$0.key] ?? 0) > 0.001 }.count
+        return CollapsibleCard(
+            category.rawValue,
+            status: changed == 0 ? nil : "\(changed) changed",
+            isOpen: Binding(
+                get: { openGroups.contains(category) },
+                set: { if $0 { openGroups.insert(category) } else { openGroups.remove(category) } }
+            )
+        ) {
             VStack(spacing: 2) {
                 ForEach(terms) { info in
                     KnobView(info: info, value: mix.values[info.key] ?? 0, onChange: { session.setKnob(info.key, $0) })

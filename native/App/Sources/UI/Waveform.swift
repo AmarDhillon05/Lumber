@@ -34,8 +34,11 @@ struct WaveformLane: View {
         .overlay(alignment: .topLeading) {
             Text(label)
                 .font(.caption2.weight(.bold))
-                .foregroundStyle(color.opacity(0.9))
-                .padding(6)
+                .foregroundStyle(color)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Theme.surfaceDeep.opacity(0.85), in: Capsule())
+                .padding(5)
         }
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border, lineWidth: 1))
     }
