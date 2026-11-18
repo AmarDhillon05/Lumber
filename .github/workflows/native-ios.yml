@@ -76,7 +76,12 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: native/.spm
-          key: native-spm-${{ runner.os }}-${{ hashFiles('native/project.yml', 'native/LumberCore/Package.swift') }}
+          # Keyed on the package pins only (not the whole project.yml), with a
+          # fallback to any earlier cache: a fresh clone of the ONNX Runtime
+          # package has started failing anonymously, so keep the cached copy.
+          key: native-spm-${{ runner.os }}-ort-1.24.2-${{ hashFiles('native/LumberCore/Package.swift') }}
+          restore-keys: |
+            native-spm-${{ runner.os }}-
 
       - name: Resolve packages
         run: |
