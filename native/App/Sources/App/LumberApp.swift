@@ -1,10 +1,15 @@
 // Lumber (native): Library → Record → Edit/Export, plus Recordings.
 
 import SwiftUI
+import UIKit
 
 @main
 struct LumberApp: App {
     @State private var model = AppModel(services: Services.live())
+
+    init() {
+        CrashReports.shared.start()
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -45,11 +50,16 @@ struct RootView: View {
         .tint(Theme.accent)
         .preferredColorScheme(.dark)
         .task {
+            model.checkLastSession()
+            // Demo/UI-test launches: the test runner ends the previous launch
+            // while it's on screen, which isn't a crash.
+            if CommandLine.arguments.contains(DemoContent.launchArgument) { model.dismissCrashNotice() }
             await model.load()
             if CommandLine.arguments.contains(DemoContent.launchArgument) { try? model.seedDemoIfEmpty() }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active { model.saveNow() }
+            model.markSession(foreground: phase == .active)
         }
     }
 }

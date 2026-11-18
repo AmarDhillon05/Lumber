@@ -70,7 +70,7 @@ private struct EditContent: View {
                 }
                 exportCard(mix)
                 Text("Fine-tune")
-                    .font(.title3.bold())
+                    .font(Theme.heading(23, relativeTo: .title3))
                     .foregroundStyle(Theme.text)
                     .padding(.top, 8)
                 HintText("Every knob of the drum chain, by group. Presets, Auto mix and Describe the sound set these for you.")
@@ -316,7 +316,7 @@ private struct PromptMixBox: View {
         CardSection {
             HStack {
                 Text("Describe the sound")
-                    .font(.headline)
+                    .font(Theme.heading())
                     .foregroundStyle(Theme.text)
                 Spacer()
                 Text(session.promptModeLabel)

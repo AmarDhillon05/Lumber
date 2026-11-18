@@ -52,6 +52,8 @@ extension AppModel {
         if let job = jobs[jobId], job.isRunning { return }
         let label = "Removing drums (\(services.separation.modeLabel))"
         setJob(jobId, Job(label: label, progress: 0))
+        noteActivity("removing the drums from “\(song.title)” (\(services.separation.modeLabel))")
+        defer { noteActivity(nil) }
         do {
             let output = try await services.separation.separateDrums(
                 songURL: url(song.uri), into: files.dir(.stems)

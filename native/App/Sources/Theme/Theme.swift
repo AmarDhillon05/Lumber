@@ -42,8 +42,21 @@ enum Theme {
     static let steelHubLight = Color(hex: 0x5A5A7A)
     static let steelPointer = Color(hex: 0xECE9FF)
 
+    static let cream = Color(hex: 0xE8E1D2) // the end-grain mark's wood
+    static let plum = Color(hex: 0x3B3350)
+
     static let radius: CGFloat = 12
     static let gutter: CGFloat = 16
+
+    // Bricolage Grotesque (bundled, OFL): the wordmark and headings. Body
+    // text stays the system font. Sizes follow Dynamic Type.
+    static let displayFontName = "BricolageGrotesque96pt-ExtraBold"
+    static let headingFontName = "BricolageGrotesque48pt-Bold"
+
+    static func wordmark(_ size: CGFloat = 25) -> Font { .custom(displayFontName, size: size, relativeTo: .title2) }
+    static func heading(_ size: CGFloat = 18, relativeTo style: Font.TextStyle = .headline) -> Font {
+        .custom(headingFontName, size: size, relativeTo: style)
+    }
 }
 
 extension Color {

@@ -8,11 +8,16 @@ import UniformTypeIdentifiers
 struct LibraryScreen: View {
     @Environment(AppModel.self) private var model
     @State private var importing = false
+    @State private var showSettings = false
     @State private var importError: String?
 
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 12) {
+                if let notice = model.crashNotice {
+                    CrashNoticeCard(notice: notice) { model.dismissCrashNotice() }
+                }
+
                 NavigationLink(value: Route.recordings(openId: nil)) {
                     RecordingsEntry(count: model.recordings.count)
                 }
@@ -21,7 +26,7 @@ struct LibraryScreen: View {
                 AddSongSection(onImport: { importing = true })
 
                 Text("Your songs")
-                    .font(.title3.bold())
+                    .font(Theme.heading(23, relativeTo: .title3))
                     .foregroundStyle(Theme.text)
                     .padding(.top, 10)
                 if model.songs.isEmpty {
@@ -41,21 +46,29 @@ struct LibraryScreen: View {
             .padding(.bottom, 32)
         }
         .scrollDismissesKeyboard(.interactively)
-        .lumberScreen("Lumber")
+        .lumberScreen("Lumber", drawTitle: false)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                HStack(spacing: 7) {
+                HStack(spacing: 8) {
                     Image("Logo")
                         .resizable()
-                        .frame(width: 24, height: 24)
-                    Text("Lumber")
-                        .font(.system(.title3, design: .rounded).weight(.heavy))
-                        .foregroundStyle(Theme.text)
+                        .frame(width: 26, height: 26)
+                    Text("lumber")
+                        .font(Theme.wordmark())
+                        .kerning(-0.4)
+                        .foregroundStyle(Theme.cream)
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Lumber")
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape").foregroundStyle(Theme.textMuted)
+                }
+                .accessibilityLabel("Settings")
+            }
         }
+        .sheet(isPresented: $showSettings) { SettingsSheet() }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.audio]) { result in
             switch result {
             case .success(let url):
@@ -82,7 +95,7 @@ private struct RecordingsEntry: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Recordings")
-                    .font(.headline)
+                    .font(Theme.heading())
                     .foregroundStyle(Theme.text)
                 Text(count > 0 ? "\(count) saved · videos, mixes and takes" : "Your saved videos, mixes and takes")
                     .font(.caption)
@@ -343,5 +356,102 @@ private struct SongRow: View {
             .compactMap { $0 }
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
+    }
+}
+
+// MARK: - Crash notice
+
+/// Shown after the app died in the foreground: what it was doing, and the
+/// iOS crash report (when there is one) to share.
+private struct CrashNoticeCard: View {
+    let notice: String
+    let onDismiss: () -> Void
+    @State private var reports = CrashReports.saved()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                Label("Lumber crashed", systemImage: "exclamationmark.triangle.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.warning)
+                Spacer()
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark").foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Dismiss")
+            }
+            Text(notice)
+                .font(.footnote)
+                .foregroundStyle(Theme.textSoft)
+                .fixedSize(horizontal: false, vertical: true)
+            if let report = reports.first {
+                ShareLink(item: report) {
+                    Label("Share crash report", systemImage: "square.and.arrow.up")
+                }
+                .lumberButton(small: true)
+            } else {
+                HintText("iOS usually delivers the full crash report on a later launch; it'll appear here to share.")
+            }
+        }
+        .padding(12)
+        .background(Theme.warning.opacity(0.08), in: RoundedRectangle(cornerRadius: Theme.radius))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.warning.opacity(0.5), lineWidth: 1))
+        .onAppear { reports = CrashReports.saved() }
+    }
+}
+
+// MARK: - Settings
+
+private struct SettingsSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    @State private var fast = false
+    @State private var modeLabel = ""
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    CardSection("Drum removal") {
+                        Toggle("Fast mode (Neural Engine)", isOn: Binding(
+                            get: { fast },
+                            set: { on in
+                                fast = on
+                                model.services.separation.setFastMode(on)
+                                modeLabel = model.services.separation.modeLabel
+                            }
+                        ))
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.textSoft)
+                        .tint(Theme.accent)
+                        HintText("Off (recommended): runs on the GPU, which needs less memory. On: also uses the Neural Engine. It can be faster, but preparing the model for it takes a lot of memory and can crash the app. If a run crashes, the next one automatically uses a lighter mode.")
+                        HintText("Next run uses: \(modeLabel)")
+                    }
+                    CardSection("Recording") {
+                        Toggle("Play songs without their original drums", isOn: Binding(
+                            get: { model.settings.withoutDrums },
+                            set: { on in model.updateSettings { $0.playWithoutDrums = on } }
+                        ))
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.textSoft)
+                        .tint(Theme.accent)
+                        HintText("Only for songs you've run Remove drums on. Also on the Record screen.")
+                    }
+                    HintText(BuildInfo.label)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 8)
+                }
+                .padding(Theme.gutter)
+            }
+            .lumberScreen("Settings")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
+            }
+        }
+        .onAppear {
+            fast = model.services.separation.fastMode
+            modeLabel = model.services.separation.modeLabel
+        }
     }
 }

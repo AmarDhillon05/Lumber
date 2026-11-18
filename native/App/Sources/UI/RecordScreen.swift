@@ -48,6 +48,7 @@ private struct RecordContent: View {
             VStack(alignment: .leading, spacing: 12) {
                 warnings
                 transport
+                backingSection
                 CameraPanel(session: session)
                 startSection
                 loopSection
@@ -164,6 +165,26 @@ private struct RecordContent: View {
                     onChange: { session.setLoopEnd($0) }
                 )
                 .disabled(session.isRunning)
+            }
+        }
+    }
+
+    private var backingSection: some View {
+        CardSection("Backing track") {
+            if session.hasStems {
+                Toggle("Play without the original drums", isOn: Binding(
+                    get: { session.settings.withoutDrums },
+                    set: { on in Task { await session.setPlayWithoutDrums(on) } }
+                ))
+                .font(.subheadline)
+                .foregroundStyle(Theme.textSoft)
+                .tint(Theme.accent)
+                .disabled(session.isRunning)
+                HintText(session.settings.withoutDrums
+                    ? "You hear the song with its drums removed. Turn off to play along with the original drummer."
+                    : "You hear the full song, original drums included.")
+            } else {
+                HintText("Playing the full song. Use Remove drums in the Library to play along without the original drummer.")
             }
         }
     }

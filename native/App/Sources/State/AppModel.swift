@@ -34,16 +34,21 @@ final class AppModel {
     private(set) var loaded = false
     var path: [Route] = []
     private(set) var jobs: [String: Job] = [:]
+    /// "Lumber closed unexpectedly last time while …" (see SessionWatch.swift).
+    var crashNotice: String?
+    @ObservationIgnored var currentActivity = AppModel.idleActivity
 
     let services: Services
     let files: DocumentStore
     private let store: DbStore
+    let sessionMarker: SessionMarker
     @ObservationIgnored private var saveTask: Task<Void, Never>?
 
-    init(services: Services, files: DocumentStore = DocumentStore()) {
+    init(services: Services, files: DocumentStore = DocumentStore(), defaults: UserDefaults = .standard) {
         self.services = services
         self.files = files
         self.store = DbStore(files: files)
+        self.sessionMarker = SessionMarker(defaults: defaults)
     }
 
     // MARK: Load / save

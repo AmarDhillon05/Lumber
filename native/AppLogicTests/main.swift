@@ -341,6 +341,65 @@ func XCTUnwrapLike<T>(_ v: T?) throws -> T {
     return v
 }
 
+// MARK: - Crash notice
+
+await testAsync("crash notice: dying in the foreground is reported with what the app was doing") {
+    let suite = "lumber-tests-\(UUID().uuidString)"
+    guard let defaults = UserDefaults(suiteName: suite) else { return check(false, "no defaults suite") }
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let docs = tempDir()
+
+    // First launch: nothing to report.
+    let first = AppModel(services: .mock(), files: DocumentStore(documents: docs), defaults: defaults)
+    first.checkLastSession()
+    check(first.crashNotice == nil, "fresh install has no notice")
+    first.noteActivity("removing the drums from “Song”")
+    // ...and the app dies here (no background marker).
+
+    let second = AppModel(services: .mock(), files: DocumentStore(documents: docs), defaults: defaults)
+    second.checkLastSession()
+    check(second.crashNotice?.contains("removing the drums from “Song”") == true,
+          "notice names the activity: \(second.crashNotice ?? "nil")")
+    second.dismissCrashNotice()
+    check(second.crashNotice == nil, "dismiss clears it")
+
+    // Going to the background, then being killed there, is normal.
+    second.markSession(foreground: false)
+    let third = AppModel(services: .mock(), files: DocumentStore(documents: docs), defaults: defaults)
+    third.checkLastSession()
+    check(third.crashNotice == nil, "a background kill isn't a crash")
+
+    // Finishing an activity goes back to idle.
+    third.noteActivity("exporting WAV")
+    third.noteActivity(nil)
+    check(third.currentActivity == AppModel.idleActivity, "idle after the activity ends")
+}
+
+// MARK: - Record backing track
+
+await testAsync("record plays the drumless stem when there is one, unless turned off") {
+    let (model, docs) = makeModel()
+    _ = try addSongAndTake(model, docs: docs, timing: nil, clipStart: nil)
+    let session = RecordSession(songId: "file:test", model: model)
+    check(!session.hasStems, "no stems yet")
+    check(session.backingURL?.lastPathComponent == "song.wav", "full song without stems")
+
+    let stems = model.files.dir(.stems)
+    let d = stems.appendingPathComponent("drums.wav"), n = stems.appendingPathComponent("no_drums.wav")
+    try SilentWav.write(to: d, seconds: 2, sampleRate: 44_100)
+    try SilentWav.write(to: n, seconds: 2, sampleRate: 44_100)
+    model.setStems("file:test", SeparationOutput(drumsURL: d, noDrumsURL: n, sampleRate: 44_100))
+    check(session.hasStems, "stems now")
+    check(model.settings.withoutDrums, "default: without drums")
+    check(session.backingURL?.lastPathComponent == "no_drums.wav", "drumless by default: \(session.backingURL?.lastPathComponent ?? "nil")")
+
+    await session.setPlayWithoutDrums(false)
+    check(session.backingURL?.lastPathComponent == "song.wav", "full song when turned off")
+    check(model.settings.playWithoutDrums == false, "setting saved")
+    let decoded = try JSONDecoder().decode(Settings.self, from: JSONEncoder().encode(model.settings))
+    check(decoded.playWithoutDrums == false, "setting survives a restart")
+}
+
 // MARK: - Done
 
 print(failures == 0 ? "\nAll \(checks) checks passed." : "\n\(failures) of \(checks) checks FAILED.")

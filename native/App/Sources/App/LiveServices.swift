@@ -420,6 +420,8 @@ final class LiveSeparation: SeparationService {
     }
 
     func checkForCrash() -> String? { engine.checkForCrash() }
+    var fastMode: Bool { engine.fastMode }
+    func setFastMode(_ on: Bool) { engine.setFastMode(on) }
 
     func separateDrums(songURL: URL, into directory: URL, progress: @escaping ProgressHandler) async throws -> SeparationOutput {
         let engine = self.engine

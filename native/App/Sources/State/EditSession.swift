@@ -111,6 +111,8 @@ final class EditSession {
             return
         }
         do {
+            model.noteActivity("opening a take in Edit")
+            defer { model.noteActivity(nil) }
             let loaded = try await preview.load(request)
             audio = loaded
             playhead = max(0, take.drumOffsetSec)
@@ -259,6 +261,8 @@ final class EditSession {
         stopPreview()
         exporting = format
         exportProgress = 0
+        model.noteActivity("exporting \(format.rawValue.uppercased())")
+        defer { model.noteActivity(nil) }
         do {
             let rec = try await model.exportMix(format, projectId: projectId) { [weak self] p in
                 self?.exportProgress = p
@@ -344,7 +348,11 @@ final class EditSession {
         guard autoMixBusy == nil, !steps.isEmpty, let project, let request = model.audioRequest(for: project) else { return }
         autoMixBusy = AutoMixStep.allCases.first { steps.contains($0) }
         autoMixNotes = []
-        defer { autoMixBusy = nil }
+        model.noteActivity("running Auto mix")
+        defer {
+            autoMixBusy = nil
+            model.noteActivity(nil)
+        }
         do {
             let result = try await model.services.autoMix.run(
                 AutoMixRequest(audio: request, mix: project.mix, drumOffsetSec: drumOffset, steps: steps)

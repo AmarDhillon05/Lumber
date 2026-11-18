@@ -41,6 +41,29 @@ final class RecordSession {
     var camera: any CameraService { model.services.camera }
 
     var song: LibrarySong? { model.song(songId) }
+
+    /// The song has a drumless stem to play along to.
+    var hasStems: Bool { song?.stems != nil }
+
+    /// What Record plays: the drumless stem when there is one and the setting
+    /// is on, else the song. Same length and timeline either way.
+    var backingURL: URL? {
+        guard let song else { return nil }
+        if let stems = song.stems, model.settings.withoutDrums { return model.url(stems.noDrumsUri) }
+        return model.url(song.uri)
+    }
+
+    func setPlayWithoutDrums(_ on: Bool) async {
+        guard !isRunning else { return }
+        model.updateSettings { $0.playWithoutDrums = on }
+        // Swap what the engine plays; start point and loop stay as they are.
+        guard let url = backingURL else { return }
+        do {
+            duration = try await audio.loadSong(at: url)
+        } catch {
+            self.error = "Could not load the backing track: \(error.localizedDescription)"
+        }
+    }
     var settings: Settings { model.settings }
     var isRunning: Bool { mode == .playing || mode == .recording }
     var isBusy: Bool { mode != .idle }
@@ -78,7 +101,7 @@ final class RecordSession {
         }
         do {
             try await audio.prepare()
-            let d = try await audio.loadSong(at: model.url(song.uri))
+            let d = try await audio.loadSong(at: backingURL ?? model.url(song.uri))
             duration = d
             // Local imports arrive without a duration; fill it from the decode.
             if song.durationSec == nil { model.updateSong(songId) { $0.durationSec = d } }
@@ -137,6 +160,7 @@ final class RecordSession {
         let from = loopOn ? loopStart : startSec
         position = from
         mode = .loading
+        model.noteActivity("\(record ? "recording" : "playing") “\(song.title)”\(record && cameraOn ? " with the camera" : "")")
 
         // Started first: cameras are slow to roll.
         if record && cameraOn {
@@ -150,7 +174,7 @@ final class RecordSession {
 
         let request = TransportRequest(
             songId: song.id,
-            songURL: model.url(song.uri),
+            songURL: backingURL ?? model.url(song.uri),
             startSec: from,
             loop: loopOn ? LoopRegion(start: loopStart, end: loopEnd) : nil,
             countIn: model.settings.countIn ? CountIn(bpm: bpm, beats: 4) : nil,
@@ -164,6 +188,7 @@ final class RecordSession {
             mode = record ? .recording : .playing
         } catch {
             mode = .idle
+            model.noteActivity(nil)
             self.error = error.localizedDescription
             await discardClip()
         }
@@ -173,6 +198,8 @@ final class RecordSession {
         guard isRunning else { return }
         let wasRecording = mode == .recording
         mode = .idle
+        model.noteActivity(wasRecording ? "saving a take" : nil)
+        defer { model.noteActivity(nil) }
         let timing = audio.transportTiming()
         do {
             let recorded = try await audio.stop()
