@@ -6,6 +6,10 @@ import SwiftUI
 struct LumberApp: App {
     @State private var model = AppModel(services: Services.live())
 
+    init() {
+        CrashReports.shared.start()
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()
@@ -45,11 +49,13 @@ struct RootView: View {
         .tint(Theme.accent)
         .preferredColorScheme(.dark)
         .task {
+            model.checkLastSession()
             await model.load()
             if CommandLine.arguments.contains(DemoContent.launchArgument) { try? model.seedDemoIfEmpty() }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active { model.saveNow() }
+            model.markSession(foreground: phase == .active)
         }
     }
 }

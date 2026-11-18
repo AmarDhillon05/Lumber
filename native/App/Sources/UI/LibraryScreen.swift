@@ -13,6 +13,10 @@ struct LibraryScreen: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 12) {
+                if let notice = model.crashNotice {
+                    CrashNoticeCard(notice: notice) { model.dismissCrashNotice() }
+                }
+
                 NavigationLink(value: Route.recordings(openId: nil)) {
                     RecordingsEntry(count: model.recordings.count)
                 }
@@ -343,5 +347,47 @@ private struct SongRow: View {
             .compactMap { $0 }
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
+    }
+}
+
+// MARK: - Crash notice
+
+/// Shown after the app died in the foreground: what it was doing, and the
+/// iOS crash report (when there is one) to share.
+private struct CrashNoticeCard: View {
+    let notice: String
+    let onDismiss: () -> Void
+    @State private var reports = CrashReports.saved()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                Label("Lumber crashed", systemImage: "exclamationmark.triangle.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.warning)
+                Spacer()
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark").foregroundStyle(Theme.textMuted)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Dismiss")
+            }
+            Text(notice)
+                .font(.footnote)
+                .foregroundStyle(Theme.textSoft)
+                .fixedSize(horizontal: false, vertical: true)
+            if let report = reports.first {
+                ShareLink(item: report) {
+                    Label("Share crash report", systemImage: "square.and.arrow.up")
+                }
+                .lumberButton(small: true)
+            } else {
+                HintText("iOS usually delivers the full crash report on a later launch; it'll appear here to share.")
+            }
+        }
+        .padding(12)
+        .background(Theme.warning.opacity(0.08), in: RoundedRectangle(cornerRadius: Theme.radius))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.warning.opacity(0.5), lineWidth: 1))
+        .onAppear { reports = CrashReports.saved() }
     }
 }

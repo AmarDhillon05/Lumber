@@ -341,6 +341,40 @@ func XCTUnwrapLike<T>(_ v: T?) throws -> T {
     return v
 }
 
+// MARK: - Crash notice
+
+await testAsync("crash notice: dying in the foreground is reported with what the app was doing") {
+    let suite = "lumber-tests-\(UUID().uuidString)"
+    guard let defaults = UserDefaults(suiteName: suite) else { return check(false, "no defaults suite") }
+    defer { defaults.removePersistentDomain(forName: suite) }
+    let docs = tempDir()
+
+    // First launch: nothing to report.
+    let first = AppModel(services: .mock(), files: DocumentStore(documents: docs), defaults: defaults)
+    first.checkLastSession()
+    check(first.crashNotice == nil, "fresh install has no notice")
+    first.noteActivity("removing the drums from “Song”")
+    // ...and the app dies here (no background marker).
+
+    let second = AppModel(services: .mock(), files: DocumentStore(documents: docs), defaults: defaults)
+    second.checkLastSession()
+    check(second.crashNotice?.contains("removing the drums from “Song”") == true,
+          "notice names the activity: \(second.crashNotice ?? "nil")")
+    second.dismissCrashNotice()
+    check(second.crashNotice == nil, "dismiss clears it")
+
+    // Going to the background, then being killed there, is normal.
+    second.markSession(foreground: false)
+    let third = AppModel(services: .mock(), files: DocumentStore(documents: docs), defaults: defaults)
+    third.checkLastSession()
+    check(third.crashNotice == nil, "a background kill isn't a crash")
+
+    // Finishing an activity goes back to idle.
+    third.noteActivity("exporting WAV")
+    third.noteActivity(nil)
+    check(third.currentActivity == AppModel.idleActivity, "idle after the activity ends")
+}
+
 // MARK: - Done
 
 print(failures == 0 ? "\nAll \(checks) checks passed." : "\n\(failures) of \(checks) checks FAILED.")

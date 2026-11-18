@@ -137,6 +137,7 @@ final class RecordSession {
         let from = loopOn ? loopStart : startSec
         position = from
         mode = .loading
+        model.noteActivity("\(record ? "recording" : "playing") “\(song.title)”\(record && cameraOn ? " with the camera" : "")")
 
         // Started first: cameras are slow to roll.
         if record && cameraOn {
@@ -164,6 +165,7 @@ final class RecordSession {
             mode = record ? .recording : .playing
         } catch {
             mode = .idle
+            model.noteActivity(nil)
             self.error = error.localizedDescription
             await discardClip()
         }
@@ -173,6 +175,8 @@ final class RecordSession {
         guard isRunning else { return }
         let wasRecording = mode == .recording
         mode = .idle
+        model.noteActivity(wasRecording ? "saving a take" : nil)
+        defer { model.noteActivity(nil) }
         let timing = audio.transportTiming()
         do {
             let recorded = try await audio.stop()
