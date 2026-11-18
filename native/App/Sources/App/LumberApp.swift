@@ -9,11 +9,6 @@ struct LumberApp: App {
 
     init() {
         CrashReports.shared.start()
-        // Screen titles in the heading font (Bricolage Grotesque Bold).
-        if let font = UIFont(name: Theme.headingFontName, size: 18) {
-            let bar = UINavigationBar.appearance()
-            bar.titleTextAttributes = [.font: font, .foregroundColor: UIColor(Theme.text)]
-        }
     }
 
     var body: some Scene {
@@ -56,6 +51,9 @@ struct RootView: View {
         .preferredColorScheme(.dark)
         .task {
             model.checkLastSession()
+            // Demo/UI-test launches: the test runner ends the previous launch
+            // while it's on screen, which isn't a crash.
+            if CommandLine.arguments.contains(DemoContent.launchArgument) { model.dismissCrashNotice() }
             await model.load()
             if CommandLine.arguments.contains(DemoContent.launchArgument) { try? model.seedDemoIfEmpty() }
         }

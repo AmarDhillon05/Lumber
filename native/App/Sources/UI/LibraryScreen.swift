@@ -46,7 +46,7 @@ struct LibraryScreen: View {
             .padding(.bottom, 32)
         }
         .scrollDismissesKeyboard(.interactively)
-        .lumberScreen("Lumber")
+        .lumberScreen("Lumber", drawTitle: false)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 8) {

@@ -221,11 +221,25 @@ struct Chip: View {
 
 extension View {
     /// Dark background and navigation bar for a screen.
-    func lumberScreen(_ title: String) -> some View {
+    /// Screen chrome. The title is drawn in the heading font (SwiftUI ignores
+    /// UINavigationBar's appearance font); `drawTitle: false` when the screen
+    /// puts its own view there (the Library's wordmark).
+    func lumberScreen(_ title: String, drawTitle: Bool = true) -> some View {
         self
             .background(Theme.surface.ignoresSafeArea())
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if drawTitle {
+                    ToolbarItem(placement: .principal) {
+                        Text(title)
+                            .font(Theme.heading(18))
+                            .foregroundStyle(Theme.text)
+                            .lineLimit(1)
+                            .accessibilityAddTraits(.isHeader)
+                    }
+                }
+            }
             .toolbarBackground(Theme.surface, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
