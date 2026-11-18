@@ -93,6 +93,10 @@ targets:
           - audio
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
+        # Bricolage Grotesque (SIL OFL 1.1, App/Resources/Fonts/OFL.txt): wordmark and headings.
+        UIAppFonts:
+          - BricolageGrotesque-ExtraBold.ttf
+          - BricolageGrotesque-Bold.ttf
         NSMicrophoneUsageDescription: Lumber records your drums while the song plays.
         NSCameraUsageDescription: Lumber films you drumming while you record a take.
         NSPhotoLibraryAddUsageDescription: Lumber saves your drum videos to Photos when you tap Save to Photos.

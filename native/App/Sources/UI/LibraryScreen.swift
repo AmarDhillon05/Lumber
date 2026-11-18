@@ -26,7 +26,7 @@ struct LibraryScreen: View {
                 AddSongSection(onImport: { importing = true })
 
                 Text("Your songs")
-                    .font(.title3.bold())
+                    .font(Theme.heading(23, relativeTo: .title3))
                     .foregroundStyle(Theme.text)
                     .padding(.top, 10)
                 if model.songs.isEmpty {
@@ -49,13 +49,14 @@ struct LibraryScreen: View {
         .lumberScreen("Lumber")
         .toolbar {
             ToolbarItem(placement: .principal) {
-                HStack(spacing: 7) {
+                HStack(spacing: 8) {
                     Image("Logo")
                         .resizable()
-                        .frame(width: 24, height: 24)
-                    Text("Lumber")
-                        .font(.system(.title3, design: .rounded).weight(.heavy))
-                        .foregroundStyle(Theme.text)
+                        .frame(width: 26, height: 26)
+                    Text("lumber")
+                        .font(Theme.wordmark())
+                        .kerning(-0.4)
+                        .foregroundStyle(Theme.cream)
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Lumber")
@@ -94,7 +95,7 @@ private struct RecordingsEntry: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Recordings")
-                    .font(.headline)
+                    .font(Theme.heading())
                     .foregroundStyle(Theme.text)
                 Text(count > 0 ? "\(count) saved · videos, mixes and takes" : "Your saved videos, mixes and takes")
                     .font(.caption)

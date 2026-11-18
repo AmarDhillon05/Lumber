@@ -18,7 +18,7 @@ struct CardSection<Content: View>: View {
         VStack(alignment: .leading, spacing: 10) {
             if let title {
                 Text(title)
-                    .font(.headline)
+                    .font(Theme.heading())
                     .foregroundStyle(Theme.text)
             }
             content
@@ -268,7 +268,7 @@ struct CollapsibleCard<Content: View>: View {
             } label: {
                 HStack(spacing: 8) {
                     Text(title)
-                        .font(.headline)
+                        .font(Theme.heading())
                         .foregroundStyle(Theme.text)
                     Spacer()
                     if let status {
@@ -302,7 +302,8 @@ struct ArtworkTile: View {
     let url: String?
     var size: CGFloat = 48
 
-    private static let palette: [Color] = [Theme.accent, Theme.blue, Color(hex: 0x6D28D9), Color(hex: 0x2563EB), Color(hex: 0x7C3AED), Color(hex: 0x0EA5E9)]
+    // Muted, wood-and-ink tones (no bright gradients); the letter is cream.
+    private static let palette: [Color] = [Theme.plum, Color(hex: 0x2E3A4F), Color(hex: 0x4A3B2E), Color(hex: 0x33403A), Color(hex: 0x4B2F45), Color(hex: 0x2F2F45)]
 
     var body: some View {
         ZStack {
@@ -322,10 +323,11 @@ struct ArtworkTile: View {
         let seed = title.unicodeScalars.reduce(UInt32(0)) { $0 &* 31 &+ $1.value }
         let base = Self.palette[Int(seed % UInt32(Self.palette.count))]
         return ZStack {
-            LinearGradient(colors: [base, base.opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing)
-            Text(String(title.trimmingCharacters(in: .whitespaces).prefix(1)).uppercased())
-                .font(.system(size: size * 0.42, weight: .bold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.92))
+            base
+            Text(String(title.trimmingCharacters(in: .whitespaces).prefix(1)).lowercased())
+                .font(.custom(Theme.displayFontName, size: size * 0.5))
+                .foregroundStyle(Theme.cream)
+                .offset(y: -size * 0.03)
         }
     }
 }
