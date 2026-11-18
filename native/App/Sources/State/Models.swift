@@ -120,6 +120,10 @@ struct Settings: Codable, Hashable, Sendable {
     var latencyNudgeMs: Double // manual global nudge on top
     var bpm: Double
     var countIn: Bool
+    /// Record plays the drumless stem when the song has one. nil = on.
+    var playWithoutDrums: Bool?
+
+    var withoutDrums: Bool { playWithoutDrums ?? true }
 
     static let defaults = Settings(latencyByRoute: [:], latencyNudgeMs: 0, bpm: 120, countIn: true)
 }
@@ -325,6 +329,7 @@ extension Settings {
         latencyNudgeMs = c.value(.latencyNudgeMs, default: d.latencyNudgeMs)
         bpm = c.value(.bpm, default: d.bpm)
         countIn = c.value(.countIn, default: d.countIn)
+        playWithoutDrums = c.optional(.playWithoutDrums)
     }
 }
 

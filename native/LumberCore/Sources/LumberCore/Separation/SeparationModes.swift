@@ -4,9 +4,13 @@
 // A hard crash (iOS killing the app for memory) can't be caught, so the app
 // leaves a breadcrumb while it works. If the next launch finds a breadcrumb
 // that never got cleared, that run died, and the next run uses a safer mode:
-//   coreml   — Core ML (Neural Engine/GPU) with CPU fallback. Fastest.
-//   cpu      — ONNX Runtime CPU only, 2 threads.
-//   cpuSlow  — CPU, 1 thread, short pause between chunks. Slowest, lightest.
+//   coreml     — Core ML on every unit incl. the Neural Engine. Fastest, but
+//                compiling the model for the Neural Engine takes the most
+//                memory. Opt-in ("Fast drum removal").
+//   coremlGPU  — Core ML on GPU + CPU only. The default: still fast, without
+//                the Neural Engine compile.
+//   cpu        — ONNX Runtime CPU only, 2 threads.
+//   cpuSlow    — CPU, 1 thread, short pause between chunks. Slowest, lightest.
 // Every mode turns off ONNX Runtime's memory arena (with it on, a CPU run kept
 // ~5 GB after two 7.8 s chunks).
 
@@ -14,12 +18,17 @@ import Foundation
 
 public enum SeparationMode: String, Codable, Sendable, CaseIterable {
     case coreml
+    case coremlGPU = "coreml-gpu"
     case cpu
     case cpuSlow = "cpu-slow"
 
+    /// Where a run starts unless the user opts into the Neural Engine.
+    public static let standard: SeparationMode = .coremlGPU
+
     public var label: String {
         switch self {
-        case .coreml: "Core ML"
+        case .coreml: "Neural Engine"
+        case .coremlGPU: "GPU"
         case .cpu: "CPU"
         case .cpuSlow: "safe mode (slow)"
         }
@@ -28,7 +37,8 @@ public enum SeparationMode: String, Codable, Sendable, CaseIterable {
     /// What the app's ONNX Runtime session should use in this mode.
     public var sessionConfig: SeparationSessionConfig {
         switch self {
-        case .coreml: SeparationSessionConfig(useCoreML: true, intraOpThreads: 0, basicOptimization: false)
+        case .coreml: SeparationSessionConfig(useCoreML: true, coreMLComputeUnits: "ALL", intraOpThreads: 0, basicOptimization: false)
+        case .coremlGPU: SeparationSessionConfig(useCoreML: true, coreMLComputeUnits: "CPUAndGPU", intraOpThreads: 0, basicOptimization: false)
         case .cpu: SeparationSessionConfig(useCoreML: false, intraOpThreads: 2, basicOptimization: true)
         case .cpuSlow: SeparationSessionConfig(useCoreML: false, intraOpThreads: 1, basicOptimization: true)
         }
@@ -39,6 +49,8 @@ public enum SeparationMode: String, Codable, Sendable, CaseIterable {
 
 public struct SeparationSessionConfig: Sendable, Equatable {
     public var useCoreML: Bool
+    /// Core ML `MLComputeUnits` ("ALL", "CPUAndGPU"); nil without Core ML.
+    public var coreMLComputeUnits: String? = nil
     /// 0 = ONNX Runtime default.
     public var intraOpThreads: Int
     public var basicOptimization: Bool
@@ -54,6 +66,8 @@ public struct SeparationBreadcrumb: Codable, Sendable, Equatable {
     public var chunk: Int?
     public var total: Int?
     public var startedAt: Date
+    /// The app's memory footprint when the breadcrumb was written (MB).
+    public var footprintMB: Int?
 
     public init(mode: SeparationMode, stage: Stage, chunk: Int? = nil, total: Int? = nil, startedAt: Date = Date()) {
         self.mode = mode
@@ -65,10 +79,10 @@ public struct SeparationBreadcrumb: Codable, Sendable, Equatable {
 }
 
 public struct SeparationModeState: Codable, Sendable, Equatable {
-    public var mode: SeparationMode = .coreml
+    public var mode: SeparationMode = .standard
     public var inProgress: SeparationBreadcrumb?
     public var lastCrash: SeparationBreadcrumb?
-    public init(mode: SeparationMode = .coreml, inProgress: SeparationBreadcrumb? = nil, lastCrash: SeparationBreadcrumb? = nil) {
+    public init(mode: SeparationMode = .standard, inProgress: SeparationBreadcrumb? = nil, lastCrash: SeparationBreadcrumb? = nil) {
         self.mode = mode
         self.inProgress = inProgress
         self.lastCrash = lastCrash
@@ -94,5 +108,6 @@ public func separationCrashMessage(_ crash: SeparationBreadcrumb, next: Separati
     } else {
         where_ = "while decoding the song"
     }
-    return "Last drum removal crashed \(where_) using \(crash.mode.label). Retrying with \(next.label)."
+    let memory = crash.footprintMB.map { " (memory in use: \($0) MB)" } ?? ""
+    return "Last drum removal crashed \(where_) using \(crash.mode.label)\(memory). Retrying with \(next.label)."
 }

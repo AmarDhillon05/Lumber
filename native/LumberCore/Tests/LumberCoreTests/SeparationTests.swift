@@ -128,8 +128,13 @@ final class SeparationTests: XCTestCase {
     func testCrashModesStepDown() {
         let crumb = SeparationBreadcrumb(mode: .coreml, stage: .run, chunk: 3, total: 31)
         let once = SeparationModeState(mode: .coreml, inProgress: crumb).recoveringFromCrash()
-        XCTAssertEqual(once.state.mode, .cpu)
+        XCTAssertEqual(once.state.mode, .coremlGPU, "Neural Engine crash → GPU")
         XCTAssertNil(once.state.inProgress)
+        var g = crumb; g.mode = .coremlGPU
+        XCTAssertEqual(SeparationModeState(mode: .coremlGPU, inProgress: g).recoveringFromCrash().state.mode, .cpu)
+        XCTAssertEqual(SeparationModeState().mode, .coremlGPU, "default skips the Neural Engine")
+        XCTAssertEqual(SeparationMode.coremlGPU.sessionConfig.coreMLComputeUnits, "CPUAndGPU")
+        XCTAssertEqual(SeparationMode.coreml.sessionConfig.coreMLComputeUnits, "ALL")
         XCTAssertEqual(once.state.lastCrash?.chunk, 3)
         var c2 = crumb; c2.mode = .cpu
         XCTAssertEqual(SeparationModeState(mode: .cpu, inProgress: c2).recoveringFromCrash().state.mode, .cpuSlow)

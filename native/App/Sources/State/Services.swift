@@ -293,6 +293,9 @@ protocol SeparationService: AnyObject, Sendable {
     func cachedResult(forSong songURL: URL) -> SeparationOutput?
     /// A message when the previous run crashed the app (the next run steps down).
     func checkForCrash() -> String?
+    /// "Fast drum removal" (Neural Engine). Off = GPU, which needs less memory.
+    var fastMode: Bool { get }
+    func setFastMode(_ on: Bool)
     /// Writes the stems into `directory`.
     func separateDrums(songURL: URL, into directory: URL, progress: @escaping ProgressHandler) async throws -> SeparationOutput
 }

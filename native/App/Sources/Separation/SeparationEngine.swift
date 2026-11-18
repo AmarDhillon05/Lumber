@@ -39,7 +39,9 @@ final class SeparationEngine: @unchecked Sendable {
     private var modelsDir: URL { documents.appendingPathComponent("lumber/models", isDirectory: true) }
     private var modelFile: URL { modelsDir.appendingPathComponent(Self.modelFileName) }
     private var modelDone: URL { modelsDir.appendingPathComponent(Self.modelFileName + ".done") }
-    private var stateFile: URL { modelsDir.appendingPathComponent("separation-state.json") }
+    // v2: the default moved from the Neural Engine to the GPU; older saved
+    // states (mode "coreml") start over at the new default.
+    private var stateFile: URL { modelsDir.appendingPathComponent("separation-state-v2.json") }
     private func stemsDir(_ key: String) -> URL { documents.appendingPathComponent("lumber/stems/\(key)", isDirectory: true) }
 
     // MARK: Crash breadcrumbs
@@ -65,6 +67,30 @@ final class SeparationEngine: @unchecked Sendable {
     }
 
     func currentModeLabel() -> String { readState().mode.label }
+
+    /// "Fast drum removal": start on the Neural Engine instead of the GPU.
+    /// Switching resets any crash step-down.
+    var fastMode: Bool { readState().mode == .coreml }
+
+    func setFastMode(_ on: Bool) {
+        var s = readState()
+        s.mode = on ? .coreml : .standard
+        s.inProgress = nil
+        s.lastCrash = nil
+        writeState(s)
+    }
+
+    /// The app's physical memory footprint (what iOS kills apps for), MB.
+    static func footprintMB() -> Int? {
+        var info = task_vm_info_data_t()
+        var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<integer_t>.size)
+        let kr = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
+                task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count)
+            }
+        }
+        return kr == KERN_SUCCESS ? Int(info.phys_footprint / 1_048_576) : nil
+    }
 
     /// Simulator tests: run on CPU (the simulator has no Neural Engine; CPU is
     /// also the mode a phone falls back to after a crash).
@@ -107,7 +133,9 @@ final class SeparationEngine: @unchecked Sendable {
         var state = readState()
         let mode = state.mode
         func crumb(_ stage: SeparationBreadcrumb.Stage, chunk: Int? = nil, total: Int? = nil) {
-            state.inProgress = SeparationBreadcrumb(mode: mode, stage: stage, chunk: chunk, total: total)
+            var crumb = SeparationBreadcrumb(mode: mode, stage: stage, chunk: chunk, total: total)
+            crumb.footprintMB = SeparationEngine.footprintMB()
+            state.inProgress = crumb
             writeState(state)
         }
         defer {

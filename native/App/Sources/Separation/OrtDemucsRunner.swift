@@ -31,10 +31,13 @@ final class OrtDemucsRunner: DemucsRunner, @unchecked Sendable {
         }
         try options.setGraphOptimizationLevel(config.basicOptimization ? ORTGraphOptimizationLevel.basic : ORTGraphOptimizationLevel.all)
         if config.useCoreML {
-            let coreml = ORTCoreMLExecutionProviderOptions()
-            coreml.createMLProgram = true
-            coreml.onlyAllowStaticInputShapes = true
-            try options.appendCoreMLExecutionProvider(with: coreml)
+            // "CPUAndGPU" skips the Neural Engine, whose model compile is the
+            // biggest memory spike; "ALL" lets Core ML use it.
+            try options.appendCoreMLExecutionProvider(withOptionsV2: [
+                "MLComputeUnits": config.coreMLComputeUnits ?? "ALL",
+                "ModelFormat": "MLProgram",
+                "RequireStaticInputShapes": "1",
+            ])
         }
         session = try ORTSession(env: env, modelPath: modelPath, sessionOptions: options)
         runOptions = try ORTRunOptions()

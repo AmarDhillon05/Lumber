@@ -8,6 +8,7 @@ import UniformTypeIdentifiers
 struct LibraryScreen: View {
     @Environment(AppModel.self) private var model
     @State private var importing = false
+    @State private var showSettings = false
     @State private var importError: String?
 
     var body: some View {
@@ -59,7 +60,14 @@ struct LibraryScreen: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Lumber")
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape").foregroundStyle(Theme.textMuted)
+                }
+                .accessibilityLabel("Settings")
+            }
         }
+        .sheet(isPresented: $showSettings) { SettingsSheet() }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.audio]) { result in
             switch result {
             case .success(let url):
@@ -389,5 +397,60 @@ private struct CrashNoticeCard: View {
         .background(Theme.warning.opacity(0.08), in: RoundedRectangle(cornerRadius: Theme.radius))
         .overlay(RoundedRectangle(cornerRadius: Theme.radius).stroke(Theme.warning.opacity(0.5), lineWidth: 1))
         .onAppear { reports = CrashReports.saved() }
+    }
+}
+
+// MARK: - Settings
+
+private struct SettingsSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    @State private var fast = false
+    @State private var modeLabel = ""
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    CardSection("Drum removal") {
+                        Toggle("Fast mode (Neural Engine)", isOn: Binding(
+                            get: { fast },
+                            set: { on in
+                                fast = on
+                                model.services.separation.setFastMode(on)
+                                modeLabel = model.services.separation.modeLabel
+                            }
+                        ))
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.textSoft)
+                        .tint(Theme.accent)
+                        HintText("Off (recommended): runs on the GPU, which needs less memory. On: also uses the Neural Engine. It can be faster, but preparing the model for it takes a lot of memory and can crash the app. If a run crashes, the next one automatically uses a lighter mode.")
+                        HintText("Next run uses: \(modeLabel)")
+                    }
+                    CardSection("Recording") {
+                        Toggle("Play songs without their original drums", isOn: Binding(
+                            get: { model.settings.withoutDrums },
+                            set: { on in model.updateSettings { $0.playWithoutDrums = on } }
+                        ))
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.textSoft)
+                        .tint(Theme.accent)
+                        HintText("Only for songs you've run Remove drums on. Also on the Record screen.")
+                    }
+                    HintText(BuildInfo.label)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 8)
+                }
+                .padding(Theme.gutter)
+            }
+            .lumberScreen("Settings")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
+            }
+        }
+        .onAppear {
+            fast = model.services.separation.fastMode
+            modeLabel = model.services.separation.modeLabel
+        }
     }
 }

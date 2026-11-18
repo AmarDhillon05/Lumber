@@ -263,6 +263,8 @@ final class MockSeparationService: SeparationService {
     var modeLabel: String { "mock" }
     func cachedResult(forSong songURL: URL) -> SeparationOutput? { nil }
     func checkForCrash() -> String? { nil }
+    var fastMode = false
+    func setFastMode(_ on: Bool) { fastMode = on }
 
     func separateDrums(songURL: URL, into directory: URL, progress: @escaping ProgressHandler) async throws -> SeparationOutput {
         for step in 1...10 {
